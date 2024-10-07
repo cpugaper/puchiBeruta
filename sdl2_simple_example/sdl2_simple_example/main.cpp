@@ -3,11 +3,7 @@
 #include <thread>
 #include <exception>
 #include <glm/glm.hpp>
-#include <SDL2/SDL_events.h>
 #include "MyWindow.h"
-#include "imgui.h"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_opengl3.h"
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -33,12 +29,6 @@ static void draw_triangle(const u8vec4& color, const vec3& center, double size) 
 	glVertex3d(center.x - size, center.y - size, center.z);
 	glVertex3d(center.x + size, center.y - size, center.z);
 	glEnd();
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
-	ImGui::NewFrame();
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 }
 
 static void display_func() {
@@ -46,28 +36,12 @@ static void display_func() {
 	draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
 }
 
-static bool processEvents() {
-	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
-		case SDL_QUIT:
-			return false;
-			break;
-		default:
-			ImGui_ImplSDL2_ProcessEvent(&event);
-			break;
-		}
-
-	}
-	return true;
-}
-
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 
 	init_openGL();
 
-	while (processEvents()) {
+	while(window.processEvents() && window.isOpen()) {
 		const auto t0 = hrclock::now();
 		display_func();
 		window.swapBuffers();
