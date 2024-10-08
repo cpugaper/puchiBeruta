@@ -363,4 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Installed packages
-/vcpkg_installed
+#/vcpkg_installed
+#!/vcpkg_installed/imgui/
