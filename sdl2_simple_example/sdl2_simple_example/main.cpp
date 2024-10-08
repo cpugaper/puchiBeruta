@@ -27,21 +27,12 @@ static void init_openGL() {
 }
 
 static void draw_triangle(const u8vec4& color, const vec3& center, double size) {
-	//glColor4ub(color.r, color.g, color.b, color.a);
-	//glBegin(GL_TRIANGLES);
-	//glVertex3d(center.x, center.y + size, center.z);
-	//glVertex3d(center.x - size, center.y - size, center.z);
-	//glVertex3d(center.x + size, center.y - size, center.z);
-	//glEnd();
-
-	//// Dibuixar una línea 10 unitats amunt
-	glLineWidth(2.0f);
-	glBegin(GL_LINES);
-	glVertex3f(0.f, 0.f, 0.f);
-	glVertex3f(0.f, 10.f, 0.f);
+	glColor4ub(color.r, color.g, color.b, color.a);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x, center.y + size, center.z);
+	glVertex3d(center.x - size, center.y - size, center.z);
+	glVertex3d(center.x + size, center.y - size, center.z);
 	glEnd();
-
-	glRotatef(0.1f, 1.0f, 1.0f, 0.0f);
 
 }
 

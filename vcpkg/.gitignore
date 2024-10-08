@@ -287,7 +287,6 @@ __pycache__/
 /downloads/
 /installed*/
 /vcpkg_installed*/
-!/vcpkg_installed/imgui/
 /packages/
 /scripts/buildsystems/tmp/
 #ignore custom triplets
