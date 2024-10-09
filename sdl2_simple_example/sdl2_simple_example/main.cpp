@@ -36,9 +36,100 @@ static void draw_triangle(const u8vec4& color, const vec3& center, double size) 
 
 }
 
+static void draw_cube(const vec3& center, double size)
+{
+	//CARA frontal
+	glColor4ub(176, 196, 222, 255);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y - size, center.z); // V1
+	glVertex3d(center.x + size, center.y - size, center.z); // V2
+	glVertex3d(center.x - size, center.y + size, center.z); // V3
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x + size, center.y - size, center.z); // V2
+	glVertex3d(center.x + size, center.y + size, center.z); // V4
+	glVertex3d(center.x - size, center.y + size, center.z); // V3
+	glEnd();
+
+	////CARA trasera
+	glColor4ub(176, 224, 230, 255);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
+	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
+	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
+	glVertex3d(center.x + size, center.y + size, center.z - size * 2); // V8
+	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
+	glEnd();
+
+	////CARA derecha
+	glColor4ub(173, 216, 230, 255);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x + size, center.y + size, center.z); // V4
+	glVertex3d(center.x + size, center.y - size, center.z); // V2
+	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x + size, center.y + size, center.z - size * 2); // V8
+	glVertex3d(center.x + size, center.y + size, center.z); // V4
+	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
+	glEnd();
+
+	////CARA izquierda
+	glColor4ub(135, 206, 235, 255);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y + size, center.z); // V3
+	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
+	glVertex3d(center.x - size, center.y - size, center.z); // V1
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y + size, center.z); // V3
+	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
+	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
+	glEnd();
+
+	////CARA superior
+	glColor4ub(135, 206, 250, 255);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y + size, center.z); // V3
+	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
+	glVertex3d(center.x + size, center.y + size, center.z); // V4
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
+	glVertex3d(center.x + size, center.y + size, center.z); // V4
+	glVertex3d(center.x + size, center.y + size, center.z - size * 2); // V8
+	glEnd();
+
+	////CARA inferior
+	glColor4ub(0, 191, 255, 255);
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
+	glVertex3d(center.x - size, center.y - size, center.z); // V1
+	glVertex3d(center.x + size, center.y - size, center.z); // V2
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
+	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
+	glVertex3d(center.x + size, center.y - size, center.z); // V2
+	glEnd();
+
+
+	glRotatef(0.5f, 1.0f, 1.0f, 0.0f);
+}
+
 static void display_func() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
+	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
+	draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
 }
 
 static bool processEvents() {
