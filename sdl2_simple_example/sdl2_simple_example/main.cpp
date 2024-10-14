@@ -8,6 +8,10 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -129,7 +133,7 @@ static void draw_cube(const vec3& center, double size)
 static void display_func() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-	draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
+	//draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
 }
 
 static bool processEvents() {
@@ -146,6 +150,44 @@ static bool processEvents() {
 	}
 	return true;
 }
+struct Mesh
+{
+	vector<GLfloat> vertices;
+	vector<GLuint> indices;
+};
+
+vector<Mesh> meshes;
+
+void loadFBX(const char* filePath) {
+	const struct aiScene* scene = aiImportFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!scene) {
+		fprintf(stderr, "Error al cargar el fichero: %s\n", aiGetErrorString());
+	}
+
+	// Procesar las mallas
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+		const aiMesh* mesh = scene->mMeshes[i];
+
+		/*Mesh mesh;*/
+
+		//// Cargar los vértices
+		//for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
+		//	aiVector3D vertex = mesh->mVertices[v];
+		//	mesh->vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
+		//}
+
+		//// Cargar los índices
+		//for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
+		//	aiFace face = mesh->mFaces[f];
+		//	for (unsigned int j = 0; j < face.mNumIndices; j++) {
+		//		mesh.indices.push_back(face.mIndices[j]);
+		//	}
+		//}
+	}
+
+	aiReleaseImport(scene);
+}
+
 
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
@@ -160,6 +202,40 @@ int main(int argc, char** argv) {
 		const auto dt = t1 - t0;
 		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
+	
+	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/cube.fbx"; // Ruta del fitxer a carregar
+	const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
+	loadFBX(file); 
+	if (!scene) {
+		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
+		return -1;
+	}
+	printf("Numero de malles: %u\n", scene->mNumMeshes);
+
+	//for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+	//	aiMesh* mesh = scene->mMeshes[i];
+	//	printf("\nMalla %u:\n", i);
+	//	printf(" Numero de vertexs: %u\n", mesh->mNumVertices);
+	//	printf(" Numero de triangles: %u\n", mesh->mNumFaces);
+	//	// Vèrtexs
+	//	for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
+	//		aiVector3D vertex = mesh->mVertices[v];
+	//		printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
+	//	}
+	//	// Índexs de triangles (3 per triangle)
+	//	for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
+
+	//		aiFace face = mesh->mFaces[f];
+	//		printf(" Indexs triangle %u: ", f);
+
+	//		for (unsigned int j = 0; j < face.mNumIndices; j++) {
+	//			printf("%u ", face.mIndices[j]);
+	//		}
+
+	//		printf("\n");
+	//	}
+	//}
+	aiReleaseImport(scene);
 
 	return 0;
 }
