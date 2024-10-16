@@ -4,13 +4,15 @@
 #include <exception>
 #include <glm/glm.hpp>
 #include <SDL2/SDL_events.h>
+#include <iostream>
 #include "MyWindow.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-#include <assimp/cimport.h>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "assimp/Importer.hpp"
+#include "assimp/cimport.h"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 using namespace std;
 
@@ -23,11 +25,18 @@ static const ivec2 WINDOW_SIZE(512, 512);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
+GLdouble cameraX = 0.0f;
+GLdouble cameraY = 0.0f;
+GLdouble cameraZ = -100.0f;
+float cameraAngleY = 0.0f;
+float cameraAngleX = 0.0f;
+
 static void init_openGL() {
 	glewInit();
 	if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API is not available.");
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.5, 0.5, 0.5, 1.0);
+	glClearColor(0.5, 0.5, 0.5, 1.0);	
+	
 }
 
 static void draw_triangle(const u8vec4& color, const vec3& center, double size) {
@@ -130,11 +139,11 @@ static void draw_cube(const vec3& center, double size)
 	glRotatef(0.5f, 1.0f, 1.0f, 0.0f);
 }
 
-static void display_func() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-	//draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
-}
+//static void display_func() {
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
+//	//draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
+//}
 
 static bool processEvents() {
 	SDL_Event event;
@@ -150,6 +159,9 @@ static bool processEvents() {
 	}
 	return true;
 }
+
+	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/cube.fbx"; // Ruta del fitxer a carregar
+
 struct Mesh
 {
 	vector<GLfloat> vertices;
@@ -158,34 +170,73 @@ struct Mesh
 
 vector<Mesh> meshes;
 
-void loadFBX(const char* filePath) {
-	const struct aiScene* scene = aiImportFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
-	if (!scene) {
-		fprintf(stderr, "Error al cargar el fichero: %s\n", aiGetErrorString());
+void loadFBX(const char* filePath) 
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+	//Recorre las mallas
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+	{
+		const aiMesh* aimesh = scene->mMeshes[i];
+		//std::count << "Malla" << i << " cargada con " << aimesh->mNumVertices << "vértices. " << std::endl;
+
+		Mesh mesh;
+
+		//Almacenar vértices
+		for (unsigned int v = 0; v < aimesh->mNumVertices; v++)
+		{
+			mesh.vertices.push_back(aimesh->mVertices[v].x);
+			mesh.vertices.push_back(aimesh->mVertices[v].y);
+			mesh.vertices.push_back(aimesh->mVertices[v].z);
+		}
+
+		//Almecenar índices (caras)
+		for (unsigned int f = 0; f < aimesh->mNumFaces; f++)
+		{
+			const aiFace& face = aimesh->mFaces[f];
+			for (unsigned int j = 0; j < face.mNumIndices; j++)
+			{
+				mesh.indices.push_back(face.mIndices[j]);
+			}
+		}
+		meshes.push_back(mesh);
 	}
 
-	// Procesar las mallas
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-		const aiMesh* mesh = scene->mMeshes[i];
+	
+}
 
-		/*Mesh mesh;*/
+void render() 
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//// Cargar los vértices
-		//for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-		//	aiVector3D vertex = mesh->mVertices[v];
-		//	mesh->vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
-		//}
+	//Configurar la cámara
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);
 
-		//// Cargar los índices
-		//for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
-		//	aiFace face = mesh->mFaces[f];
-		//	for (unsigned int j = 0; j < face.mNumIndices; j++) {
-		//		mesh.indices.push_back(face.mIndices[j]);
-		//	}
-		//}
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
+	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
+
+	//Transofrmación del modelo
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, 0.0f);
+
+	for (const auto& mesh : meshes)
+	{
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
+
+		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
+		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
-	aiReleaseImport(scene);
+	glPopMatrix();
+	glFlush();
 }
 
 
@@ -196,21 +247,20 @@ int main(int argc, char** argv) {
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
-		display_func();
+		//display_func();
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
 		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
-	
-	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/cube.fbx"; // Ruta del fitxer a carregar
-	const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
+
+	//const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
 	loadFBX(file); 
-	if (!scene) {
-		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
-		return -1;
-	}
-	printf("Numero de malles: %u\n", scene->mNumMeshes);
+	//if (!scene) {
+	//	fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
+	//	return -1;
+	//}
+	//printf("Numero de malles: %u\n", scene->mNumMeshes);
 
 	//for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 	//	aiMesh* mesh = scene->mMeshes[i];
@@ -231,11 +281,10 @@ int main(int argc, char** argv) {
 	//		for (unsigned int j = 0; j < face.mNumIndices; j++) {
 	//			printf("%u ", face.mIndices[j]);
 	//		}
-
 	//		printf("\n");
 	//	}
 	//}
-	aiReleaseImport(scene);
+	//aiReleaseImport(scene);
 
 	return 0;
 }
