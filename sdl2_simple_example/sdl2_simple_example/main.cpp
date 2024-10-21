@@ -27,9 +27,11 @@ static const auto FRAME_DT = 1.0s / FPS;
 
 GLdouble cameraX = 0.0f;
 GLdouble cameraY = 0.0f;
-GLdouble cameraZ = -100.0f;
+GLdouble cameraZ = -5.0f;
 float cameraAngleY = 0.0f;
 float cameraAngleX = 0.0f;
+
+float rotationAngle = 0.0f; // Ángulo de rotación
 
 static void init_openGL() {
 	glewInit();
@@ -138,11 +140,12 @@ static void draw_cube(const vec3& center, double size)
 
 	glRotatef(0.5f, 1.0f, 1.0f, 0.0f);
 }
-
+//
 //static void display_func() {
 //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
 //	//draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
+//	render();
 //}
 
 static bool processEvents() {
@@ -159,8 +162,6 @@ static bool processEvents() {
 	}
 	return true;
 }
-
-	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/cube.fbx"; // Ruta del fitxer a carregar
 
 struct Mesh
 {
@@ -202,8 +203,6 @@ void loadFBX(const char* filePath)
 		}
 		meshes.push_back(mesh);
 	}
-
-	
 }
 
 void render() 
@@ -225,6 +224,7 @@ void render()
 	//Transofrmación del modelo
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.0f);
+	glRotatef(rotationAngle, 1.0f, 1.0f, 0.0f); // Rotar alrededor del eje Y
 
 	for (const auto& mesh : meshes)
 	{
@@ -244,47 +244,52 @@ int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 
 	init_openGL();
+	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/cube.fbx"; // Ruta del fitxer a carregar
+
+	loadFBX(file);
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
 		//display_func();
+		rotationAngle += 0.5f;
+		render();
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
 		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
 
-	//const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
-	loadFBX(file); 
-	//if (!scene) {
-	//	fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
-	//	return -1;
-	//}
-	//printf("Numero de malles: %u\n", scene->mNumMeshes);
+	const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
+	
+	if (!scene) {
+		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
+		return -1;
+	}
+	printf("Numero de malles: %u\n", scene->mNumMeshes);
 
-	//for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-	//	aiMesh* mesh = scene->mMeshes[i];
-	//	printf("\nMalla %u:\n", i);
-	//	printf(" Numero de vertexs: %u\n", mesh->mNumVertices);
-	//	printf(" Numero de triangles: %u\n", mesh->mNumFaces);
-	//	// Vèrtexs
-	//	for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-	//		aiVector3D vertex = mesh->mVertices[v];
-	//		printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
-	//	}
-	//	// Índexs de triangles (3 per triangle)
-	//	for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+		aiMesh* mesh = scene->mMeshes[i];
+		printf("\nMalla %u:\n", i);
+		printf(" Numero de vertexs: %u\n", mesh->mNumVertices);
+		printf(" Numero de triangles: %u\n", mesh->mNumFaces);
+		// Vèrtexs
+		for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
+			aiVector3D vertex = mesh->mVertices[v];
+			printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
+		}
+		// Índexs de triangles (3 per triangle)
+		for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
 
-	//		aiFace face = mesh->mFaces[f];
-	//		printf(" Indexs triangle %u: ", f);
+			aiFace face = mesh->mFaces[f];
+			printf(" Indexs triangle %u: ", f);
 
-	//		for (unsigned int j = 0; j < face.mNumIndices; j++) {
-	//			printf("%u ", face.mIndices[j]);
-	//		}
-	//		printf("\n");
-	//	}
-	//}
-	//aiReleaseImport(scene);
+			for (unsigned int j = 0; j < face.mNumIndices; j++) {
+				printf("%u ", face.mIndices[j]);
+			}
+			printf("\n");
+		}
+	}
+	aiReleaseImport(scene);
 
 	return 0;
 }
