@@ -13,6 +13,9 @@
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include <IL/il.h>
+#include <IL/ilu.h>
+#include <IL/ilut.h>
 
 using namespace std;
 
@@ -27,7 +30,7 @@ static const auto FRAME_DT = 1.0s / FPS;
 
 GLdouble cameraX = 0.0f;
 GLdouble cameraY = 0.0f;
-GLdouble cameraZ = -5.0f;
+GLdouble cameraZ = -10.0f;
 float cameraAngleY = 0.0f;
 float cameraAngleX = 0.0f;
 
@@ -167,6 +170,7 @@ struct Mesh
 {
 	vector<GLfloat> vertices;
 	vector<GLuint> indices;
+	vector<GLfloat> textCoords;
 };
 
 vector<Mesh> meshes;
@@ -202,12 +206,50 @@ void loadFBX(const char* filePath)
 			}
 		}
 		meshes.push_back(mesh);
+
+		//Almacenar textura
+		if(aimesh->mTextureCoords[0]) 
+		{
+			for (unsigned int v = 0; v < aimesh->mNumVertices; v++)
+			{
+				mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].x);
+				mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].y);
+			}
+		}
 	}
+}
+
+GLuint loadTexture(const char* filename)
+{
+	ILuint imageID;
+	ilGenImages(1, &imageID);
+	ilBindImage(imageID);
+
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE); // Convertir a formato RGBA
+
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
+		ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+		ilGetData());
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	ilDeleteImages(1, &imageID); // Limpiar la imagen de DevIL
+
+	return textureID;
 }
 
 void render() 
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	GLuint TextureID = loadTexture("C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png");
 
 	//Configurar la cámara
 	glMatrixMode(GL_PROJECTION);
@@ -226,6 +268,9 @@ void render()
 	glTranslatef(0.0f, 0.0f, 0.0f);
 	glRotatef(rotationAngle, 1.0f, 1.0f, 0.0f); // Rotar alrededor del eje Y
 
+	glBindTexture(GL_TEXTURE_2D, TextureID);
+
+
 	for (const auto& mesh : meshes)
 	{
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -239,14 +284,21 @@ void render()
 	glFlush();
 }
 
-
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 
 	init_openGL();
-	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/cube.fbx"; // Ruta del fitxer a carregar
 
+	ilInit();	
+	iluInit();	
+	ilutInit();	
+	ilutRenderer(ILUT_OPENGL);	
+
+	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/BakerHouse.fbx"; // Ruta del fitxer a carregar
 	loadFBX(file);
+
+	GLuint TextureID = loadTexture("C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png");
+
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
