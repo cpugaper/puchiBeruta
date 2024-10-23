@@ -39,6 +39,11 @@ float cameraAngleX = 0.0f;
 
 float rotationAngle = 0.0f;
 
+//bool isMouseDown = false;
+//int lastMouseX = 0;
+//int lastMouseY = 0;
+//const float sensitivity = 0.1f;
+
 static void init_openGL() {
 	glewInit();
 	if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API is not available.");
@@ -162,6 +167,37 @@ static bool processEvents() {
 		case SDL_QUIT:
 			return false;
 			break;
+	/*	case SDL_MOUSEBUTTONDOWN:
+			if (event.button.button == SDL_BUTTON_LEFT)
+			{
+				isMouseDown = true;
+				SDL_GetMouseState(&lastMouseX, &lastMouseY);
+			}
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button == SDL_BUTTON_LEFT)
+			{
+				isMouseDown = false;
+			}
+			break;
+		case SDL_MOUSEMOTION:
+			if (isMouseDown) {
+				int mouseX, mouseY;
+				SDL_GetMouseState(&mouseX, &mouseY);
+
+				int deltaX = mouseX - lastMouseX;
+				int deltaY = mouseY - lastMouseY;
+
+				cameraAngleY += deltaX * sensitivity;
+				cameraAngleX += deltaY * sensitivity;
+
+				if (cameraAngleX > 89.0f) cameraAngleX = 89.0f;
+				if (cameraAngleX < -89.0f) cameraAngleX = -89.0f;
+
+				lastMouseX = mouseX;
+				lastMouseY = mouseY;
+			}
+			break;*/
 		default:
 			ImGui_ImplSDL2_ProcessEvent(&event);
 			break;
@@ -266,7 +302,12 @@ void render()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+	//double eyeX = cameraX + cos(glm::radians(cameraAngleY)) * cos(glm::radians(cameraAngleX));
+	//double eyeY = cameraY + sin(glm::radians(cameraAngleX));
+	//double eyeZ = cameraZ + sin(glm::radians(cameraAngleY)) * cos(glm::radians(cameraAngleX));
+
+	//gluLookAt(eyeX, eyeY, eyeZ, cameraX, cameraY, cameraZ, 0.0, 1.0, 0.0);
 
 	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
 	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
@@ -322,7 +363,6 @@ int main(int argc, char** argv) {
 		std::cerr << "Error: No se pudo cargar la textura." << std::endl;
 		return -1;
 	}
-
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
