@@ -17,6 +17,9 @@
 #include <IL/ilu.h>
 #include <IL/ilut.h>
 
+#define CHECKERS_WIDTH 64
+#define CHECKERS_HEIGHT 64
+
 using namespace std;
 
 using hrclock = chrono::high_resolution_clock;
@@ -34,14 +37,15 @@ GLdouble cameraZ = -10.0f;
 float cameraAngleY = 0.0f;
 float cameraAngleX = 0.0f;
 
-float rotationAngle = 0.0f; // Ángulo de rotación
+float rotationAngle = 0.0f;
 
 static void init_openGL() {
 	glewInit();
 	if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API is not available.");
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.5, 0.5, 0.5, 1.0);	
-	
+	glEnable(GL_TEXTURE_2D);
+	glClearColor(0.5, 0.5, 0.5, 1.0);
+
 }
 
 static void draw_triangle(const u8vec4& color, const vec3& center, double size) {
@@ -145,10 +149,10 @@ static void draw_cube(const vec3& center, double size)
 }
 //
 //static void display_func() {
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//	//draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-//	//draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
-//	render();
+// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// //draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
+// //draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
+// render();
 //}
 
 static bool processEvents() {
@@ -175,28 +179,27 @@ struct Mesh
 
 vector<Mesh> meshes;
 
-void loadFBX(const char* filePath) 
+void loadFBX(const char* filePath)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
 
-	//Recorre las mallas
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		const aiMesh* aimesh = scene->mMeshes[i];
-		//std::count << "Malla" << i << " cargada con " << aimesh->mNumVertices << "vértices. " << std::endl;
 
 		Mesh mesh;
 
-		//Almacenar vértices
 		for (unsigned int v = 0; v < aimesh->mNumVertices; v++)
 		{
 			mesh.vertices.push_back(aimesh->mVertices[v].x);
 			mesh.vertices.push_back(aimesh->mVertices[v].y);
 			mesh.vertices.push_back(aimesh->mVertices[v].z);
+
+			mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].x);
+			mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].y);
 		}
 
-		//Almecenar índices (caras)
 		for (unsigned int f = 0; f < aimesh->mNumFaces; f++)
 		{
 			const aiFace& face = aimesh->mFaces[f];
@@ -207,15 +210,12 @@ void loadFBX(const char* filePath)
 		}
 		meshes.push_back(mesh);
 
-		//Almacenar textura
-		if(aimesh->mTextureCoords[0]) 
+		/*if (aimesh->mTextureCoords[0])
 		{
 			for (unsigned int v = 0; v < aimesh->mNumVertices; v++)
 			{
-				mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].x);
-				mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].y);
 			}
-		}
+		}*/
 	}
 }
 
@@ -225,7 +225,15 @@ GLuint loadTexture(const char* filename)
 	ilGenImages(1, &imageID);
 	ilBindImage(imageID);
 
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE); // Convertir a formato RGBA
+
+	bool ok = ilLoadImage((const wchar_t *)filename);
+
+	if (!ok) {
+	
+		printf("AAAAAAHHH!!!");
+	}
+
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
 	GLuint textureID;
 	glGenTextures(1, &textureID);
@@ -240,18 +248,18 @@ GLuint loadTexture(const char* filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	ilDeleteImages(1, &imageID); // Limpiar la imagen de DevIL
+	ilDeleteImages(1, &imageID);
 
 	return textureID;
 }
 
-void render() 
+GLuint TextureID;
+
+void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	GLuint TextureID = loadTexture("C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png");
 
-	//Configurar la cámara
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);
@@ -263,12 +271,12 @@ void render()
 	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
 	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
 
-	//Transofrmación del modelo
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, TextureID);
+
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.0f);
-	glRotatef(rotationAngle, 1.0f, 1.0f, 0.0f); // Rotar alrededor del eje Y
-
-	glBindTexture(GL_TEXTURE_2D, TextureID);
+	glRotatef(rotationAngle, 1.0f, 1.0f, 0.0f);
 
 
 	for (const auto& mesh : meshes)
@@ -276,8 +284,18 @@ void render()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
 
+		if (!mesh.textCoords.empty()) {
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2, GL_FLOAT, 0, mesh.textCoords.data());
+		}
+
 		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
+
 		glDisableClientState(GL_VERTEX_ARRAY);
+
+		if (!mesh.textCoords.empty()) {
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
 	}
 
 	glPopMatrix();
@@ -289,15 +307,21 @@ int main(int argc, char** argv) {
 
 	init_openGL();
 
-	ilInit();	
-	iluInit();	
-	ilutInit();	
-	ilutRenderer(ILUT_OPENGL);	
+	ilInit();
+	iluInit();
+	ilutInit();
+	ilutRenderer(ILUT_OPENGL);
 
-	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/BakerHouse.fbx"; // Ruta del fitxer a carregar
+	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/BakerHouse.fbx";
 	loadFBX(file);
 
-	GLuint TextureID = loadTexture("C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png");
+	TextureID = loadTexture("C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png");
+
+	if (TextureID == 0)
+	{
+		std::cerr << "Error: No se pudo cargar la textura." << std::endl;
+		return -1;
+	}
 
 
 	while (processEvents()) {
@@ -308,11 +332,11 @@ int main(int argc, char** argv) {
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
-		if(dt<FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+		if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
 
 	const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
-	
+
 	if (!scene) {
 		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
 		return -1;
@@ -324,12 +348,12 @@ int main(int argc, char** argv) {
 		printf("\nMalla %u:\n", i);
 		printf(" Numero de vertexs: %u\n", mesh->mNumVertices);
 		printf(" Numero de triangles: %u\n", mesh->mNumFaces);
-		// Vèrtexs
+
 		for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
 			aiVector3D vertex = mesh->mVertices[v];
 			printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
 		}
-		// Índexs de triangles (3 per triangle)
+
 		for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
 
 			aiFace face = mesh->mFaces[f];
