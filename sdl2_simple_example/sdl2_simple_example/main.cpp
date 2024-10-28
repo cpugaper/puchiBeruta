@@ -27,7 +27,7 @@ using u8vec4 = glm::u8vec4;
 using ivec2 = glm::ivec2;
 using vec3 = glm::dvec3;
 
-static const ivec2 WINDOW_SIZE(512, 512);
+static const ivec2 WINDOW_SIZE(720, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
@@ -37,12 +37,12 @@ GLdouble cameraZ = -10.0f;
 float cameraAngleY = 0.0f;
 float cameraAngleX = 0.0f;
 
-float rotationAngle = 0.0f;
+bool isAltPressed = false;
+bool isLeftMouseDragging = false;
+bool isRightMouseDragging = false;
+int lastMouseX, lastMouseY;
 
-//bool isMouseDown = false;
-//int lastMouseX = 0;
-//int lastMouseY = 0;
-//const float sensitivity = 0.1f;
+float rotationAngle = 0.0f;
 
 static void init_openGL() {
 	glewInit();
@@ -53,112 +53,6 @@ static void init_openGL() {
 
 }
 
-static void draw_triangle(const u8vec4& color, const vec3& center, double size) {
-	glColor4ub(color.r, color.g, color.b, color.a);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x, center.y + size, center.z);
-	glVertex3d(center.x - size, center.y - size, center.z);
-	glVertex3d(center.x + size, center.y - size, center.z);
-	glEnd();
-
-}
-
-static void draw_cube(const vec3& center, double size)
-{
-	//CARA frontal
-	glColor4ub(176, 196, 222, 255);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y - size, center.z); // V1
-	glVertex3d(center.x + size, center.y - size, center.z); // V2
-	glVertex3d(center.x - size, center.y + size, center.z); // V3
-	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x + size, center.y - size, center.z); // V2
-	glVertex3d(center.x + size, center.y + size, center.z); // V4
-	glVertex3d(center.x - size, center.y + size, center.z); // V3
-	glEnd();
-
-	////CARA trasera
-	glColor4ub(176, 224, 230, 255);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
-	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
-	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
-	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
-	glVertex3d(center.x + size, center.y + size, center.z - size * 2); // V8
-	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
-	glEnd();
-
-	////CARA derecha
-	glColor4ub(173, 216, 230, 255);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x + size, center.y + size, center.z); // V4
-	glVertex3d(center.x + size, center.y - size, center.z); // V2
-	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
-	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x + size, center.y + size, center.z - size * 2); // V8
-	glVertex3d(center.x + size, center.y + size, center.z); // V4
-	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
-	glEnd();
-
-	////CARA izquierda
-	glColor4ub(135, 206, 235, 255);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y + size, center.z); // V3
-	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
-	glVertex3d(center.x - size, center.y - size, center.z); // V1
-	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y + size, center.z); // V3
-	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
-	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
-	glEnd();
-
-	////CARA superior
-	glColor4ub(135, 206, 250, 255);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y + size, center.z); // V3
-	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
-	glVertex3d(center.x + size, center.y + size, center.z); // V4
-	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y + size, center.z - size * 2); // V7
-	glVertex3d(center.x + size, center.y + size, center.z); // V4
-	glVertex3d(center.x + size, center.y + size, center.z - size * 2); // V8
-	glEnd();
-
-	////CARA inferior
-	glColor4ub(0, 191, 255, 255);
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
-	glVertex3d(center.x - size, center.y - size, center.z); // V1
-	glVertex3d(center.x + size, center.y - size, center.z); // V2
-	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glVertex3d(center.x - size, center.y - size, center.z - size * 2); // V5
-	glVertex3d(center.x + size, center.y - size, center.z - size * 2); // V6
-	glVertex3d(center.x + size, center.y - size, center.z); // V2
-	glEnd();
-
-
-	glRotatef(0.5f, 1.0f, 1.0f, 0.0f);
-}
-//
-//static void display_func() {
-// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-// //draw_triangle(u8vec4(255, 0, 0, 255), vec3(0.0, 0.0, 0.0), 0.5);
-// //draw_cube(vec3(0.0, 0.0, 0.0), 0.3);
-// render();
-//}
 
 static bool processEvents() {
 	SDL_Event event;
@@ -167,37 +61,78 @@ static bool processEvents() {
 		case SDL_QUIT:
 			return false;
 			break;
-	/*	case SDL_MOUSEBUTTONDOWN:
-			if (event.button.button == SDL_BUTTON_LEFT)
-			{
-				isMouseDown = true;
-				SDL_GetMouseState(&lastMouseX, &lastMouseY);
-			}
-			break;
-		case SDL_MOUSEBUTTONUP:
-			if (event.button.button == SDL_BUTTON_LEFT)
-			{
-				isMouseDown = false;
-			}
-			break;
-		case SDL_MOUSEMOTION:
-			if (isMouseDown) {
-				int mouseX, mouseY;
-				SDL_GetMouseState(&mouseX, &mouseY);
 
+			//DETECTA SI PRESIONAMOS LA TECLA ALT
+		case SDL_KEYDOWN:
+			if (event.key.keysym.sym == SDLK_LALT || event.key.keysym.sym == SDLK_RALT) {
+				isAltPressed = true;
+			}
+			break;
+
+		case SDL_KEYUP:
+			if (event.key.keysym.sym == SDLK_LALT || event.key.keysym.sym == SDLK_RALT) {
+				isAltPressed = false;
+			}
+			break;
+
+		case SDL_MOUSEMOTION:
+			if (isLeftMouseDragging) {
+				int mouseX = event.motion.x;
+				int mouseY = event.motion.y;
 				int deltaX = mouseX - lastMouseX;
 				int deltaY = mouseY - lastMouseY;
 
-				cameraAngleY += deltaX * sensitivity;
-				cameraAngleX += deltaY * sensitivity;
+				if (isAltPressed) {
+					cameraAngleX += deltaX * 0.1f; 
+					cameraAngleY += deltaY * 0.1f; 
+				}
+				lastMouseX = mouseX;
+				lastMouseY = mouseY;
+			}
+			else if (isRightMouseDragging) {
+				int mouseX = event.motion.x;
+				int mouseY = event.motion.y;
+				int deltaX = mouseX - lastMouseX;
+				int deltaY = mouseY - lastMouseY;
 
-				if (cameraAngleX > 89.0f) cameraAngleX = 89.0f;
-				if (cameraAngleX < -89.0f) cameraAngleX = -89.0f;
+				if (isAltPressed) {
+					cameraX += deltaX * 0.02f; 
+					cameraY -= deltaY * 0.02f; 
+				}
 
 				lastMouseX = mouseX;
 				lastMouseY = mouseY;
 			}
-			break;*/
+			break;
+
+			// DETECTA SI HACEMOS CLICK IZQUIERDO
+		case SDL_MOUSEBUTTONDOWN:
+			if (event.button.button == SDL_BUTTON_LEFT && isAltPressed) {
+				isLeftMouseDragging = true;
+				lastMouseX = event.button.x;
+				lastMouseY = event.button.y;
+			}
+			else if (event.button.button == SDL_BUTTON_RIGHT && isAltPressed) {
+				isRightMouseDragging = true;
+				lastMouseX = event.button.x;
+				lastMouseY = event.button.y;
+			}
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				isLeftMouseDragging = false;
+			}
+			else if (event.button.button == SDL_BUTTON_RIGHT) {
+				isRightMouseDragging = false;
+			}
+			break;
+
+		case SDL_MOUSEWHEEL:
+			if (isAltPressed) {
+				cameraZ += event.wheel.y * 0.3f;
+			}
+			break;
 		default:
 			ImGui_ImplSDL2_ProcessEvent(&event);
 			break;
@@ -245,13 +180,6 @@ void loadFBX(const char* filePath)
 			}
 		}
 		meshes.push_back(mesh);
-
-		/*if (aimesh->mTextureCoords[0])
-		{
-			for (unsigned int v = 0; v < aimesh->mNumVertices; v++)
-			{
-			}
-		}*/
 	}
 }
 
@@ -303,12 +231,7 @@ void render()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	//double eyeX = cameraX + cos(glm::radians(cameraAngleY)) * cos(glm::radians(cameraAngleX));
-	//double eyeY = cameraY + sin(glm::radians(cameraAngleX));
-	//double eyeZ = cameraZ + sin(glm::radians(cameraAngleY)) * cos(glm::radians(cameraAngleX));
-
-	//gluLookAt(eyeX, eyeY, eyeZ, cameraX, cameraY, cameraZ, 0.0, 1.0, 0.0);
-
+	glTranslatef(cameraX, cameraY, cameraZ);
 	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
 	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
 
@@ -317,8 +240,6 @@ void render()
 
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.0f);
-	glRotatef(rotationAngle, 1.0f, 1.0f, 0.0f);
-
 
 	for (const auto& mesh : meshes)
 	{
@@ -339,7 +260,7 @@ void render()
 		}
 	}
 
-	glPopMatrix();
+	//glPopMatrix();
 	glFlush();
 }
 
@@ -366,7 +287,6 @@ int main(int argc, char** argv) {
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
-		//display_func();
 		rotationAngle += 0.5f;
 		render();
 		window.swapBuffers();
