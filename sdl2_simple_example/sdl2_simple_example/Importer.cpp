@@ -11,12 +11,22 @@ using namespace std;
 
 Importer::Importer() {
     initDevIL();
+    checkAndCreateDirectories();
 }
 
 Importer::~Importer() {}
 
 void Importer::initDevIL() {
     ilInit();
+}
+
+void Importer::checkAndCreateDirectories() {
+    const vector<string> directories = {
+        "Assets",
+        "Library/Meshes",
+        "Library/Materials",
+        "Library/Models"
+    };
 }
 
 vector<MeshData> Importer::loadFBX(const string& filePath) {
@@ -71,10 +81,13 @@ GLuint Importer::loadTexture(const string& texturePath) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     ilDeleteImages(1, &imageID);
     return textureID;

@@ -3,6 +3,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <filesystem>
 using namespace std;
 
 struct MeshData {
@@ -24,4 +25,5 @@ public:
 
 private:
     void initDevIL();
+    void checkAndCreateDirectories();
 };

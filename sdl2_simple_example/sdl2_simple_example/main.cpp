@@ -13,10 +13,9 @@
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
-#include <IL/il.h>
-#include <IL/ilu.h>
-#include <IL/ilut.h>
-#include <filesystem>
+#include "IL/il.h"
+#include "IL/ilu.h"
+#include "IL/ilut.h"
 #include "Importer.h"
 
 #define CHECKERS_WIDTH 64
@@ -39,6 +38,12 @@ float cameraAngleY = 0.0f, cameraAngleX = 0.0f;
 bool isAltPressed = false, isLeftMouseDragging = false, isRightMouseDragging = false;
 int lastMouseX, lastMouseY;
 float rotationAngle = 0.0f;
+
+// Arrastre de Objetos
+vector<MeshData> meshes;
+GLuint textureID;
+Importer importer; 
+const char* fbxFile = nullptr;
 
 static void init_openGL() {
 	glewInit();
@@ -128,6 +133,22 @@ static bool processEvents() {
 				cameraZ += event.wheel.y * 0.3f;
 			}
 			break;
+		case SDL_DROPFILE:
+			fbxFile = event.drop.file;
+
+			meshes.clear();
+			textureID = 0;
+
+			meshes = importer.loadFBX(fbxFile);
+
+			/*string fbxFilePath(fbxFile);
+			size_t lastSlash = fbxFilePath.find_last_of("/\\");
+			string textureFile = (lastSlash != string::npos) ? (fbxFilePath.substr(0, lastSlash) + "Assets/texture.png").c_str() : "Assets/texture.png"; 
+			textureID = importer.loadTexture(textureFile); */
+
+			std::cout << "Cargado: " << fbxFile << std::endl;
+
+			break;
 		default:
 			ImGui_ImplSDL2_ProcessEvent(&event);
 			break;
@@ -181,14 +202,6 @@ void render(const vector<MeshData>& meshes, GLuint textureID)
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
-
-	Importer importer;
-
-	const char* fbxFile = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/BakerHouse.fbx";
-	const char* textureFile = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png";
-
-	vector<MeshData> meshes = importer.loadFBX(fbxFile);
-	GLuint textureID = importer.loadTexture(textureFile);
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
