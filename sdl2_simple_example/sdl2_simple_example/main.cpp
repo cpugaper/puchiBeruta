@@ -17,6 +17,7 @@
 #include "IL/ilu.h"
 #include "IL/ilut.h"
 #include "Importer.h"
+#include <string>
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
@@ -53,6 +54,11 @@ static void init_openGL() {
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 }
 
+string getFileName(const std::string& path) {
+	size_t lastSlash = path.find_last_of("/\\");
+	size_t lastDot = path.find_last_of('.');
+	return path.substr(lastSlash + 1, lastDot - lastSlash - 1);
+}
 
 static bool processEvents() {
 	SDL_Event event;
@@ -133,22 +139,20 @@ static bool processEvents() {
 				cameraZ += event.wheel.y * 0.3f;
 			}
 			break;
-		case SDL_DROPFILE:
+		case SDL_DROPFILE: {
 			fbxFile = event.drop.file;
-
 			meshes.clear();
 			textureID = 0;
-
 			meshes = importer.loadFBX(fbxFile);
+			
+			std::string baseName = getFileName(fbxFile);
+			std::string outputPath = "Assets/" + baseName + ".dat";
+			importer.saveCustomFormat(outputPath, meshes);
 
-			/*string fbxFilePath(fbxFile);
-			size_t lastSlash = fbxFilePath.find_last_of("/\\");
-			string textureFile = (lastSlash != string::npos) ? (fbxFilePath.substr(0, lastSlash) + "Assets/texture.png").c_str() : "Assets/texture.png"; 
-			textureID = importer.loadTexture(textureFile); */
-
-			std::cout << "Cargado: " << fbxFile << std::endl;
+			std::cout << "Archivo FBX cargado y guardado en: " << outputPath << std::endl;
 
 			break;
+		}
 		default:
 			ImGui_ImplSDL2_ProcessEvent(&event);
 			break;

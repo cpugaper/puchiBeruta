@@ -7,7 +7,19 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <chrono>
+#include <filesystem>
 using namespace std;
+
+#ifdef _WIN32
+#include <direct.h>
+#define mkdir _mkdir
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 Importer::Importer() {
     initDevIL();
@@ -27,6 +39,13 @@ void Importer::checkAndCreateDirectories() {
         "Library/Materials",
         "Library/Models"
     };
+    for (const auto& dir : directories) {
+        #ifdef _WIN32
+            _mkdir(dir.c_str()); // Intento de crear sin mostrar mensajes
+        #else
+            mkdir(dir.c_str(), 0777); // Intento de crear sin mostrar mensajes
+        #endif
+    }
 }
 
 vector<MeshData> Importer::loadFBX(const string& filePath) {
@@ -35,6 +54,7 @@ vector<MeshData> Importer::loadFBX(const string& filePath) {
     if (!scene) {
         throw runtime_error("Error al cargar el archivo FBX: " + string(importer.GetErrorString()));
     }
+    auto start = chrono::high_resolution_clock::now();
 
     vector<MeshData> meshes;
 
@@ -60,6 +80,11 @@ vector<MeshData> Importer::loadFBX(const string& filePath) {
             }
         }
         meshes.push_back(meshData);
+
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> elapsed = end - start;
+        cout << "Tiempo de carga de FBX: " << elapsed.count() << " segundos" << endl;
+
     }
 
     return meshes;
@@ -113,6 +138,8 @@ void Importer::saveCustomFormat(const string& outputPath, const vector<MeshData>
         file.write(reinterpret_cast<const char*>(&texCoordsSize), sizeof(texCoordsSize));
         file.write(reinterpret_cast<const char*>(mesh.textCoords.data()), texCoordsSize * sizeof(GLfloat));
     }
+
+    std::cout << "Archivo guardado en formato personalizado: " << outputPath << std::endl;
 }
 
 vector<MeshData> Importer::loadCustomFormat(const string& inputPath) {

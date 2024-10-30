@@ -132,6 +132,7 @@
     <ClCompile Include="MyWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="MyWindow.h" />
   </ItemGroup>
