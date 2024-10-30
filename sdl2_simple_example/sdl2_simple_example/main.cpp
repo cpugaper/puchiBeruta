@@ -16,13 +16,16 @@
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <IL/ilut.h>
+#include <filesystem>
+#include "Importer.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
 
-using namespace std;
+using namespace std; 
+using namespace chrono;
 
-using hrclock = chrono::high_resolution_clock;
+using hrclock = high_resolution_clock;
 using u8vec4 = glm::u8vec4;
 using ivec2 = glm::ivec2;
 using vec3 = glm::dvec3;
@@ -31,17 +34,10 @@ static const ivec2 WINDOW_SIZE(720, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-GLdouble cameraX = 0.0f;
-GLdouble cameraY = 0.0f;
-GLdouble cameraZ = -10.0f;
-float cameraAngleY = 0.0f;
-float cameraAngleX = 0.0f;
-
-bool isAltPressed = false;
-bool isLeftMouseDragging = false;
-bool isRightMouseDragging = false;
+GLdouble cameraX = 0.0f, cameraY = 0.0f, cameraZ = -10.0f;
+float cameraAngleY = 0.0f, cameraAngleX = 0.0f;
+bool isAltPressed = false, isLeftMouseDragging = false, isRightMouseDragging = false;
 int lastMouseX, lastMouseY;
-
 float rotationAngle = 0.0f;
 
 static void init_openGL() {
@@ -50,7 +46,6 @@ static void init_openGL() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glClearColor(0.5, 0.5, 0.5, 1.0);
-
 }
 
 
@@ -141,89 +136,10 @@ static bool processEvents() {
 	return true;
 }
 
-struct Mesh
-{
-	vector<GLfloat> vertices;
-	vector<GLuint> indices;
-	vector<GLfloat> textCoords;
-};
 
-vector<Mesh> meshes;
-
-void loadFBX(const char* filePath)
-{
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
-
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
-	{
-		const aiMesh* aimesh = scene->mMeshes[i];
-
-		Mesh mesh;
-
-		for (unsigned int v = 0; v < aimesh->mNumVertices; v++)
-		{
-			mesh.vertices.push_back(aimesh->mVertices[v].x);
-			mesh.vertices.push_back(aimesh->mVertices[v].y);
-			mesh.vertices.push_back(aimesh->mVertices[v].z);
-
-			mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].x);
-			mesh.textCoords.push_back(aimesh->mTextureCoords[0][v].y);
-		}
-
-		for (unsigned int f = 0; f < aimesh->mNumFaces; f++)
-		{
-			const aiFace& face = aimesh->mFaces[f];
-			for (unsigned int j = 0; j < face.mNumIndices; j++)
-			{
-				mesh.indices.push_back(face.mIndices[j]);
-			}
-		}
-		meshes.push_back(mesh);
-	}
-}
-
-GLuint loadTexture(const char* filename)
-{
-	ILuint imageID;
-	ilGenImages(1, &imageID);
-	ilBindImage(imageID);
-
-
-	bool ok = ilLoadImage((const wchar_t *)filename);
-
-	if (!ok) {
-	
-		printf("AAAAAAHHH!!!");
-	}
-
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
-		ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE,
-		ilGetData());
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	ilDeleteImages(1, &imageID);
-
-	return textureID;
-}
-
-GLuint TextureID;
-
-void render()
+void render(const vector<MeshData>& meshes, GLuint textureID)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);
@@ -236,7 +152,7 @@ void render()
 	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
 
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, TextureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.0f);
@@ -259,73 +175,30 @@ void render()
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	}
-
-	//glPopMatrix();
 	glFlush();
 }
 
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
-
 	init_openGL();
 
-	ilInit();
-	iluInit();
-	ilutInit();
-	ilutRenderer(ILUT_OPENGL);
+	Importer importer;
 
-	const char* file = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/BakerHouse.fbx";
-	loadFBX(file);
+	const char* fbxFile = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/BakerHouse.fbx";
+	const char* textureFile = "C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png";
 
-	TextureID = loadTexture("C:/Users/rebecafl/Documents/GitHub/puchiBeruta/Assets/Baker_House.png");
-
-	if (TextureID == 0)
-	{
-		std::cerr << "Error: No se pudo cargar la textura." << std::endl;
-		return -1;
-	}
+	vector<MeshData> meshes = importer.loadFBX(fbxFile);
+	GLuint textureID = importer.loadTexture(textureFile);
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
 		rotationAngle += 0.5f;
-		render();
+		render(meshes, textureID);
 		window.swapBuffers();
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
 		if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
-
-	const struct aiScene* scene = aiImportFile(file, aiProcess_Triangulate);
-
-	if (!scene) {
-		fprintf(stderr, "Error en carregar el fitxer: %s\n", aiGetErrorString());
-		return -1;
-	}
-	printf("Numero de malles: %u\n", scene->mNumMeshes);
-
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-		aiMesh* mesh = scene->mMeshes[i];
-		printf("\nMalla %u:\n", i);
-		printf(" Numero de vertexs: %u\n", mesh->mNumVertices);
-		printf(" Numero de triangles: %u\n", mesh->mNumFaces);
-
-		for (unsigned int v = 0; v < mesh->mNumVertices; v++) {
-			aiVector3D vertex = mesh->mVertices[v];
-			printf(" Vertex %u: (%f, %f, %f)\n", v, vertex.x, vertex.y, vertex.z);
-		}
-
-		for (unsigned int f = 0; f < mesh->mNumFaces; f++) {
-
-			aiFace face = mesh->mFaces[f];
-			printf(" Indexs triangle %u: ", f);
-
-			for (unsigned int j = 0; j < face.mNumIndices; j++) {
-				printf("%u ", face.mIndices[j]);
-			}
-			printf("\n");
-		}
-	}
-	aiReleaseImport(scene);
 
 	return 0;
 }
