@@ -17,7 +17,7 @@ public:
     Importer();
     ~Importer();
 
-    vector<MeshData> loadFBX(const string& filePath);
+    vector<MeshData> loadFBX(const string& filePath, GLuint& textureID);
     GLuint loadTexture(const string& texturePath);
 
     void saveCustomFormat(const string& outputPath, const vector<MeshData>& meshes);

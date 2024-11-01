@@ -12,14 +12,7 @@
 #include <chrono>
 #include <filesystem>
 using namespace std;
-
-#ifdef _WIN32
-#include <direct.h>
-#define mkdir _mkdir
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
+namespace fs = filesystem;
 
 Importer::Importer() {
     initDevIL();
@@ -40,21 +33,23 @@ void Importer::checkAndCreateDirectories() {
         "Library/Models"
     };
     for (const auto& dir : directories) {
-        #ifdef _WIN32
-            _mkdir(dir.c_str()); // Intento de crear sin mostrar mensajes
-        #else
-            mkdir(dir.c_str(), 0777); // Intento de crear sin mostrar mensajes
-        #endif
+        fs::path dirPath(dir);
+
+        // Crea el directorio si no existe
+        if (!fs::exists(dirPath)) {
+            fs::create_directories(dirPath);
+        }
     }
 }
 
-vector<MeshData> Importer::loadFBX(const string& filePath) {
+vector<MeshData> Importer::loadFBX(const string& filePath, GLuint& textureID) {
+    auto start = chrono::high_resolution_clock::now();
+
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
     if (!scene) {
         throw runtime_error("Error al cargar el archivo FBX: " + string(importer.GetErrorString()));
     }
-    auto start = chrono::high_resolution_clock::now();
 
     vector<MeshData> meshes;
 
@@ -80,12 +75,23 @@ vector<MeshData> Importer::loadFBX(const string& filePath) {
             }
         }
         meshes.push_back(meshData);
-
-        auto end = chrono::high_resolution_clock::now();
-        chrono::duration<double> elapsed = end - start;
-        cout << "Tiempo de carga de FBX: " << elapsed.count() << " segundos" << endl;
-
     }
+
+    fs::path modelPath(filePath);
+    fs::path texturePath = modelPath.parent_path() / (modelPath.stem().string() + ".png");
+
+    if (fs::exists(texturePath)) {
+        textureID = loadTexture(texturePath.string()); // Cargar la textura
+        cout << "Textura encontrada y cargada: " << texturePath << endl;
+    }
+    else {
+        cout << "No se encontró una textura para " << filePath << endl;
+    }
+
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = end - start;
+
+    cout << "Tiempo de carga del archivo FBX: " << elapsed.count() << " segundos" << endl;
 
     return meshes;
 }
@@ -106,7 +112,7 @@ GLuint Importer::loadTexture(const string& texturePath) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -139,7 +145,7 @@ void Importer::saveCustomFormat(const string& outputPath, const vector<MeshData>
         file.write(reinterpret_cast<const char*>(mesh.textCoords.data()), texCoordsSize * sizeof(GLfloat));
     }
 
-    std::cout << "Archivo guardado en formato personalizado: " << outputPath << std::endl;
+    cout << "Archivo guardado en formato personalizado: " << outputPath << endl;
 }
 
 vector<MeshData> Importer::loadCustomFormat(const string& inputPath) {
@@ -149,6 +155,8 @@ vector<MeshData> Importer::loadCustomFormat(const string& inputPath) {
     vector<MeshData> meshes;
     size_t meshCount;
     file.read(reinterpret_cast<char*>(&meshCount), sizeof(meshCount));
+
+    auto start = chrono::high_resolution_clock::now();
 
     for (size_t i = 0; i < meshCount; ++i) {
         MeshData mesh;
@@ -170,6 +178,11 @@ vector<MeshData> Importer::loadCustomFormat(const string& inputPath) {
 
         meshes.push_back(mesh);
     }
+
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = end - start;
+
+    cout << "Tiempo de carga de archivo personalizado: " << elapsed.count() << " segundos" << endl;
 
     return meshes;
 }

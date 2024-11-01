@@ -17,13 +17,14 @@
 #include "IL/ilu.h"
 #include "IL/ilut.h"
 #include "Importer.h"
-#include <string>
+#include <filesystem>
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
 
-using namespace std; 
+using namespace std;
 using namespace chrono;
+namespace fs = filesystem;
 
 using hrclock = high_resolution_clock;
 using u8vec4 = glm::u8vec4;
@@ -43,7 +44,7 @@ float rotationAngle = 0.0f;
 // Arrastre de Objetos
 vector<MeshData> meshes;
 GLuint textureID;
-Importer importer; 
+Importer importer;
 const char* fbxFile = nullptr;
 
 static void init_openGL() {
@@ -54,10 +55,8 @@ static void init_openGL() {
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 }
 
-string getFileName(const std::string& path) {
-	size_t lastSlash = path.find_last_of("/\\");
-	size_t lastDot = path.find_last_of('.');
-	return path.substr(lastSlash + 1, lastDot - lastSlash - 1);
+string getFileName(const string& path) {
+	return fs::path(path).stem().string();
 }
 
 static bool processEvents() {
@@ -89,8 +88,8 @@ static bool processEvents() {
 				int deltaY = mouseY - lastMouseY;
 
 				if (isAltPressed) {
-					cameraAngleX += deltaX * 0.1f; 
-					cameraAngleY += deltaY * 0.1f; 
+					cameraAngleX += deltaX * 0.1f;
+					cameraAngleY += deltaY * 0.1f;
 				}
 				lastMouseX = mouseX;
 				lastMouseY = mouseY;
@@ -102,8 +101,8 @@ static bool processEvents() {
 				int deltaY = mouseY - lastMouseY;
 
 				if (isAltPressed) {
-					cameraX += deltaX * 0.02f; 
-					cameraY -= deltaY * 0.02f; 
+					cameraX += deltaX * 0.02f;
+					cameraY -= deltaY * 0.02f;
 				}
 
 				lastMouseX = mouseX;
@@ -143,14 +142,14 @@ static bool processEvents() {
 			fbxFile = event.drop.file;
 			meshes.clear();
 			textureID = 0;
-			meshes = importer.loadFBX(fbxFile);
-			
-			std::string baseName = getFileName(fbxFile);
-			std::string outputPath = "Assets/" + baseName + ".dat";
+
+			meshes = importer.loadFBX(fbxFile, textureID);
+
+			string baseName = getFileName(fbxFile);
+			string outputPath = "Assets/" + baseName + ".dat";
 			importer.saveCustomFormat(outputPath, meshes);
 
-			std::cout << "Archivo FBX cargado y guardado en: " << outputPath << std::endl;
-
+			cout << "Archivo FBX cargado y guardado en: " << outputPath << endl;
 			break;
 		}
 		default:
@@ -176,8 +175,13 @@ void render(const vector<MeshData>& meshes, GLuint textureID)
 	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
 	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
 
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	if (textureID) {
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+	}
+	else {
+		glDisable(GL_TEXTURE_2D);
+	}
 
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.0f);
