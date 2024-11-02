@@ -42,7 +42,16 @@ void Importer::checkAndCreateDirectories() {
     }
 }
 
-vector<MeshData> Importer::loadFBX(const string& filePath, GLuint& textureID) {
+vector<MeshData> Importer::loadFBX(const string& relativeFilePath, GLuint& textureID) {
+
+    std::string currentPath = std::filesystem::current_path().string();
+    std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
+    std::string filePath = (projectPath / relativeFilePath).string();
+
+    if (!std::filesystem::exists(filePath)) {
+        throw runtime_error("El archivo FBX no existe: " + filePath);
+    }
+
     auto start = chrono::high_resolution_clock::now();
 
     Assimp::Importer importer;

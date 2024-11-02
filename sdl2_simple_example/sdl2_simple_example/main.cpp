@@ -37,7 +37,9 @@ static const auto FRAME_DT = 1.0s / FPS;
 
 GLdouble cameraX = 0.0f, cameraY = 0.0f, cameraZ = -10.0f;
 float cameraAngleY = 0.0f, cameraAngleX = 0.0f;
-bool isAltPressed = false, isLeftMouseDragging = false, isRightMouseDragging = false;
+float objectAngleY = 0.0f, objectAngleX = 0.0f;
+float cameraSpeed = 0.1f;
+bool isAltPressed = false, isLeftMouseDragging = false, isRightMouseDragging = false, isShiftPressed = false;
 int lastMouseX, lastMouseY;
 float rotationAngle = 0.0f;
 
@@ -67,10 +69,22 @@ static bool processEvents() {
 			return false;
 			break;
 
-			//DETECTA SI PRESIONAMOS LA TECLA ALT
+			// DETECTA SI PRESIONAMOS LA TECLA ALT, SHIFT O F
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_LALT || event.key.keysym.sym == SDLK_RALT) {
 				isAltPressed = true;
+			}
+			if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT) {
+				isShiftPressed = true;
+				cameraSpeed = 0.2f;
+			}
+			if (event.key.keysym.sym == SDLK_f)
+			{
+				// valores iniciales de la camara
+				cameraX = cameraY = 0.0f;
+				cameraZ = -10.0f;
+				cameraAngleX = cameraAngleY = 0.0f;
+				objectAngleX = objectAngleY = 0.0f;
 			}
 			break;
 
@@ -78,49 +92,45 @@ static bool processEvents() {
 			if (event.key.keysym.sym == SDLK_LALT || event.key.keysym.sym == SDLK_RALT) {
 				isAltPressed = false;
 			}
+			if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT) {
+				isShiftPressed = false;
+				cameraSpeed = 0.1f;
+			}
 			break;
 
 		case SDL_MOUSEMOTION:
-			if (isLeftMouseDragging) {
+			if (isLeftMouseDragging && isAltPressed) {
 				int mouseX = event.motion.x;
 				int mouseY = event.motion.y;
 				int deltaX = mouseX - lastMouseX;
 				int deltaY = mouseY - lastMouseY;
 
-				if (isAltPressed) {
-					cameraAngleX += deltaX * 0.1f;
-					cameraAngleY += deltaY * 0.1f;
-				}
+				objectAngleY += deltaX * 0.1f;  
+				objectAngleX += deltaY * 0.1f;
 				lastMouseX = mouseX;
 				lastMouseY = mouseY;
 			}
-			else if (isRightMouseDragging) {
-				int mouseX = event.motion.x;
-				int mouseY = event.motion.y;
-				int deltaX = mouseX - lastMouseX;
-				int deltaY = mouseY - lastMouseY;
+			if (isRightMouseDragging) {
+				int deltaX = event.motion.xrel;
+				int deltaY = event.motion.yrel;
 
-				if (isAltPressed) {
-					cameraX += deltaX * 0.02f;
-					cameraY -= deltaY * 0.02f;
-				}
+				cameraAngleX += deltaX * 0.05f;
+				cameraAngleY += deltaY * 0.05f;
 
-				lastMouseX = mouseX;
-				lastMouseY = mouseY;
+				if (cameraAngleY > 89.0f) cameraAngleY = 89.0f;
+				if (cameraAngleY < -89.0f) cameraAngleY = -89.0f;
 			}
 			break;
 
-			// DETECTA SI HACEMOS CLICK IZQUIERDO
+			// DETECTA SI HACEMOS CLICK IZQUIERDO 0 DERECHO
 		case SDL_MOUSEBUTTONDOWN:
 			if (event.button.button == SDL_BUTTON_LEFT && isAltPressed) {
 				isLeftMouseDragging = true;
 				lastMouseX = event.button.x;
 				lastMouseY = event.button.y;
 			}
-			else if (event.button.button == SDL_BUTTON_RIGHT && isAltPressed) {
+			if (event.button.button == SDL_BUTTON_RIGHT) {
 				isRightMouseDragging = true;
-				lastMouseX = event.button.x;
-				lastMouseY = event.button.y;
 			}
 			break;
 
@@ -128,16 +138,15 @@ static bool processEvents() {
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				isLeftMouseDragging = false;
 			}
-			else if (event.button.button == SDL_BUTTON_RIGHT) {
+			if (event.button.button == SDL_BUTTON_RIGHT) {
 				isRightMouseDragging = false;
 			}
 			break;
 
 		case SDL_MOUSEWHEEL:
-			if (isAltPressed) {
-				cameraZ += event.wheel.y * 0.3f;
-			}
+			cameraZ += event.wheel.y * 0.3f;
 			break;
+
 		case SDL_DROPFILE: {
 			fbxFile = event.drop.file;
 			meshes.clear();
@@ -157,6 +166,17 @@ static bool processEvents() {
 			break;
 		}
 	}
+
+	if (isRightMouseDragging)
+	{
+		const Uint8* state = SDL_GetKeyboardState(NULL);
+		if (state[SDL_SCANCODE_W]) cameraZ += cameraSpeed;
+		if (state[SDL_SCANCODE_S]) cameraZ -= cameraSpeed;
+		if (state[SDL_SCANCODE_A]) cameraX -= cameraSpeed;
+		if (state[SDL_SCANCODE_D]) cameraX += cameraSpeed;
+	}
+	
+
 	return true;
 }
 
@@ -171,9 +191,9 @@ void render(const vector<MeshData>& meshes, GLuint textureID)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glTranslatef(cameraX, cameraY, cameraZ);
 	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
 	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
+	glTranslatef(cameraX, cameraY, cameraZ);
 
 	if (textureID) {
 		glEnable(GL_TEXTURE_2D);
@@ -184,7 +204,9 @@ void render(const vector<MeshData>& meshes, GLuint textureID)
 	}
 
 	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, 0.0f);
+	glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f); 
+	glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f); 
+
 
 	for (const auto& mesh : meshes)
 	{
@@ -211,15 +233,18 @@ int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
 
+	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
+
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
 		rotationAngle += 0.5f;
+
 		render(meshes, textureID);
 		window.swapBuffers();
+
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
 		if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
 	}
-
 	return 0;
 }
