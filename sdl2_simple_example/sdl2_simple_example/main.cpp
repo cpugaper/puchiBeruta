@@ -36,13 +36,6 @@ static const ivec2 WINDOW_SIZE(720, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-GLdouble cameraX = 0.0f, cameraY = -1.0f, cameraZ = -10.0f;
-float cameraAngleY = 0.0f, cameraAngleX = 0.0f;
-float objectAngleY = 0.0f, objectAngleX = 0.0f;
-float cameraSpeed = 0.1f;
-bool isAltPressed = false, isLeftMouseDragging = false, isRightMouseDragging = false, isShiftPressed = false;
-int lastMouseX, lastMouseY;
-float rotationAngle = 0.0f;
 Camera camera; 
 
 // Arrastre de Objetos
@@ -171,7 +164,6 @@ int main(int argc, char** argv) {
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
-		rotationAngle += 0.5f;
 
 		render(meshes, textureID);
 		window.swapBuffers();
