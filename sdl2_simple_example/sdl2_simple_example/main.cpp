@@ -18,6 +18,7 @@
 #include "IL/ilut.h"
 #include "Importer.h"
 #include <filesystem>
+#include "Camera.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
@@ -35,13 +36,14 @@ static const ivec2 WINDOW_SIZE(720, 720);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-GLdouble cameraX = 0.0f, cameraY = 0.0f, cameraZ = -10.0f;
+GLdouble cameraX = 0.0f, cameraY = -1.0f, cameraZ = -10.0f;
 float cameraAngleY = 0.0f, cameraAngleX = 0.0f;
 float objectAngleY = 0.0f, objectAngleX = 0.0f;
 float cameraSpeed = 0.1f;
 bool isAltPressed = false, isLeftMouseDragging = false, isRightMouseDragging = false, isShiftPressed = false;
 int lastMouseX, lastMouseY;
 float rotationAngle = 0.0f;
+Camera camera; 
 
 // Arrastre de Objetos
 vector<MeshData> meshes;
@@ -69,82 +71,28 @@ static bool processEvents() {
 			return false;
 			break;
 
-			// DETECTA SI PRESIONAMOS LA TECLA ALT, SHIFT O F
 		case SDL_KEYDOWN:
-			if (event.key.keysym.sym == SDLK_LALT || event.key.keysym.sym == SDLK_RALT) {
-				isAltPressed = true;
-			}
-			if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT) {
-				isShiftPressed = true;
-				cameraSpeed = 0.2f;
-			}
-			if (event.key.keysym.sym == SDLK_f)
-			{
-				// valores iniciales de la camara
-				cameraX = cameraY = 0.0f;
-				cameraZ = -10.0f;
-				cameraAngleX = cameraAngleY = 0.0f;
-				objectAngleX = objectAngleY = 0.0f;
-			}
-			break;
+			camera.processKeyDown(event.key.keysym);
+			break; 
 
 		case SDL_KEYUP:
-			if (event.key.keysym.sym == SDLK_LALT || event.key.keysym.sym == SDLK_RALT) {
-				isAltPressed = false;
-			}
-			if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT) {
-				isShiftPressed = false;
-				cameraSpeed = 0.1f;
-			}
+			camera.processKeyUp(event.key.keysym);
 			break;
 
 		case SDL_MOUSEMOTION:
-			if (isLeftMouseDragging && isAltPressed) {
-				int mouseX = event.motion.x;
-				int mouseY = event.motion.y;
-				int deltaX = mouseX - lastMouseX;
-				int deltaY = mouseY - lastMouseY;
-
-				objectAngleY += deltaX * 0.1f;  
-				objectAngleX += deltaY * 0.1f;
-				lastMouseX = mouseX;
-				lastMouseY = mouseY;
-			}
-			if (isRightMouseDragging) {
-				int deltaX = event.motion.xrel;
-				int deltaY = event.motion.yrel;
-
-				cameraAngleX += deltaX * 0.05f;
-				cameraAngleY += deltaY * 0.05f;
-
-				if (cameraAngleY > 89.0f) cameraAngleY = 89.0f;
-				if (cameraAngleY < -89.0f) cameraAngleY = -89.0f;
-			}
+			camera.processMouseMotion(event.motion);
 			break;
 
-			// DETECTA SI HACEMOS CLICK IZQUIERDO 0 DERECHO
 		case SDL_MOUSEBUTTONDOWN:
-			if (event.button.button == SDL_BUTTON_LEFT && isAltPressed) {
-				isLeftMouseDragging = true;
-				lastMouseX = event.button.x;
-				lastMouseY = event.button.y;
-			}
-			if (event.button.button == SDL_BUTTON_RIGHT) {
-				isRightMouseDragging = true;
-			}
+			camera.processMouseButtonDown(event.button);
 			break;
 
 		case SDL_MOUSEBUTTONUP:
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				isLeftMouseDragging = false;
-			}
-			if (event.button.button == SDL_BUTTON_RIGHT) {
-				isRightMouseDragging = false;
-			}
+			camera.processMouseButtonUp(event.button);
 			break;
 
 		case SDL_MOUSEWHEEL:
-			cameraZ += event.wheel.y * 0.3f;
+			camera.processMouseWheel(event.wheel);
 			break;
 
 		case SDL_DROPFILE: {
@@ -167,16 +115,7 @@ static bool processEvents() {
 		}
 	}
 
-	if (isRightMouseDragging)
-	{
-		const Uint8* state = SDL_GetKeyboardState(NULL);
-		if (state[SDL_SCANCODE_W]) cameraZ += cameraSpeed;
-		if (state[SDL_SCANCODE_S]) cameraZ -= cameraSpeed;
-		if (state[SDL_SCANCODE_A]) cameraX -= cameraSpeed;
-		if (state[SDL_SCANCODE_D]) cameraX += cameraSpeed;
-	}
-	
-
+	camera.move(SDL_GetKeyboardState(NULL));
 	return true;
 }
 
@@ -191,9 +130,7 @@ void render(const vector<MeshData>& meshes, GLuint textureID)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
-	glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
-	glTranslatef(cameraX, cameraY, cameraZ);
+	camera.applyCameraTransformations();
 
 	if (textureID) {
 		glEnable(GL_TEXTURE_2D);
@@ -204,9 +141,6 @@ void render(const vector<MeshData>& meshes, GLuint textureID)
 	}
 
 	glPushMatrix();
-	glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f); 
-	glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f); 
-
 
 	for (const auto& mesh : meshes)
 	{
