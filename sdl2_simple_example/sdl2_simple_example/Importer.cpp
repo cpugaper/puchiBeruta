@@ -35,7 +35,7 @@ void Importer::checkAndCreateDirectories() {
     for (const auto& dir : directories) {
         fs::path dirPath(dir);
 
-        // Crea el directorio si no existe
+        // Create directory if it doesn't exist
         if (!fs::exists(dirPath)) {
             fs::create_directories(dirPath);
         }
@@ -90,7 +90,7 @@ vector<MeshData> Importer::loadFBX(const string& relativeFilePath, GLuint& textu
     fs::path texturePath = modelPath.parent_path() / (modelPath.stem().string() + ".png");
 
     if (fs::exists(texturePath)) {
-        textureID = loadTexture(texturePath.string()); // Cargar la textura
+        textureID = loadTexture(texturePath.string()); // Load Texture
         cout << "Textura encontrada y cargada: " << texturePath << endl;
     }
     else {

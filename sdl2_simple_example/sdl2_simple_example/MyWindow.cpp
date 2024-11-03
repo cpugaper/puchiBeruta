@@ -5,6 +5,7 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 #include <SDL2/SDL.h>
+
 using namespace std;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {

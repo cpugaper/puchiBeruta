@@ -19,6 +19,7 @@
 #include "Importer.h"
 #include <filesystem>
 #include "Camera.h"
+#include "GameObject.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
@@ -32,17 +33,19 @@ using u8vec4 = glm::u8vec4;
 using ivec2 = glm::ivec2;
 using vec3 = glm::dvec3;
 
-static const ivec2 WINDOW_SIZE(720, 720);
+static const ivec2 WINDOW_SIZE(1024, 1024);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
 Camera camera; 
 
-// Arrastre de Objetos
+// Drop Objects
 vector<MeshData> meshes;
 GLuint textureID;
 Importer importer;
 const char* fbxFile = nullptr;
+
+vector<GameObject> gameObjects;
 
 static void init_openGL() {
 	glewInit();
@@ -95,6 +98,12 @@ static bool processEvents() {
 
 			meshes = importer.loadFBX(fbxFile, textureID);
 
+			for (size_t i = 0; i < meshes.size(); ++i)
+			{
+				string objectName = getFileName(fbxFile) + "_" + to_string(i);
+				gameObjects.emplace_back(objectName, meshes[i], textureID);
+			}
+
 			string baseName = getFileName(fbxFile);
 			string outputPath = "Assets/" + baseName + ".dat";
 			importer.saveCustomFormat(outputPath, meshes);
@@ -113,45 +122,49 @@ static bool processEvents() {
 }
 
 
-void render(const vector<MeshData>& meshes, GLuint textureID)
+void render(const vector<GameObject>& gameObjects)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	camera.applyCameraTransformations();
 
-	if (textureID) {
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, textureID);
-	}
-	else {
-		glDisable(GL_TEXTURE_2D);
-	}
+	for (const auto& obj : gameObjects)
+	{	
+		glPushMatrix();
 
-	glPushMatrix();
+		glm::mat4 transform = obj.getTransformMatrix();
+		glMultMatrixf(glm::value_ptr(transform));
 
-	for (const auto& mesh : meshes)
-	{
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, mesh.vertices.data());
-
-		if (!mesh.textCoords.empty()) {
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(2, GL_FLOAT, 0, mesh.textCoords.data());
+		if (obj.textureID) {
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, obj.textureID);
+		}
+		else {
+			glDisable(GL_TEXTURE_2D);
 		}
 
-		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, mesh.indices.data());
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, obj.meshData.vertices.data());
+
+		if (!obj.meshData.textCoords.empty()) {
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(2, GL_FLOAT, 0, obj.meshData.textCoords.data());
+		}
+
+		glDrawElements(GL_TRIANGLES, obj.meshData.indices.size(), GL_UNSIGNED_INT, obj.meshData.indices.data());
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 
-		if (!mesh.textCoords.empty()) {
+		if (!obj.meshData.textCoords.empty()) {
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
+
+		glPopMatrix();
 	}
 	glFlush();
 }
@@ -165,7 +178,7 @@ int main(int argc, char** argv) {
 	while (processEvents()) {
 		const auto t0 = hrclock::now();
 
-		render(meshes, textureID);
+		render(gameObjects);
 		window.swapBuffers();
 
 		const auto t1 = hrclock::now();
