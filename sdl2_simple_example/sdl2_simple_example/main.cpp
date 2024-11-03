@@ -63,6 +63,8 @@ std::string getFileName(const std::string& path) {
 static bool processEvents() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
+		ImGui_ImplSDL2_ProcessEvent(&event);
+
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			camera.processKeyDown(event.key.keysym);
@@ -105,14 +107,13 @@ static bool processEvents() {
 			std::string outputPath = "Assets/" + baseName + ".dat";
 			importer.saveCustomFormat(outputPath, meshes);
 
-			std::cout << "Archivo FBX cargado y guardado en: " << outputPath << std::endl;
+			std::cout << "FBX loaded & saved in: " << outputPath << std::endl;
 			break;
 		}
 		case SDL_QUIT:
 			return false;
 			break;
 		default:
-			ImGui_ImplSDL2_ProcessEvent(&event);
 			break;
 		}
 	}
@@ -173,6 +174,10 @@ int main(int argc, char** argv) {
 	init_openGL();
 
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
+	for (size_t i = 0; i < meshes.size(); ++i) {
+		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
+		gameObjects.emplace_back(objectName, meshes[i], textureID);
+	}
 
 	while (processEvents()) {
 		const auto t0 = hrclock::now();

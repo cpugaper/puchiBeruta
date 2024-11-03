@@ -37,6 +37,10 @@ public:
         transform = glm::scale(transform, scale);
         return transform;
     }
+
+    glm::vec3 getPosition() const { return position; }
+    glm::vec3 getRotation() const { return rotation; }
+    glm::vec3 getScale() const { return scale; }
 };
 
 #endif // GAMEOBJECT_H

@@ -7,6 +7,8 @@
 #include "GameObject.h"
 #include <SDL2/SDL_opengl.h>
 
+extern Importer importer;
+
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -14,6 +16,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+
     _window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
     if (!_window) throw std::exception(SDL_GetError());
 
@@ -73,6 +76,22 @@ void MyWindow::swapBuffers() {
         }
         ImGui::EndMainMenuBar();
     }
+
+    ImGui::Begin("Inspector");
+
+    GameObject* selectedObject = nullptr;
+
+    if (selectedObject)
+    {
+        ImGui::Text("Transform");
+        ImGui::Text("Position: (%.2f, %.2f, %.2f)", selectedObject->getPosition().x, selectedObject->getPosition().y, selectedObject->getPosition().z);
+        ImGui::Text("Rotation: (%.2f, %.2f, %.2f)", selectedObject->getRotation().x, selectedObject->getRotation().y, selectedObject->getRotation().z);
+        ImGui::Text("Scale: (%.2f, %.2f, %.2f)", selectedObject->getScale().x, selectedObject->getScale().y, selectedObject->getScale().z);
+    } else {
+        ImGui::Text("No GameObject Selected");
+    }
+
+    ImGui::End();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
