@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GAMEOBJECT_H
+#define GAMEOBJECT_H
+
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
@@ -6,12 +8,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Importer.h"
 
-using namespace std;
-
 class GameObject {
 public:
-    string name;
-    vector<GameObject> children;
+    std::string name;
+    std::vector<GameObject> children;
     MeshData meshData;
     GLuint textureID;
 
@@ -20,11 +20,13 @@ public:
     glm::vec3 rotation; 
     glm::vec3 scale;
 
-    GameObject(const string& name, const MeshData& mesh, GLuint texID) : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f) {}
+    GameObject(const std::string& name, const MeshData& mesh, GLuint texID) : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f) {}
 
     void addChild(const GameObject& child) {
         children.push_back(child);
     }
+
+    static void createPrimitive(const std::string& primitiveType, std::vector<GameObject>& gameObjects);
 
     glm::mat4 getTransformMatrix() const {
         glm::mat4 transform = glm::mat4(1.0f);
@@ -36,3 +38,5 @@ public:
         return transform;
     }
 };
+
+#endif // GAMEOBJECT_H

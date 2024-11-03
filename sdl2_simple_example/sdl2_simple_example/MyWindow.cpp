@@ -1,12 +1,11 @@
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
-#include <SDL2/SDL_opengl.h>
 #include "MyWindow.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-#include <SDL2/SDL.h>
-
-using namespace std;
+#include "GameObject.h"
+#include <SDL2/SDL_opengl.h>
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
 
@@ -16,12 +15,12 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     _window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL);
-    if (!_window) throw exception(SDL_GetError());
+    if (!_window) throw std::exception(SDL_GetError());
 
     _ctx = SDL_GL_CreateContext(_window);
-    if (!_ctx) throw exception(SDL_GetError());
-    if (SDL_GL_MakeCurrent(_window, _ctx) != 0) throw exception(SDL_GetError());
-    if (SDL_GL_SetSwapInterval(1) != 0) throw exception(SDL_GetError());
+    if (!_ctx) throw std::exception(SDL_GetError());
+    if (SDL_GL_MakeCurrent(_window, _ctx) != 0) throw std::exception(SDL_GetError());
+    if (SDL_GL_SetSwapInterval(1) != 0) throw std::exception(SDL_GetError());
 
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
@@ -36,8 +35,7 @@ MyWindow::~MyWindow() {
     ImGui::DestroyContext();
 }
 
-void MyWindow::swapBuffers() const {
-
+void MyWindow::swapBuffers() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -51,6 +49,28 @@ void MyWindow::swapBuffers() const {
             }
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("Create")) {
+            if (ImGui::MenuItem("Sphere")) {
+                GameObject::createPrimitive("Sphere", gameObjects);
+            }
+            if (ImGui::MenuItem("Cube")) {
+                GameObject::createPrimitive("Cube", gameObjects);
+            }
+            if (ImGui::MenuItem("Cylinder")) {
+                GameObject::createPrimitive("Cylinder", gameObjects);
+            }
+            if (ImGui::MenuItem("Cone")) {
+                GameObject::createPrimitive("Cone", gameObjects);
+            }
+            if (ImGui::MenuItem("Torus")) {
+                GameObject::createPrimitive("Torus", gameObjects);
+            }
+            if (ImGui::MenuItem("Plane")) {
+                GameObject::createPrimitive("Plane", gameObjects);
+            }
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 
@@ -58,4 +78,3 @@ void MyWindow::swapBuffers() const {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(static_cast<SDL_Window*>(_window));
 }
-

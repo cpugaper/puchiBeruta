@@ -1,15 +1,16 @@
-#pragma once
-#include <string>
-#include <vector>
+#ifndef IMPORTER_H
+#define IMPORTER_H
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <filesystem>
-using namespace std;
+#include <string>
+#include <vector>
 
 struct MeshData {
-    vector<GLfloat> vertices;
-    vector<GLuint> indices;
-    vector<GLfloat> textCoords;
+    std::vector<GLfloat> vertices;
+    std::vector<GLuint> indices;
+    std::vector<GLfloat> textCoords;
 };
 
 class Importer {
@@ -17,13 +18,15 @@ public:
     Importer();
     ~Importer();
 
-    vector<MeshData> loadFBX(const string& filePath, GLuint& textureID);
-    GLuint loadTexture(const string& texturePath);
+    std::vector<MeshData> loadFBX(const std::string& filePath, GLuint& textureID);
+    GLuint loadTexture(const std::string& texturePath);
 
-    void saveCustomFormat(const string& outputPath, const vector<MeshData>& meshes);
-    vector<MeshData> loadCustomFormat(const string& inputPath);
+    void saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes);
+    std::vector<MeshData> loadCustomFormat(const std::string& inputPath);
 
 private:
     void initDevIL();
     void checkAndCreateDirectories();
 };
+
+#endif // IMPORTER_H

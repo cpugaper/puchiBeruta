@@ -6,13 +6,12 @@
 #include <IL/il.h>
 #include <stdexcept>
 #include <iostream>
-#include <fstream>
+#include <filesystem>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <chrono>
 #include <filesystem>
-using namespace std;
-namespace fs = filesystem;
+#include <fstream>
 
 Importer::Importer() {
     initDevIL();
@@ -26,41 +25,41 @@ void Importer::initDevIL() {
 }
 
 void Importer::checkAndCreateDirectories() {
-    const vector<string> directories = {
+    const std::vector<std::string> directories = {
         "Assets",
         "Library/Meshes",
         "Library/Materials",
         "Library/Models"
     };
     for (const auto& dir : directories) {
-        fs::path dirPath(dir);
+        std::filesystem::path dirPath(dir);
 
         // Create directory if it doesn't exist
-        if (!fs::exists(dirPath)) {
-            fs::create_directories(dirPath);
+        if (!std::filesystem::exists(dirPath)) {
+            std::filesystem::create_directories(dirPath);
         }
     }
 }
 
-vector<MeshData> Importer::loadFBX(const string& relativeFilePath, GLuint& textureID) {
+std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
 
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
     std::string filePath = (projectPath / relativeFilePath).string();
 
     if (!std::filesystem::exists(filePath)) {
-        throw runtime_error("El archivo FBX no existe: " + filePath);
+        throw std::runtime_error("El archivo FBX no existe: " + filePath);
     }
 
-    auto start = chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
     if (!scene) {
-        throw runtime_error("Error al cargar el archivo FBX: " + string(importer.GetErrorString()));
+        throw std::runtime_error("Error al cargar el archivo FBX: " + std::string(importer.GetErrorString()));
     }
 
-    vector<MeshData> meshes;
+    std::vector<MeshData> meshes;
 
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
         const aiMesh* aiMesh = scene->mMeshes[i];
@@ -86,33 +85,33 @@ vector<MeshData> Importer::loadFBX(const string& relativeFilePath, GLuint& textu
         meshes.push_back(meshData);
     }
 
-    fs::path modelPath(filePath);
-    fs::path texturePath = modelPath.parent_path() / (modelPath.stem().string() + ".png");
+    std::filesystem::path modelPath(filePath);
+    std::filesystem::path texturePath = modelPath.parent_path() / (modelPath.stem().string() + ".png");
 
-    if (fs::exists(texturePath)) {
+    if (std::filesystem::exists(texturePath)) {
         textureID = loadTexture(texturePath.string()); // Load Texture
-        cout << "Textura encontrada y cargada: " << texturePath << endl;
+        std::cout << "Textura encontrada y cargada: " << texturePath << std::endl;
     }
     else {
-        cout << "No se encontró una textura para " << filePath << endl;
+        std::cout << "No se encontrï¿½ una textura para " << filePath << std::endl;
     }
 
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> elapsed = end - start;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
 
-    cout << "Tiempo de carga del archivo FBX: " << elapsed.count() << " segundos" << endl;
+    std::cout << "Tiempo de carga del archivo FBX: " << elapsed.count() << " segundos" << std::endl;
 
     return meshes;
 }
 
-GLuint Importer::loadTexture(const string& texturePath) {
+GLuint Importer::loadTexture(const std::string& texturePath) {
     ILuint imageID;
     ilGenImages(1, &imageID);
     ilBindImage(imageID);
 
     if (!ilLoadImage((const wchar_t*)texturePath.c_str())) {
         ilDeleteImages(1, &imageID);
-        throw runtime_error("Error al cargar la textura.");
+        throw std::runtime_error("Error al cargar la textura.");
     }
 
     ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
@@ -133,9 +132,9 @@ GLuint Importer::loadTexture(const string& texturePath) {
     return textureID;
 }
 
-void Importer::saveCustomFormat(const string& outputPath, const vector<MeshData>& meshes) {
-    ofstream file(outputPath, ios::binary);
-    if (!file) throw runtime_error("No se pudo abrir el archivo para escribir.");
+void Importer::saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes) {
+    std::ofstream file(outputPath, std::ios::binary);
+    if (!file) throw std::runtime_error("No se pudo abrir el archivo para escribir.");
 
     size_t meshCount = meshes.size();
     file.write(reinterpret_cast<const char*>(&meshCount), sizeof(meshCount));
@@ -154,18 +153,18 @@ void Importer::saveCustomFormat(const string& outputPath, const vector<MeshData>
         file.write(reinterpret_cast<const char*>(mesh.textCoords.data()), texCoordsSize * sizeof(GLfloat));
     }
 
-    cout << "Archivo guardado en formato personalizado: " << outputPath << endl;
+    std::cout << "Archivo guardado en formato personalizado: " << outputPath << std::endl;
 }
 
-vector<MeshData> Importer::loadCustomFormat(const string& inputPath) {
-    ifstream file(inputPath, ios::binary);
-    if (!file) throw runtime_error("No se pudo abrir el archivo para leer.");
+std::vector<MeshData> Importer::loadCustomFormat(const std::string& inputPath) {
+    std::ifstream file(inputPath, std::ios::binary);
+    if (!file) throw std::runtime_error("No se pudo abrir el archivo para leer.");
 
-    vector<MeshData> meshes;
+    std::vector<MeshData> meshes;
     size_t meshCount;
     file.read(reinterpret_cast<char*>(&meshCount), sizeof(meshCount));
 
-    auto start = chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
 
     for (size_t i = 0; i < meshCount; ++i) {
         MeshData mesh;
@@ -188,10 +187,10 @@ vector<MeshData> Importer::loadCustomFormat(const string& inputPath) {
         meshes.push_back(mesh);
     }
 
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> elapsed = end - start;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
 
-    cout << "Tiempo de carga de archivo personalizado: " << elapsed.count() << " segundos" << endl;
+    std::cout << "Tiempo de carga de archivo personalizado: " << elapsed.count() << " segundos" << std::endl;
 
     return meshes;
 }

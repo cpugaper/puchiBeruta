@@ -1,10 +1,14 @@
+#include <iostream>
+#include <filesystem>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <chrono>
 #include <thread>
 #include <exception>
-#include <glm/glm.hpp>
-#include <SDL2/SDL_events.h>
-#include <iostream>
+
+// CUSTOM
 #include "MyWindow.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -17,16 +21,13 @@
 #include "IL/ilu.h"
 #include "IL/ilut.h"
 #include "Importer.h"
-#include <filesystem>
 #include "Camera.h"
 #include "GameObject.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
 
-using namespace std;
-using namespace chrono;
-namespace fs = filesystem;
+using namespace std::chrono;
 
 using hrclock = high_resolution_clock;
 using u8vec4 = glm::u8vec4;
@@ -40,33 +41,29 @@ static const auto FRAME_DT = 1.0s / FPS;
 Camera camera; 
 
 // Drop Objects
-vector<MeshData> meshes;
+std::vector<MeshData> meshes;
 GLuint textureID;
 Importer importer;
 const char* fbxFile = nullptr;
 
-vector<GameObject> gameObjects;
+std::vector<GameObject> gameObjects;
 
 static void init_openGL() {
 	glewInit();
-	if (!GLEW_VERSION_3_0) throw exception("OpenGL 3.0 API is not available.");
+	if (!GLEW_VERSION_3_0) throw  std::exception("OpenGL 3.0 API is not available.");
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 	glClearColor(0.5, 0.5, 0.5, 1.0);
 }
 
-string getFileName(const string& path) {
-	return fs::path(path).stem().string();
+std::string getFileName(const std::string& path) {
+	return std::filesystem::path(path).stem().string();
 }
 
 static bool processEvents() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
-		case SDL_QUIT:
-			return false;
-			break;
-
 		case SDL_KEYDOWN:
 			camera.processKeyDown(event.key.keysym);
 			break; 
@@ -100,29 +97,30 @@ static bool processEvents() {
 
 			for (size_t i = 0; i < meshes.size(); ++i)
 			{
-				string objectName = getFileName(fbxFile) + "_" + to_string(i);
+				std::string objectName = getFileName(fbxFile) + "_" + std::to_string(i);
 				gameObjects.emplace_back(objectName, meshes[i], textureID);
 			}
 
-			string baseName = getFileName(fbxFile);
-			string outputPath = "Assets/" + baseName + ".dat";
+			std::string baseName = getFileName(fbxFile);
+			std::string outputPath = "Assets/" + baseName + ".dat";
 			importer.saveCustomFormat(outputPath, meshes);
 
-			cout << "Archivo FBX cargado y guardado en: " << outputPath << endl;
+			std::cout << "Archivo FBX cargado y guardado en: " << outputPath << std::endl;
 			break;
 		}
+		case SDL_QUIT:
+			return false;
+			break;
 		default:
 			ImGui_ImplSDL2_ProcessEvent(&event);
 			break;
 		}
 	}
-
 	camera.move(SDL_GetKeyboardState(NULL));
 	return true;
 }
 
-
-void render(const vector<GameObject>& gameObjects)
+void render(const std::vector<GameObject>& gameObjects)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
@@ -169,6 +167,7 @@ void render(const vector<GameObject>& gameObjects)
 	glFlush();
 }
 
+#undef main
 int main(int argc, char** argv) {
 	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	init_openGL();
@@ -183,7 +182,7 @@ int main(int argc, char** argv) {
 
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
-		if (dt < FRAME_DT) this_thread::sleep_for(FRAME_DT - dt);
+		if (dt < FRAME_DT) std::this_thread::sleep_for(FRAME_DT - dt);
 	}
 	return 0;
 }
