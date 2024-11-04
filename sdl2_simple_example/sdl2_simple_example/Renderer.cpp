@@ -114,7 +114,7 @@ void render(const std::vector<GameObject*>& gameObjects) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, 1.0f, 0.1f, 100.0f);
+    gluPerspective(45.0f, static_cast<float>(Variables::WINDOW_SIZE.x) / Variables::WINDOW_SIZE.y, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 

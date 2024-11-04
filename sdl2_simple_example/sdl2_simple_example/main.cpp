@@ -34,7 +34,7 @@ using namespace std::chrono;
 using hrclock = high_resolution_clock;
 using ivec2 = glm::ivec2;
 
-static const ivec2 WINDOW_SIZE(1024, 1024);
+const ivec2 Variables::WINDOW_SIZE(1280, 960);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
@@ -52,7 +52,7 @@ std::vector<GameObject> gameObjects;
 int main(int argc, char** argv) {
 	std::cout << "Initializing SDL..." << std::endl;
 	variables = new Variables; 
-    variables->window = new MyWindow("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+    variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
 	std::cout << "SDL initialized with success" << std::endl;
 
 	std::cout << "Initializing OpenGL..." << std::endl;
