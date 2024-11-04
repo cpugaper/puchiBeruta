@@ -28,6 +28,25 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     ImGui::CreateContext();
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
     ImGui_ImplOpenGL3_Init("#version 130");
+
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    // Colores
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_WindowBg] = ImColor(250, 224, 228);
+    colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
+    colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208); 
+    colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199); 
+    colors[ImGuiCol_TitleBgActive] = ImColor(255, 153, 172);
+    colors[ImGuiCol_PopupBg] = ImColor(250, 224, 228);
+    colors[ImGuiCol_ScrollbarBg] = ImColor(251, 177, 189);
+    colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 133, 161); 
+    colors[ImGuiCol_ScrollbarGrabActive] = ImColor(255, 153, 172); 
+    colors[ImGuiCol_Border] = ImColor(255, 71, 126); 
+    colors[ImGuiCol_Button] = ImColor(251, 177, 189); 
+    colors[ImGuiCol_ButtonHovered] = ImColor(255, 133, 161);
+    colors[ImGuiCol_ButtonActive] = ImColor(255, 112, 150); 
+    colors[ImGuiCol_Text] = ImColor(0, 0, 0); 
 }
 
 MyWindow::~MyWindow() {
@@ -43,12 +62,21 @@ void MyWindow::swapBuffers() {
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
+    static bool showAboutWindow = false; 
+    static bool showGithubWindow = false;
+
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Menu")) {
-            if (ImGui::MenuItem("Adeu")) {
+            if (ImGui::MenuItem("Exit")) {
                 SDL_Event quit_event;
                 quit_event.type = SDL_QUIT;
                 SDL_PushEvent(&quit_event);
+            }
+            if (ImGui::MenuItem("GitHub")) {
+                showGithubWindow = true;
+            }
+            if (ImGui::MenuItem("About")) {
+                showAboutWindow = true;
             }
             ImGui::EndMenu();
         }
@@ -75,6 +103,34 @@ void MyWindow::swapBuffers() {
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
+
+        if (showAboutWindow)
+        {
+            ImGui::Begin("About", &showAboutWindow);
+            ImGui::Text("PuchiBeruta is a simple game engine for learning purposes");
+            ImGui::Text("Version: 1.0.0");
+            ImGui::Text("Developed by videogame design & development UPC students");
+            ImGui::Text("Team: ");
+            ImGui::Text("Maria Perarnau");
+            ImGui::Text("Rebeca Fernández");
+            ImGui::Text("Carla Puga");
+            if (ImGui::Button("Close")) {
+                showAboutWindow = false; 
+            }
+            ImGui::End();
+        }
+
+        if (showGithubWindow) {
+            ImGui::Begin("GitHub", &showGithubWindow);
+            ImGui::Text("Visit our GitHub page:");
+            if (ImGui::Button("Open GitHub")) {
+                system("start https://github.com/cpugaper/puchiBeruta");
+            }
+            if (ImGui::Button("Close")) {
+                showGithubWindow = false; 
+            }
+            ImGui::End();
+        }
     }
 
     ImGui::Begin("Inspector");
