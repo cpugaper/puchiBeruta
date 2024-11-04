@@ -5,7 +5,7 @@
 #include <SDL2/SDL_events.h>
 
 class Camera {
-public: 
+public:
 	Camera();
 
 	void reset();
@@ -22,12 +22,12 @@ public:
 	void applyCameraTransformations();
 
 private:
-	glm::vec3 position; 
+	glm::vec3 position;
 	float angleX, angleY;
 	float objectAngleX, objectAngleY;
 	float speed;
 	bool shiftPressed, altPressed, isLeftMouseDragging, isRightMouseDragging;
-    int lastMouseX, lastMouseY;
+	int lastMouseX, lastMouseY;
 };
 
 #endif

@@ -5,11 +5,12 @@
 
 extern Importer importer; // Declare extern importer if already created 
 
+
 void GameObject::addChild(const GameObject& child) {
     children.push_back(child);
 }
 
-void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject>& gameObjects) {
+void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects) {   
     MeshData meshData;
     GLuint textureID = 0;
     std::string filePath = "Assets\\Primitives\\";
@@ -32,13 +33,18 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
     else if (primitiveType == "Plane") {
         filePath += "plane.fbx";
     }
+    // Crea el objeto nuevo usando el constructor correcto
+    GameObject* newObject = new GameObject(primitiveType, meshData, textureID); // Asegúrate de que este constructor exista
+    gameObjects.push_back(newObject);
 
     // Load model with Assimp, using importer
     try {
         std::vector<MeshData> meshes = importer.loadFBX(filePath, textureID);
         if (!meshes.empty()) {
-            meshData = meshes[0]; 
-            gameObjects.emplace_back(primitiveType, meshData, textureID);
+            meshData = meshes[0];
+            GameObject* modelObject = new GameObject(primitiveType, meshData, textureID);
+            gameObjects.push_back(modelObject);
+            //gameObjects.emplace_back(primitiveType, meshData, textureID);
             std::cout << "Model " << primitiveType << " loaded from " << filePath << std::endl;
         }
     }

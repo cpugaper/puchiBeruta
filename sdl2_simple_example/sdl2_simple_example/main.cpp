@@ -37,7 +37,7 @@ static const ivec2 WINDOW_SIZE(1024, 1024);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-Camera camera; 
+Camera camera;
 
 // Drop Objects
 std::vector<MeshData> meshes;

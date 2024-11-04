@@ -17,17 +17,18 @@ public:
 
     // Object Transformation
     glm::vec3 position;
-    glm::vec3 rotation; 
+    glm::vec3 rotation;
     glm::vec3 scale;
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID) : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f) {}
 
     void addChild(const GameObject& child);
 
-    static void createPrimitive(const std::string& primitiveType, std::vector<GameObject>& gameObjects);
+    static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
 
     glm::mat4 getTransformMatrix() const;
 
+    const std::string& getName() const { return name; }
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getRotation() const { return rotation; }
     glm::vec3 getScale() const { return scale; }

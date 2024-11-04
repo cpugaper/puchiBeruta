@@ -15,7 +15,7 @@ class MyWindow {
 	int _width = 0;
 	int _height = 0;
 
-	std::vector<GameObject> gameObjects;
+	std::vector<GameObject*> gameObjects;
 
 public:
 	int width() const { return _width; }
@@ -26,6 +26,11 @@ public:
 	~MyWindow();
 
 	void swapBuffers();
-	std::vector<GameObject>& getGameObjects() { return gameObjects; }
+	std::vector<GameObject*>& getGameObjects() { return gameObjects; }
+
+	void selectObject(GameObject* obj);
+
+private:
+	GameObject* selectedObject = nullptr;
 };
 #endif // MYWINDOW_H	

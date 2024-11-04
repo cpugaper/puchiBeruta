@@ -6,10 +6,13 @@
 #include "imgui_impl_opengl3.h"
 #include "GameObject.h"
 #include <SDL2/SDL_opengl.h>
-
+#include <vector>
+#include <iostream>
 extern Importer importer;
 
-MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h) {
+extern std::vector<GameObject*> gameObjects; 
+
+MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -50,11 +53,27 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
 }
 
 MyWindow::~MyWindow() {
+    // Liberar los recursos de los objetos creados
+    for (GameObject* obj : gameObjects) {
+        delete obj; // Asegúrate de liberar la memoria
+    }
+    gameObjects.clear(); // Limpiar la lista
+
+
     SDL_GL_DeleteContext(_ctx);
     SDL_DestroyWindow(static_cast<SDL_Window*>(_window));
     ImGui_ImplSDL2_Shutdown();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui::DestroyContext();
+}
+
+void MyWindow::selectObject(GameObject* obj) {
+    if (selectedObject != obj) {
+        selectedObject = obj;
+    }
+    else {
+        selectedObject = nullptr; 
+    }
 }
 
 void MyWindow::swapBuffers() {
@@ -135,7 +154,7 @@ void MyWindow::swapBuffers() {
 
     ImGui::Begin("Inspector");
 
-    GameObject* selectedObject = nullptr;
+    //GameObject* selectedObject = nullptr;
 
     if (selectedObject)
     {
@@ -143,10 +162,20 @@ void MyWindow::swapBuffers() {
         ImGui::Text("Position: (%.2f, %.2f, %.2f)", selectedObject->getPosition().x, selectedObject->getPosition().y, selectedObject->getPosition().z);
         ImGui::Text("Rotation: (%.2f, %.2f, %.2f)", selectedObject->getRotation().x, selectedObject->getRotation().y, selectedObject->getRotation().z);
         ImGui::Text("Scale: (%.2f, %.2f, %.2f)", selectedObject->getScale().x, selectedObject->getScale().y, selectedObject->getScale().z);
-    } else {
+    }
+    else {
         ImGui::Text("No GameObject Selected");
     }
 
+    ImGui::End();
+
+    //Ventana nueva para mostrar todos los objetos de la escena
+    ImGui::Begin("Scene Objects");
+    for (GameObject* obj : gameObjects) { // Iterar sobre los punteros a GameObject
+        if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
+            selectObject(obj);
+        }
+    }
     ImGui::End();
 
     ImGui::Render();
