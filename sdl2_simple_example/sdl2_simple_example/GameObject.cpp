@@ -5,6 +5,10 @@
 
 extern Importer importer; // Declare extern importer if already created 
 
+void GameObject::addChild(const GameObject& child) {
+    children.push_back(child);
+}
+
 void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject>& gameObjects) {
     MeshData meshData;
     GLuint textureID = 0;
@@ -41,4 +45,14 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
     catch (const std::exception& e) {
         std::cerr << "Error when loading model " << primitiveType << ": " << e.what() << std::endl;
     }
+}
+
+glm::mat4 GameObject::getTransformMatrix() const {
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, position);
+    transform = glm::rotate(transform, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+    transform = glm::rotate(transform, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+    transform = glm::rotate(transform, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+    transform = glm::scale(transform, scale);
+    return transform;
 }

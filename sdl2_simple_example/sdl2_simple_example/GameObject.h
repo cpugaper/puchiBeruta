@@ -22,21 +22,11 @@ public:
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID) : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f) {}
 
-    void addChild(const GameObject& child) {
-        children.push_back(child);
-    }
+    void addChild(const GameObject& child);
 
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject>& gameObjects);
 
-    glm::mat4 getTransformMatrix() const {
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, position);
-        transform = glm::rotate(transform, glm::radians(rotation.x), glm::vec3(1, 0, 0)); 
-        transform = glm::rotate(transform, glm::radians(rotation.y), glm::vec3(0, 1, 0)); 
-        transform = glm::rotate(transform, glm::radians(rotation.z), glm::vec3(0, 0, 1)); 
-        transform = glm::scale(transform, scale);
-        return transform;
-    }
+    glm::mat4 getTransformMatrix() const;
 
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getRotation() const { return rotation; }
