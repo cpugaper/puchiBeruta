@@ -11,6 +11,7 @@
 extern Importer importer;
 
 extern std::vector<GameObject*> gameObjects; 
+extern MyWindow* window;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
 
@@ -103,7 +104,6 @@ void MyWindow::swapBuffers() {
         if (ImGui::BeginMenu("Create")) {
             if (ImGui::MenuItem("Sphere")) {
                 GameObject::createPrimitive("Sphere", gameObjects);
-                
             }
             if (ImGui::MenuItem("Cube")) {
                 GameObject::createPrimitive("Cube", gameObjects);

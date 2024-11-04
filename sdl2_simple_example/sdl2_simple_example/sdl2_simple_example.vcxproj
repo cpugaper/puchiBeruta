@@ -134,6 +134,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyWindow.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Variables.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Importer.h" />
     <ClInclude Include="MyWindow.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Variables.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

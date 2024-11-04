@@ -14,7 +14,7 @@ class MyWindow {
 
 	int _width = 0;
 	int _height = 0;
-
+public:
 	std::vector<GameObject*> gameObjects;
 
 public:
@@ -26,7 +26,7 @@ public:
 	~MyWindow();
 
 	void swapBuffers();
-	std::vector<GameObject*>& getGameObjects() { return gameObjects; }
+	std::vector<GameObject*> getGameObjects() { return gameObjects; }
 
 	void selectObject(GameObject* obj);
 

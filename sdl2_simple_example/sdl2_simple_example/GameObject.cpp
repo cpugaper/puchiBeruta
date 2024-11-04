@@ -33,9 +33,6 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
     else if (primitiveType == "Plane") {
         filePath += "plane.fbx";
     }
-    //// Crea el objeto nuevo usando el constructor correcto
-    //GameObject* newObject = new GameObject(primitiveType, meshData, textureID); // Asegúrate de que este constructor exista
-    //gameObjects.push_back(newObject);
 
     // Load model with Assimp, using importer
     try {

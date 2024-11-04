@@ -8,7 +8,7 @@
 
 void initOpenGL();
 bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& fbxFile);
-void render(const std::vector<GameObject>& gameObjects);
+void render(const std::vector<GameObject*>& gameObjects);
 std::string getFileName(const std::string& path);
 
 #endif // RENDERER_H

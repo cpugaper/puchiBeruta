@@ -24,6 +24,7 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "Renderer.h"
+#include "Variables.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
@@ -49,20 +50,23 @@ std::vector<GameObject> gameObjects;
 
 #undef main
 int main(int argc, char** argv) {
-	MyWindow window("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
+	variables = new Variables; 
+    variables->window = new MyWindow("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
 	initOpenGL();
 
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
-		gameObjects.emplace_back(objectName, meshes[i], textureID);
+		//gameObjects.emplace_back(objectName, meshes[i], textureID);
+		GameObject* casa = new GameObject(objectName, meshes[i], textureID);
+		variables->window->gameObjects.push_back(casa);
 	}
 
 	while (processEvents(camera, gameObjects, fbxFile)) {
 		const auto t0 = hrclock::now();
 
-		render(gameObjects);
-		window.swapBuffers();
+		render(variables->window->gameObjects); 
+		variables->window->swapBuffers();  
 
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;
