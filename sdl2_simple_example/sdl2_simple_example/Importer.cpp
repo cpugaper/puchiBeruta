@@ -43,6 +43,8 @@ void Importer::checkAndCreateDirectories() {
 
 std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
 
+    std::cout << "Loading model FBX: " << relativeFilePath << std::endl;
+
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
     std::string filePath = (projectPath / relativeFilePath).string();
@@ -58,6 +60,8 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
     if (!scene) {
         throw std::runtime_error("Error loading FBX: " + std::string(importer.GetErrorString()));
     }
+
+    std::cout << "Model loaded with success, number of meshes: " << scene->mNumMeshes << std::endl;
 
     std::vector<MeshData> meshes;
 
@@ -153,7 +157,7 @@ void Importer::saveCustomFormat(const std::string& outputPath, const std::vector
         file.write(reinterpret_cast<const char*>(mesh.textCoords.data()), texCoordsSize * sizeof(GLfloat));
     }
 
-    std::cout << "File saved in personalized format: " << outputPath << std::endl;
+    std::cout << "File saved in custom format: " << outputPath << std::endl;
 }
 
 std::vector<MeshData> Importer::loadCustomFormat(const std::string& inputPath) {
@@ -190,7 +194,7 @@ std::vector<MeshData> Importer::loadCustomFormat(const std::string& inputPath) {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
 
-    std::cout << "Loading time for personalized file: " << elapsed.count() << " seconds" << std::endl;
+    std::cout << "Loading time for custom file: " << elapsed.count() << " seconds" << std::endl;
 
     return meshes;
 }

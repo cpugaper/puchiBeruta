@@ -42,15 +42,19 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208); 
     colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199); 
     colors[ImGuiCol_TitleBgActive] = ImColor(255, 153, 172);
+    colors[ImGuiCol_TitleBgCollapsed] = ImColor(249, 190, 199);
     colors[ImGuiCol_PopupBg] = ImColor(250, 224, 228);
-    colors[ImGuiCol_ScrollbarBg] = ImColor(251, 177, 189);
-    colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 133, 161); 
-    colors[ImGuiCol_ScrollbarGrabActive] = ImColor(255, 153, 172); 
+    colors[ImGuiCol_ScrollbarBg] = ImColor(247, 202, 208);
+    colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 153, 172);
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 133, 161);
     colors[ImGuiCol_Border] = ImColor(255, 71, 126); 
     colors[ImGuiCol_Button] = ImColor(251, 177, 189); 
     colors[ImGuiCol_ButtonHovered] = ImColor(255, 133, 161);
     colors[ImGuiCol_ButtonActive] = ImColor(255, 112, 150); 
     colors[ImGuiCol_Text] = ImColor(0, 0, 0); 
+    colors[ImGuiCol_Header] = ImColor(250, 224, 228);
+    colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172); 
+    colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161); 
 }
 
 MyWindow::~MyWindow() {

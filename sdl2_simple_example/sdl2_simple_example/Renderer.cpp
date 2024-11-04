@@ -89,6 +89,27 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
     return true;
 }
 
+void drawGrid(float spacing) {
+    float gridRange = 1000.0f;
+
+    glColor3f(0.4f, 0.4f, 0.4f); 
+    glBegin(GL_LINES);
+
+    // X axis
+    for (float i = -gridRange; i <= gridRange; i += spacing) {
+        glVertex3f(i, 0, -gridRange);
+        glVertex3f(i, 0, gridRange);
+    }
+
+    // Z axis
+    for (float i = -gridRange; i <= gridRange; i += spacing) {
+        glVertex3f(-gridRange, 0, i);
+        glVertex3f(gridRange, 0, i);
+    }
+
+    glEnd();
+}
+
 void render(const std::vector<GameObject*>& gameObjects) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
@@ -99,11 +120,15 @@ void render(const std::vector<GameObject*>& gameObjects) {
 
     camera.applyCameraTransformations();
 
+    drawGrid(0.5f);
+
     for (const auto& obj : gameObjects) {
         glPushMatrix();
 
         glm::mat4 transform = obj->getTransformMatrix();
         glMultMatrixf(glm::value_ptr(transform));
+
+        glColor3f(1.0f, 1.0f, 1.0f);
 
         if (obj->textureID) {
             glEnable(GL_TEXTURE_2D);

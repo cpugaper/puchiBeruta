@@ -50,11 +50,23 @@ std::vector<GameObject> gameObjects;
 
 #undef main
 int main(int argc, char** argv) {
+	std::cout << "Initializing SDL..." << std::endl;
 	variables = new Variables; 
     variables->window = new MyWindow("SDL2 Simple Example", WINDOW_SIZE.x, WINDOW_SIZE.y);
-	initOpenGL();
+	std::cout << "SDL initialized with success" << std::endl;
 
+	std::cout << "Initializing OpenGL..." << std::endl;
+	initOpenGL();
+	std::cout << "OpenGL initialized with success" << std::endl;
+
+	std::cout << "Initializing Devil..." << std::endl;
+	ilInit();
+	std::cout << "DevIL initialized with success" << std::endl;
+
+
+	std::cout << "Loading model FBX..." << std::endl;
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
+
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
 		//gameObjects.emplace_back(objectName, meshes[i], textureID);
