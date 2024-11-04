@@ -91,16 +91,16 @@ void MyWindow::swapBuffers() {
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Menu")) {
-            if (ImGui::MenuItem("Exit")) {
-                SDL_Event quit_event;
-                quit_event.type = SDL_QUIT;
-                SDL_PushEvent(&quit_event);
-            }
             if (ImGui::MenuItem("GitHub")) {
                 showGithubWindow = true;
             }
             if (ImGui::MenuItem("About")) {
                 showAboutWindow = true;
+            }
+            if (ImGui::MenuItem("Exit")) {
+                SDL_Event quit_event;
+                quit_event.type = SDL_QUIT;
+                SDL_PushEvent(&quit_event);
             }
             ImGui::EndMenu();
         }
@@ -157,12 +157,30 @@ void MyWindow::swapBuffers() {
         }
     }
 
-    ImGui::Begin("Inspector");
+    // Ventana anclada a la izquierda (Scene Objects)
+    ImGui::SetNextWindowPos(ImVec2(0, 20));
+    ImGui::SetNextWindowSizeConstraints(ImVec2(200, 100), ImVec2(400, _height - 100));
+    ImGui::Begin("Scene Objects", nullptr, ImGuiWindowFlags_NoMove);
 
-    //GameObject* selectedObject = nullptr;
+    if (!gameObjects.empty()) {
+        for (GameObject* obj : gameObjects) {
+            if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
+                selectObject(obj);
+            }
+        }
+    }
+    else {
+        ImGui::Text("No objects in the scene.");
+    }
+    ImGui::End();
 
-    if (selectedObject)
-    {
+    // Ventana anclada a la derecha (Inspector)
+    ImGui::SetNextWindowPos(ImVec2(_width - 210, 20));
+    ImGui::SetNextWindowSize(ImVec2(210, _height - 100)); // Tamaño fijo al inicio
+    ImGui::SetNextWindowSizeConstraints(ImVec2(200, _height - 100), ImVec2(_width - 20, _height - 100)); // Tamaños mínimo y máximo
+    ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove); // Ventana anclada a la derecha
+
+    if (selectedObject) {
         ImGui::Text("Transform");
         ImGui::Text("Position: (%.2f, %.2f, %.2f)", selectedObject->getPosition().x, selectedObject->getPosition().y, selectedObject->getPosition().z);
         ImGui::Text("Rotation: (%.2f, %.2f, %.2f)", selectedObject->getRotation().x, selectedObject->getRotation().y, selectedObject->getRotation().z);
@@ -171,28 +189,6 @@ void MyWindow::swapBuffers() {
     else {
         ImGui::Text("No GameObject Selected");
     }
-
-    ImGui::End();
-
-    //Ventana nueva para mostrar todos los objetos de la escena
-    if (ImGui::Begin("Scene Objects")) {
-        if (!gameObjects.empty()) {
-            for (GameObject* obj : gameObjects) { // Usamos una referencia para evitar copias innecesarias 
-                if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) { // Usa selectable para permitir la selección 
-                    selectObject(obj); // Selecciona el objeto 
-                }
-            }
-        }
-        else {
-            ImGui::Text("No objects in the scene.");
-        }  
-    }
-    //ImGui::Begin("Scene Objects");
-    //for (GameObject* obj : gameObjects) { // Iterar sobre los punteros a GameObject
-    //    if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
-    //        selectObject(obj);
-    //    }
-    //}
     ImGui::End();
 
     ImGui::Render();
