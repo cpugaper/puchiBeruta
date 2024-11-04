@@ -68,5 +68,10 @@ int main(int argc, char** argv) {
 		const auto dt = t1 - t0;
 		if (dt < FRAME_DT) std::this_thread::sleep_for(FRAME_DT - dt);
 	}
+
+	for (const auto& obj : gameObjects) {
+		std::cout << "Objeto en la escena: " << obj.getName() << std::endl;
+	}
+
 	return 0;
 }

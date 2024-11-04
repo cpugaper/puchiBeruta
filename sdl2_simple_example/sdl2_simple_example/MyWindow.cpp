@@ -103,6 +103,7 @@ void MyWindow::swapBuffers() {
         if (ImGui::BeginMenu("Create")) {
             if (ImGui::MenuItem("Sphere")) {
                 GameObject::createPrimitive("Sphere", gameObjects);
+                
             }
             if (ImGui::MenuItem("Cube")) {
                 GameObject::createPrimitive("Cube", gameObjects);
@@ -170,12 +171,24 @@ void MyWindow::swapBuffers() {
     ImGui::End();
 
     //Ventana nueva para mostrar todos los objetos de la escena
-    ImGui::Begin("Scene Objects");
-    for (GameObject* obj : gameObjects) { // Iterar sobre los punteros a GameObject
-        if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
-            selectObject(obj);
+    if (ImGui::Begin("Scene Objects")) {
+        if (!gameObjects.empty()) {
+            for (GameObject* obj : gameObjects) { // Usamos una referencia para evitar copias innecesarias 
+                if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) { // Usa selectable para permitir la selección 
+                    selectObject(obj); // Selecciona el objeto 
+                }
+            }
         }
+        else {
+            ImGui::Text("No objects in the scene.");
+        }  
     }
+    //ImGui::Begin("Scene Objects");
+    //for (GameObject* obj : gameObjects) { // Iterar sobre los punteros a GameObject
+    //    if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
+    //        selectObject(obj);
+    //    }
+    //}
     ImGui::End();
 
     ImGui::Render();
