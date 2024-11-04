@@ -31,7 +31,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
 
     ImGuiStyle& style = ImGui::GetStyle();
 
-    // Colores
+    // Colors
     ImVec4* colors = style.Colors;
     colors[ImGuiCol_WindowBg] = ImColor(250, 224, 228);
     colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
