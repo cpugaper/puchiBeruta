@@ -32,6 +32,10 @@ public:
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getRotation() const { return rotation; }
     glm::vec3 getScale() const { return scale; }
+
+    void setPosition(const glm::vec3& newPosition);
+    void setRotation(const glm::vec3& newRotation);
+    void setScale(const glm::vec3& newScale);
 };
 
 #endif // GAMEOBJECT_H

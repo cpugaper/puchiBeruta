@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+ï»¿#include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 #include "MyWindow.h"
 #include "imgui.h"
@@ -60,7 +60,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
 MyWindow::~MyWindow() {
     // Liberar los recursos de los objetos creados
     for (GameObject* obj : gameObjects) {
-        delete obj; // Asegúrate de liberar la memoria
+        delete obj; // AsegÃºrate de liberar la memoria
     }
     gameObjects.clear(); // Limpiar la lista
 
@@ -134,10 +134,21 @@ void MyWindow::swapBuffers() {
             ImGui::Text("PuchiBeruta is a simple game engine for learning purposes");
             ImGui::Text("Version: 1.0.0");
             ImGui::Text("Developed by videogame design & development UPC students");
+            ImGui::Text("-------------------------");
             ImGui::Text("Team: ");
-            ImGui::Text("Maria Perarnau");
-            ImGui::Text("Rebeca Fernández");
-            ImGui::Text("Carla Puga");
+   
+            if (ImGui::Button("Maria Perarnau")) {
+                system("start https://github.com/MariaPerarnau"); 
+            }
+            if (ImGui::Button("Rebeca Fernandez")) {
+                system("start https://github.com/Becca203");
+            }
+            if (ImGui::Button("Carla Puga")) {
+                system("start https://github.com/cpugaper"); 
+            }
+
+            ImGui::Text("-------------------------");
+            ImGui::Text("");
             if (ImGui::Button("Close")) {
                 showAboutWindow = false; 
             }
@@ -176,15 +187,26 @@ void MyWindow::swapBuffers() {
 
     // Ventana anclada a la derecha (Inspector)
     ImGui::SetNextWindowPos(ImVec2(_width - 210, 20));
-    ImGui::SetNextWindowSize(ImVec2(210, _height - 100)); // Tamaño fijo al inicio
-    ImGui::SetNextWindowSizeConstraints(ImVec2(200, _height - 100), ImVec2(_width - 20, _height - 100)); // Tamaños mínimo y máximo
+    ImGui::SetNextWindowSize(ImVec2(210, _height - 100)); // TamaÃ±o fijo al inicio
+    ImGui::SetNextWindowSizeConstraints(ImVec2(200, _height - 100), ImVec2(_width - 20, _height - 100)); // TamaÃ±os mÃ­nimo y mÃ¡ximo
     ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove); // Ventana anclada a la derecha
 
     if (selectedObject) {
         ImGui::Text("Transform");
-        ImGui::Text("Position: (%.2f, %.2f, %.2f)", selectedObject->getPosition().x, selectedObject->getPosition().y, selectedObject->getPosition().z);
-        ImGui::Text("Rotation: (%.2f, %.2f, %.2f)", selectedObject->getRotation().x, selectedObject->getRotation().y, selectedObject->getRotation().z);
-        ImGui::Text("Scale: (%.2f, %.2f, %.2f)", selectedObject->getScale().x, selectedObject->getScale().y, selectedObject->getScale().z);
+
+        glm::vec3 position = selectedObject->getPosition();
+        glm::vec3 rotation = selectedObject->getRotation();
+        glm::vec3 scale = selectedObject->getScale();
+
+        if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
+            selectedObject->setPosition(position); 
+        }
+        if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f)) {
+            selectedObject->setRotation(rotation);
+        }
+        if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f, 0.1f, 10.0f)) {
+            selectedObject->setScale(scale); 
+        }
     }
     else {
         ImGui::Text("No GameObject Selected");

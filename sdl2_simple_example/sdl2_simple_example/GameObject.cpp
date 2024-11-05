@@ -59,3 +59,15 @@ glm::mat4 GameObject::getTransformMatrix() const {
     transform = glm::scale(transform, scale);
     return transform;
 }
+
+void GameObject::setPosition(const glm::vec3& newPosition) {
+    position = newPosition;
+}
+
+void GameObject::setRotation(const glm::vec3& newRotation) {
+    rotation = newRotation;
+}
+
+void GameObject::setScale(const glm::vec3& newScale) {
+    scale = newScale;
+}

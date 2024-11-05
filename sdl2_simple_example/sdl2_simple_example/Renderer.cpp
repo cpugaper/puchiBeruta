@@ -90,9 +90,10 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
 }
 
 void drawGrid(float spacing) {
+    glDisable(GL_TEXTURE_2D);
     float gridRange = 1000.0f;
 
-    glColor3f(0.4f, 0.4f, 0.4f); 
+    glColor3f(0.7f, 0.7f, 0.7f); 
     glBegin(GL_LINES);
 
     // X axis
