@@ -29,6 +29,8 @@ public:
 
 	void selectObject(GameObject* obj);
 
+	void deleteSelectedObject();
+
 	GameObject* selectedObject = nullptr;
 	bool objectSelected = false;
 private:

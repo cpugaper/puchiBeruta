@@ -96,6 +96,18 @@ void MyWindow::selectObject(GameObject* obj) {
     }
 }
 
+void MyWindow::deleteSelectedObject() {
+    if (selectedObject) {
+        auto it = std::find(gameObjects.begin(), gameObjects.end(), selectedObject);
+        if (it != gameObjects.end()) {
+            delete* it;
+            gameObjects.erase(it);
+        }
+        selectedObject = nullptr;
+        objectSelected = false;
+    }
+}
+
 void MyWindow::swapBuffers() {
     // Calcular FPS
     _currentTime = SDL_GetTicks(); 
