@@ -7,9 +7,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Importer.h"
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/json.hpp>
 
 class GameObject {
 public:
+    std::string uuid;
     std::string name;
     std::vector<GameObject> children;
     MeshData meshData;
@@ -20,7 +24,7 @@ public:
     glm::vec3 rotation;
     glm::vec3 scale;
 
-    GameObject(const std::string& name, const MeshData& mesh, GLuint texID) : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f) {}
+    GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
 
     void addChild(const GameObject& child);
 
@@ -36,6 +40,12 @@ public:
     void setPosition(const glm::vec3& newPosition);
     void setRotation(const glm::vec3& newRotation);
     void setScale(const glm::vec3& newScale);
+
+    template <class Archive>
+    void serialize(Archive& archive);
+
+    static std::string GenerateUUID();
+       
 };
 
 #endif // GAMEOBJECT_H
