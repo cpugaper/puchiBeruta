@@ -198,4 +198,3 @@ std::vector<MeshData> Importer::loadCustomFormat(const std::string& inputPath) {
 
     return meshes;
 }
-
