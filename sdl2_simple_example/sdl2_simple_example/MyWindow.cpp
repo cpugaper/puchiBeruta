@@ -10,6 +10,17 @@
 #include <iostream>
 #include "Variables.h"
 
+
+#include <IL/il.h>
+#include <IL/ilu.h>
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <sys/sysctl.h>  // Para obtener la memoria en macOS
+#include <unistd.h>      // Para obtener la memoria en Linux
+#endif
+
 extern Importer importer;
 
 extern std::vector<GameObject*> gameObjects;
@@ -106,8 +117,7 @@ void MyWindow::swapBuffers() {
 
     static bool showAboutWindow = false;
     static bool showGithubWindow = false;
-    static bool showFPSGraph = false;
-    static bool showWindowSettings = false;
+    static bool showConfig = false;
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Menu")) {
@@ -147,20 +157,25 @@ void MyWindow::swapBuffers() {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Configuration")) { 
-            if (ImGui::MenuItem("FPS")) {
-                showFPSGraph = !showFPSGraph;
-            }
-            if (ImGui::MenuItem("Window Settings")) {
-                std::cout << "BOTON Window Settings" << std::endl; 
-                showWindowSettings = !showWindowSettings;
-            }
+            showConfig = !showConfig; 
+                
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
 
-        if (showWindowSettings) {
-            if (ImGui::Begin("Window Settings")) {
+        if (showConfig) {
+            //ImGui::SetNextWindowPos(ImVec2(0, 20));
+            ImGui::Begin("Config", nullptr);
+            if(ImGui::CollapsingHeader("FPS Graph")) {
+                ImGui::Text("FPS: %d", _fps); // Mostrar FPS actual
+                // Mostrar el gráfico de FPS en la ventana
+                ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
 
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::CollapsingHeader("Window Settings")) {
                 ImGui::InputInt("Width", &variables->windowWidth);
                 ImGui::InputInt("Height", &variables->windowHeight);
                 if (ImGui::Checkbox("Fullscreen", &variables->fullscreen)) {
@@ -170,14 +185,8 @@ void MyWindow::swapBuffers() {
                     // Actualiza la configuración de V-Sync
                 }
 
-                ImGui::Separator();
-
-                ImGui::Text("Texture Settings");
-                ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
-                ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
-
                 // Aplicar cambios
-                if (ImGui::Button("Apply")) {
+                if (ImGui::Button("Apply Changes")) {
                     // Aquí puedes aplicar los cambios de configuración, como actualizar la ventana o el contexto OpenGL
                     SDL_SetWindowSize(_window, variables->windowWidth, variables->windowHeight);
                     if (variables->fullscreen) {
@@ -187,28 +196,59 @@ void MyWindow::swapBuffers() {
                         SDL_SetWindowFullscreen(_window, 0); // Desactivar fullscreen
                     }
                 }
-                if (ImGui::Button("Close")) {
-                    showWindowSettings = false;
-                }
+            }
+
+            ImGui::Separator();
+
+            if(ImGui::CollapsingHeader("Texture Settings")) {
+                ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
+                ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
+            }
             
-                ImGui::End(); 
+            ImGui::Separator(); 
+            // Información de la memoria (ejemplo, en Windows)
+            if (ImGui::CollapsingHeader("Info")) {
+                // (esto depende del sistema operativo)
+                MEMORYSTATUSEX statex;
+                statex.dwLength = sizeof(statex);
+                GlobalMemoryStatusEx(&statex);
+
+                ImGui::Text("Memory Usage:");
+                ImGui::Text("Total RAM: %.2f GB", statex.ullTotalPhys / (1024.0 * 1024.0 * 1024.0));
+                ImGui::Text("Available RAM: %.2f GB", statex.ullAvailPhys / (1024.0 * 1024.0 * 1024.0));
+                ImGui::Text("Used RAM: %.2f GB", (statex.ullTotalPhys - statex.ullAvailPhys) / (1024.0 * 1024.0 * 1024.0));
+
+                ImGui::Separator();
+
+                // Información de SDL
+                SDL_version sdl_version;
+                SDL_GetVersion(&sdl_version);
+                ImGui::Text("SDL Version: %d.%d.%d", sdl_version.major, sdl_version.minor, sdl_version.patch);
+                ImGui::Separator();
+                // Información de OpenGL
+                const char* glVersion = (const char*)glGetString(GL_VERSION);
+                const char* glRenderer = (const char*)glGetString(GL_RENDERER);
+                const char* glVendor = (const char*)glGetString(GL_VENDOR);
+                ImGui::Text("OpenGL Version: %s", glVersion);
+                ImGui::Text("OpenGL Renderer: %s", glRenderer);
+                ImGui::Text("OpenGL Vendor: %s", glVendor);
+                ImGui::Separator();
+
+                //Información de DevIL (si está integrado)
+                wchar_t* devilVersion = iluGetString(IL_VERSION); 
+                ImGui::Text("DevIL Version: %s", devilVersion); 
+
             }
-        }
 
+            ImGui::Separator();
 
-
-        if (showFPSGraph) {
-            // Dibujar gráfico de FPS en una ventana
-            ImGui::SetNextWindowPos(ImVec2(10, _height - 200));  
-            ImGui::SetNextWindowSize(ImVec2(300, 150)); 
-            if (ImGui::Begin("FPS Graph", nullptr, ImGuiWindowFlags_NoMove)) {
-                ImGui::Text("FPS: %d", _fps); // Mostrar FPS actual
-                // Mostrar el gráfico de FPS en la ventana
-                ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80)); 
+            if (ImGui::Button("Close")) {
+                showConfig = false; 
             }
+
             ImGui::End();
         }
-
+       
         if (showAboutWindow)
         {
             ImGui::Begin("About", &showAboutWindow);
@@ -253,6 +293,7 @@ void MyWindow::swapBuffers() {
     ImGui::SetNextWindowPos(ImVec2(0, 20));
     ImGui::SetNextWindowSizeConstraints(ImVec2(200, 100), ImVec2(400, _height - 100));
     ImGui::Begin("Scene Objects", nullptr, ImGuiWindowFlags_NoMove);
+    
 
     if (!gameObjects.empty()) {
         for (GameObject* obj : gameObjects) {

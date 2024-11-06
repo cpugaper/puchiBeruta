@@ -9,8 +9,8 @@ public:
 	static const glm::ivec2 WINDOW_SIZE;
 
 	// Variables de configuración (las inicializas con valores predeterminados)
-	int windowWidth = 10;
-	int windowHeight = 200;
+	int windowWidth = 1280;
+	int windowHeight = 800;
 	bool fullscreen = false;
 	bool vsyncEnabled = true;  // Activar/desactivar V-Sync
 

@@ -32,9 +32,9 @@
 using namespace std::chrono;
 
 using hrclock = high_resolution_clock;
-using ivec2 = glm::ivec2;
-
-const ivec2 Variables::WINDOW_SIZE(1280, 960);
+//using ivec2 = glm::ivec2;
+//
+//const ivec2 Variables::WINDOW_SIZE(1280, 960);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
