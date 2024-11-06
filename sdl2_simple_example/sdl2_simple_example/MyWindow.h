@@ -29,8 +29,9 @@ public:
 
 	void selectObject(GameObject* obj);
 
-private:
 	GameObject* selectedObject = nullptr;
+	bool objectSelected = false;
+private:
 
 	unsigned int _lastTime = 0;
 	unsigned int _currentTime = 0;
@@ -39,4 +40,5 @@ private:
 	std::vector<float> _fpsHistory;
 
 };
+
 #endif // MYWINDOW_H	

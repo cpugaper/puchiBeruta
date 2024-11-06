@@ -1,14 +1,23 @@
 #include "Camera.h"
 #include <GL/glew.h>
 #include <iostream>
+#include "Variables.h"
 
 Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
 
 void Camera::reset() {
-    position = glm::vec3(0.0f, -1.0f, -10.0f);
-    angleX = angleY = 0.0f;
-    objectAngleX = objectAngleY = 0.0f;
-    speed = 0.1f;
+    if (variables->window->objectSelected) {
+        position = -variables->window->selectedObject->getPosition();// glm::vec3(0.0f, -1.0f, -10.0f);
+        position.y -= 1;
+        position.z -= 10;
+        angleX = angleY = 0.0f;
+        objectAngleX = objectAngleY = 0.0f;
+        speed = 0.1f;
+    }
+    else {
+        std::cout << "No object selected" << std::endl;
+    }
+   
 }
 
 void Camera::processKeyDown(const SDL_Keysym& keysym) {

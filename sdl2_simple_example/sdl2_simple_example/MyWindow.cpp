@@ -88,9 +88,11 @@ MyWindow::~MyWindow() {
 void MyWindow::selectObject(GameObject* obj) {
     if (selectedObject != obj) {
         selectedObject = obj;
+        objectSelected = true;
     }
     else {
         selectedObject = nullptr;
+        objectSelected = false;
     }
 }
 
