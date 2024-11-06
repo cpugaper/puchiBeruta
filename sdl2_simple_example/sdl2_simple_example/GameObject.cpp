@@ -10,7 +10,7 @@ void GameObject::addChild(const GameObject& child) {
     children.push_back(child);
 }
 
-void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects) {   
+void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects) {
     MeshData meshData;
     GLuint textureID = 0;
     std::string filePath = "Assets\\Primitives\\";

@@ -1,4 +1,4 @@
-ï»¿#include <SDL2/SDL.h>
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 #include "MyWindow.h"
 #include "imgui.h"
@@ -8,9 +8,11 @@
 #include <SDL2/SDL_opengl.h>
 #include <vector>
 #include <iostream>
+#include "Variables.h"
+
 extern Importer importer;
 
-extern std::vector<GameObject*> gameObjects; 
+extern std::vector<GameObject*> gameObjects;
 extern MyWindow* window;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
@@ -39,28 +41,28 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     ImVec4* colors = style.Colors;
     colors[ImGuiCol_WindowBg] = ImColor(250, 224, 228);
     colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
-    colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208); 
-    colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199); 
+    colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208);
+    colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199);
     colors[ImGuiCol_TitleBgActive] = ImColor(255, 153, 172);
     colors[ImGuiCol_TitleBgCollapsed] = ImColor(249, 190, 199);
     colors[ImGuiCol_PopupBg] = ImColor(250, 224, 228);
     colors[ImGuiCol_ScrollbarBg] = ImColor(247, 202, 208);
     colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 153, 172);
     colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 133, 161);
-    colors[ImGuiCol_Border] = ImColor(255, 71, 126); 
-    colors[ImGuiCol_Button] = ImColor(251, 177, 189); 
+    colors[ImGuiCol_Border] = ImColor(255, 71, 126);
+    colors[ImGuiCol_Button] = ImColor(251, 177, 189);
     colors[ImGuiCol_ButtonHovered] = ImColor(255, 133, 161);
-    colors[ImGuiCol_ButtonActive] = ImColor(255, 112, 150); 
-    colors[ImGuiCol_Text] = ImColor(0, 0, 0); 
+    colors[ImGuiCol_ButtonActive] = ImColor(255, 112, 150);
+    colors[ImGuiCol_Text] = ImColor(0, 0, 0);
     colors[ImGuiCol_Header] = ImColor(250, 224, 228);
-    colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172); 
-    colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161); 
+    colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172);
+    colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161);
 }
 
 MyWindow::~MyWindow() {
     // Liberar los recursos de los objetos creados
     for (GameObject* obj : gameObjects) {
-        delete obj; // AsegÃºrate de liberar la memoria
+        delete obj; // Asegúrate de liberar la memoria
     }
     gameObjects.clear(); // Limpiar la lista
 
@@ -77,17 +79,35 @@ void MyWindow::selectObject(GameObject* obj) {
         selectedObject = obj;
     }
     else {
-        selectedObject = nullptr; 
+        selectedObject = nullptr;
     }
 }
 
 void MyWindow::swapBuffers() {
+    // Calcular FPS
+    _currentTime = SDL_GetTicks(); 
+    _frameCount++; 
+
+    if (_currentTime - _lastTime >= 1000) { 
+        _fps = _frameCount;
+        _frameCount = 0;
+        _lastTime = _currentTime; 
+
+        // Almacenar FPS en la historia para el gráfico
+        if (_fpsHistory.size() >= 100) { // Limitar a 100 FPS en la historia
+            _fpsHistory.erase(_fpsHistory.begin()); 
+        } 
+        _fpsHistory.push_back((float)_fps); 
+    }
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    static bool showAboutWindow = false; 
+    static bool showAboutWindow = false;
     static bool showGithubWindow = false;
+    static bool showFPSGraph = false;
+    static bool showWindowSettings = false;
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Menu")) {
@@ -126,7 +146,68 @@ void MyWindow::swapBuffers() {
             }
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("Configuration")) { 
+            if (ImGui::MenuItem("FPS")) {
+                showFPSGraph = !showFPSGraph;
+            }
+            if (ImGui::MenuItem("Window Settings")) {
+                std::cout << "BOTON Window Settings" << std::endl; 
+                showWindowSettings = !showWindowSettings;
+            }
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
+
+        if (showWindowSettings) {
+            if (ImGui::Begin("Window Settings")) {
+
+                ImGui::InputInt("Width", &variables->windowWidth);
+                ImGui::InputInt("Height", &variables->windowHeight);
+                if (ImGui::Checkbox("Fullscreen", &variables->fullscreen)) {
+                    // Actualiza la configuración de fullscreen (si se cambia)
+                }
+                if (ImGui::Checkbox("V-Sync", &variables->vsyncEnabled)) {
+                    // Actualiza la configuración de V-Sync
+                }
+
+                ImGui::Separator();
+
+                ImGui::Text("Texture Settings");
+                ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
+                ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
+
+                // Aplicar cambios
+                if (ImGui::Button("Apply")) {
+                    // Aquí puedes aplicar los cambios de configuración, como actualizar la ventana o el contexto OpenGL
+                    SDL_SetWindowSize(_window, variables->windowWidth, variables->windowHeight);
+                    if (variables->fullscreen) {
+                        SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                    }
+                    else {
+                        SDL_SetWindowFullscreen(_window, 0); // Desactivar fullscreen
+                    }
+                }
+                if (ImGui::Button("Close")) {
+                    showWindowSettings = false;
+                }
+            
+                ImGui::End(); 
+            }
+        }
+
+
+
+        if (showFPSGraph) {
+            // Dibujar gráfico de FPS en una ventana
+            ImGui::SetNextWindowPos(ImVec2(10, _height - 200));  
+            ImGui::SetNextWindowSize(ImVec2(300, 150)); 
+            if (ImGui::Begin("FPS Graph", nullptr, ImGuiWindowFlags_NoMove)) {
+                ImGui::Text("FPS: %d", _fps); // Mostrar FPS actual
+                // Mostrar el gráfico de FPS en la ventana
+                ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80)); 
+            }
+            ImGui::End();
+        }
 
         if (showAboutWindow)
         {
@@ -136,21 +217,21 @@ void MyWindow::swapBuffers() {
             ImGui::Text("Developed by videogame design & development UPC students");
             ImGui::Text("-------------------------");
             ImGui::Text("Team: ");
-   
+
             if (ImGui::Button("Maria Perarnau")) {
-                system("start https://github.com/MariaPerarnau"); 
+                system("start https://github.com/MariaPerarnau");
             }
             if (ImGui::Button("Rebeca Fernandez")) {
                 system("start https://github.com/Becca203");
             }
             if (ImGui::Button("Carla Puga")) {
-                system("start https://github.com/cpugaper"); 
+                system("start https://github.com/cpugaper");
             }
 
             ImGui::Text("-------------------------");
             ImGui::Text("");
             if (ImGui::Button("Close")) {
-                showAboutWindow = false; 
+                showAboutWindow = false;
             }
             ImGui::End();
         }
@@ -162,7 +243,7 @@ void MyWindow::swapBuffers() {
                 system("start https://github.com/cpugaper/puchiBeruta");
             }
             if (ImGui::Button("Close")) {
-                showGithubWindow = false; 
+                showGithubWindow = false;
             }
             ImGui::End();
         }
@@ -187,8 +268,8 @@ void MyWindow::swapBuffers() {
 
     // Ventana anclada a la derecha (Inspector)
     ImGui::SetNextWindowPos(ImVec2(_width - 210, 20));
-    ImGui::SetNextWindowSize(ImVec2(210, _height - 100)); // TamaÃ±o fijo al inicio
-    ImGui::SetNextWindowSizeConstraints(ImVec2(200, _height - 100), ImVec2(_width - 20, _height - 100)); // TamaÃ±os mÃ­nimo y mÃ¡ximo
+    ImGui::SetNextWindowSize(ImVec2(210, _height - 100)); // Tamaño fijo al inicio
+    ImGui::SetNextWindowSizeConstraints(ImVec2(200, _height - 100), ImVec2(_width - 20, _height - 100)); // Tamaños mínimo y máximo
     ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove); // Ventana anclada a la derecha
 
     if (selectedObject) {
@@ -199,13 +280,13 @@ void MyWindow::swapBuffers() {
         glm::vec3 scale = selectedObject->getScale();
 
         if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
-            selectedObject->setPosition(position); 
+            selectedObject->setPosition(position);
         }
         if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f)) {
             selectedObject->setRotation(rotation);
         }
         if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f, 0.1f, 10.0f)) {
-            selectedObject->setScale(scale); 
+            selectedObject->setScale(scale);
         }
     }
     else {

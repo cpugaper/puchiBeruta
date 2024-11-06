@@ -51,8 +51,8 @@ std::vector<GameObject> gameObjects;
 #undef main
 int main(int argc, char** argv) {
 	std::cout << "Initializing SDL..." << std::endl;
-	variables = new Variables; 
-    variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
+	variables = new Variables;
+	variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
 	std::cout << "SDL initialized with success" << std::endl;
 
 	std::cout << "Initializing OpenGL..." << std::endl;
@@ -77,8 +77,8 @@ int main(int argc, char** argv) {
 	while (processEvents(camera, gameObjects, fbxFile)) {
 		const auto t0 = hrclock::now();
 
-		render(variables->window->gameObjects); 
-		variables->window->swapBuffers();  
+		render(variables->window->gameObjects);
+		variables->window->swapBuffers();
 
 		const auto t1 = hrclock::now();
 		const auto dt = t1 - t0;

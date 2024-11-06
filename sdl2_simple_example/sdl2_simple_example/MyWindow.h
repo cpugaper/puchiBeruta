@@ -32,5 +32,12 @@ public:
 
 private:
 	GameObject* selectedObject = nullptr;
+
+	unsigned int _lastTime = 0;
+	unsigned int _currentTime = 0;
+	unsigned int _fps = 0;
+	unsigned int _frameCount = 0;
+	std::vector<float> _fpsHistory;
+
 };
 #endif // MYWINDOW_H	

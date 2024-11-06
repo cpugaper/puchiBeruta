@@ -66,7 +66,7 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
             for (size_t i = 0; i < meshes.size(); ++i) {
                 const std::string objectName = getFileName(fbxFile) + "_" + std::to_string(i);
                 //variables->window->gameObjects.emplace_back(objectName, meshes[i], textureID); 
-                GameObject* modelObject = new GameObject(objectName, meshes[i], textureID); 
+                GameObject* modelObject = new GameObject(objectName, meshes[i], textureID);
                 variables->window->gameObjects.push_back(modelObject);
                 //gameObjects.emplace_back(objectName, meshes[i], textureID);
                 //variables->window->getGameObjects().push_back();
@@ -93,7 +93,7 @@ void drawGrid(float spacing) {
     glDisable(GL_TEXTURE_2D);
     float gridRange = 1000.0f;
 
-    glColor3f(0.7f, 0.7f, 0.7f); 
+    glColor3f(0.7f, 0.7f, 0.7f);
     glBegin(GL_LINES);
 
     // X axis
