@@ -24,6 +24,9 @@ public:
     void saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes);
     std::vector<MeshData> loadCustomFormat(const std::string& inputPath);
 
+    void GuardarEscena(const std::string& filePath, const std::vector<GameObject*>& gameObjects);
+    std::vector<GameObject*> CargarEscena(const std::string& filePath);
+
 private:
     void initDevIL();
     void checkAndCreateDirectories();
