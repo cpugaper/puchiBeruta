@@ -1,18 +1,10 @@
 #ifndef IMPORTER_H
 #define IMPORTER_H
 
-#include <GL/glew.h>
-#include <glm/glm.hpp>
+#include "GameObject.h"
 #include <filesystem>
 #include <string>
 #include <vector>
-
-struct MeshData {
-    std::vector<GLfloat> vertices;
-    std::vector<GLuint> indices;
-    std::vector<GLfloat> textCoords;
-    std::vector<GLfloat> normals;
-};
 
 class Importer {
 public:
@@ -24,6 +16,9 @@ public:
 
     void saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes);
     std::vector<MeshData> loadCustomFormat(const std::string& inputPath);
+
+    /*void saveScene(const std::string& outputPath, const std::vector<MeshData>& meshes);
+    std::vector<MeshData> loadScene(const std::string& inputPath);*/
 
 private:
     void initDevIL();

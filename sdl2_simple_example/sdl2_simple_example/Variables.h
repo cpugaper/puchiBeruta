@@ -1,6 +1,9 @@
 #pragma once
 #include "MyWindow.h"
 #include <glm/glm.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/memory.hpp>  
+#include <cereal/archives/json.hpp>
 
 class Variables {
 public:
@@ -8,16 +11,17 @@ public:
 
 	static const glm::ivec2 WINDOW_SIZE;
 
-	// Variables de configuración (las inicializas con valores predeterminados)
 	int windowWidth = 1280;
 	int windowHeight = 800;
 	bool fullscreen = false;
-	bool vsyncEnabled = true;  // Activar/desactivar V-Sync
+	bool vsyncEnabled = true;  
+	float textureFilterQuality = 1.0f;  
+	float textureAnisotropicLevel = 4.0f;  
 
-	// Variables de configuración para texturas
-	float textureFilterQuality = 1.0f;  // Usar un filtro simple para las texturas
-	float textureAnisotropicLevel = 4.0f;  // Nivel de anisotropía para las texturas
-
+	/*template <class Archive>
+	void serialize(Archive& archive) {
+		archive(CEREAL_NVP(windowWidth), CEREAL_NVP(windowHeight), CEREAL_NVP(fullscreen), CEREAL_NVP(vsyncEnabled), CEREAL_NVP(textureFilterQuality), CEREAL_NVP(textureAnisotropicLevel));
+	}*/
 };
 
 extern Variables* variables;

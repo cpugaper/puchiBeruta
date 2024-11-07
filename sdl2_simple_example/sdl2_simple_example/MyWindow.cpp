@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 #include "MyWindow.h"
+#include "Variables.h"
+#include "Importer.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
@@ -8,8 +10,7 @@
 #include <SDL2/SDL_opengl.h>
 #include <vector>
 #include <iostream>
-#include "Variables.h"
-
+#include <fstream>
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -17,8 +18,8 @@
 #if defined(_WIN32)
 #include <windows.h>
 #else
-#include <sys/sysctl.h>  // Para obtener la memoria en macOS
-#include <unistd.h>      // Para obtener la memoria en Linux
+#include <sys/sysctl.h>  // To obtain memory in macOS
+#include <unistd.h>      // To obtain memory in Linux
 #endif
 
 extern Importer importer;
@@ -109,9 +110,9 @@ void MyWindow::deleteSelectedObject() {
 }
 
 void MyWindow::swapBuffers() {
-    // Calcular FPS
-    _currentTime = SDL_GetTicks();
-    _frameCount++;
+    // Calculate FPS
+    _currentTime = SDL_GetTicks(); 
+    _frameCount++; 
 
     if (_currentTime - _lastTime >= 1000) {
         _fps = _frameCount;
@@ -134,6 +135,7 @@ void MyWindow::swapBuffers() {
     static bool showConfig = false;
 
     if (ImGui::BeginMainMenuBar()) {
+
         if (ImGui::BeginMenu("Menu")) {
             if (ImGui::MenuItem("GitHub")) {
                 showGithubWindow = true;
@@ -145,6 +147,30 @@ void MyWindow::swapBuffers() {
                 SDL_Event quit_event;
                 quit_event.type = SDL_QUIT;
                 SDL_PushEvent(&quit_event);
+            }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Project")) {
+            if (ImGui::MenuItem("Save Scene")) {
+               /* std::string filePath = "scene.json";  
+                std::vector<MeshData> meshes;
+
+                for (GameObject* obj : gameObjects) {
+                    meshes.push_back(obj->toMeshData()); 
+                }
+
+                importer.saveScene(filePath, meshes); */
+            }
+            if (ImGui::MenuItem("Load Scene")) {
+              //  std::string filePath = "scene.json";  
+              //  std::vector<MeshData> meshes = importer.loadScene(filePath);  
+
+              //  gameObjects.clear();
+              //  for (const MeshData& mesh : meshes) {
+              //      GameObject* obj = new GameObject(mesh.name, mesh, 0);
+              //      gameObjects.push_back(obj);
+              //  }
             }
             ImGui::EndMenu();
         }

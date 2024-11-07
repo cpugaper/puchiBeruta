@@ -3,6 +3,9 @@
 
 #include <glm/glm.hpp>
 #include <SDL2/SDL_events.h>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/base_class.hpp> 
+#include <cereal/archives/json.hpp>
 
 class Camera {
 public:
@@ -28,6 +31,13 @@ private:
 	float speed;
 	bool shiftPressed, altPressed, isLeftMouseDragging, isRightMouseDragging;
 	int lastMouseX, lastMouseY;
+
+	/*template <class Archive>
+	void serialize(Archive& archive) {
+		archive(CEREAL_NVP(position), CEREAL_NVP(angleX), CEREAL_NVP(angleY), CEREAL_NVP(objectAngleX), CEREAL_NVP(objectAngleY), CEREAL_NVP(speed),
+			CEREAL_NVP(shiftPressed), CEREAL_NVP(altPressed), CEREAL_NVP(isLeftMouseDragging), CEREAL_NVP(isRightMouseDragging),
+			CEREAL_NVP(lastMouseX), CEREAL_NVP(lastMouseY));
+	}*/
 };
 
 #endif

@@ -50,6 +50,7 @@ std::vector<GameObject> gameObjects;
 
 #undef main
 int main(int argc, char** argv) {
+
 	std::cout << "Initializing SDL..." << std::endl;
 	variables = new Variables;
 	variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
@@ -63,6 +64,18 @@ int main(int argc, char** argv) {
 	ilInit();
 	std::cout << "DevIL initialized with success" << std::endl;
 
+	//std::string sceneFile = "scene.json";
+	//if (std::filesystem::exists(sceneFile)) {
+	//	std::cout << "Loading scene from file: " << sceneFile << std::endl;
+	//	meshes = importer.loadScene(sceneFile); 
+	//}
+	//else {
+	//	std::cout << "Loading model FBX..." << std::endl;
+	//	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
+
+	//	std::cout << "Savign scene in file: " << sceneFile << std::endl;
+	//	importer.saveScene(sceneFile, meshes);
+	//}
 
 	std::cout << "Loading model FBX..." << std::endl;
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);

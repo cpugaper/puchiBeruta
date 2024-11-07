@@ -6,21 +6,55 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Importer.h"
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/json.hpp>
+#include <GL/glew.h>
+
+struct MeshData {
+    std::string name;
+    std::vector<GLfloat> vertices;
+    std::vector<uint32_t> indices;
+    std::vector<GLfloat> textCoords;
+    std::vector<GLfloat> normals;
+    glm::mat4 transform;
+
+  /*  template <class Archive>
+    void serialize(Archive& archive) {
+        archive(CEREAL_NVP(name), CEREAL_NVP(vertices), CEREAL_NVP(indices), CEREAL_NVP(textCoords), CEREAL_NVP(transform));
+    }*/
+};
+
+// To be able to serialize glm::vec3 & glm::mat4
+//namespace glm {
+//    template <class Archive>
+//    void serialize(Archive& archive, glm::vec3& vec) {
+//        archive(CEREAL_NVP(vec.x), CEREAL_NVP(vec.y), CEREAL_NVP(vec.z));
+//    }
+//
+//    template <class Archive>
+//    void serialize(Archive& archive, glm::mat4& mat) {
+//        for (int i = 0; i < 4; ++i) {
+//            for (int j = 0; j < 4; ++j) {
+//                archive(CEREAL_NVP(mat[i][j]));
+//            }
+//        }
+//    }
+//}
 
 class GameObject {
 public:
+    std::string uuid;
     std::string name;
     std::vector<GameObject> children;
     MeshData meshData;
     GLuint textureID;
 
-    // Object Transformation
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
 
-    GameObject(const std::string& name, const MeshData& mesh, GLuint texID) : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f) {}
+    GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
 
     void addChild(const GameObject& child);
 
@@ -36,6 +70,25 @@ public:
     void setPosition(const glm::vec3& newPosition);
     void setRotation(const glm::vec3& newRotation);
     void setScale(const glm::vec3& newScale);
+
+   /* MeshData toMeshData() const {
+        MeshData meshData;
+        meshData.name = this->name;
+        meshData.vertices = this->meshData.vertices;  
+        meshData.indices = this->meshData.indices;   
+        meshData.textCoords = this->meshData.textCoords;
+        meshData.transform = getTransformMatrix();    
+        return meshData;
+    }*/
+
+    //template <class Archive>
+    //void serialize(Archive& archive) {
+    //    uint32_t texID = static_cast<uint32_t>(textureID);
+    //    archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(children), CEREAL_NVP(meshData),
+    //        CEREAL_NVP(textureID), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale));
+    //}
+
+    static std::string GenerateUUID();
 
     MeshData* getMeshData() { return &meshData; } 
     void setMeshData(const MeshData& data) { meshData = data; }

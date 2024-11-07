@@ -2,9 +2,27 @@
 #include "Importer.h"
 #include <iostream>
 #include <string>
+#include <iomanip>
+#include <sstream>
+#include <random>
+#include <fstream>
+#include <cereal/archives/json.hpp>
 
 extern Importer importer; // Declare extern importer if already created 
 
+GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID)
+    : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
+    std::cout << "GameObject created with UUID: " << uuid << std::endl;
+}
+
+std::string GameObject::GenerateUUID() {
+    std::stringstream ss;
+    for (int i = 0; i < 16; i++) {
+        int byte = rand() % 256;
+        ss << std::hex << std::setw(2) << std::setfill('0') << byte;
+    }
+    return ss.str();
+}
 
 void GameObject::addChild(const GameObject& child) {
     children.push_back(child);
