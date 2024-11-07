@@ -11,6 +11,7 @@ struct MeshData {
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     std::vector<GLfloat> textCoords;
+    std::vector<GLfloat> normals;
 };
 
 class Importer {

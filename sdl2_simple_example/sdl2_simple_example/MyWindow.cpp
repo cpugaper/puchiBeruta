@@ -110,19 +110,19 @@ void MyWindow::deleteSelectedObject() {
 
 void MyWindow::swapBuffers() {
     // Calcular FPS
-    _currentTime = SDL_GetTicks(); 
-    _frameCount++; 
+    _currentTime = SDL_GetTicks();
+    _frameCount++;
 
-    if (_currentTime - _lastTime >= 1000) { 
+    if (_currentTime - _lastTime >= 1000) {
         _fps = _frameCount;
         _frameCount = 0;
-        _lastTime = _currentTime; 
+        _lastTime = _currentTime;
 
         // Almacenar FPS en la historia para el gráfico
         if (_fpsHistory.size() >= 100) { // Limitar a 100 FPS en la historia
-            _fpsHistory.erase(_fpsHistory.begin()); 
-        } 
-        _fpsHistory.push_back((float)_fps); 
+            _fpsHistory.erase(_fpsHistory.begin());
+        }
+        _fpsHistory.push_back((float)_fps);
     }
 
     ImGui_ImplOpenGL3_NewFrame();
@@ -170,9 +170,9 @@ void MyWindow::swapBuffers() {
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Configuration")) { 
-            showConfig = !showConfig; 
-                
+        if (ImGui::BeginMenu("Configuration")) {
+            showConfig = !showConfig;
+
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -180,7 +180,7 @@ void MyWindow::swapBuffers() {
         if (showConfig) {
             //ImGui::SetNextWindowPos(ImVec2(0, 20));
             ImGui::Begin("Config", nullptr);
-            if(ImGui::CollapsingHeader("FPS Graph")) {
+            if (ImGui::CollapsingHeader("FPS Graph")) {
                 ImGui::Text("FPS: %d", _fps); // Mostrar FPS actual
                 // Mostrar el gráfico de FPS en la ventana
                 ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
@@ -214,12 +214,12 @@ void MyWindow::swapBuffers() {
 
             ImGui::Separator();
 
-            if(ImGui::CollapsingHeader("Texture Settings")) {
+            if (ImGui::CollapsingHeader("Texture Settings")) {
                 ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
                 ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
             }
-            
-            ImGui::Separator(); 
+
+            ImGui::Separator();
             // Información de la memoria (ejemplo, en Windows)
             if (ImGui::CollapsingHeader("Info")) {
                 // (esto depende del sistema operativo)
@@ -249,20 +249,20 @@ void MyWindow::swapBuffers() {
                 ImGui::Separator();
 
                 //Información de DevIL (si está integrado)
-                wchar_t* devilVersion = iluGetString(IL_VERSION); 
-                ImGui::Text("DevIL Version: %s", devilVersion); 
+                wchar_t* devilVersion = iluGetString(IL_VERSION);
+                ImGui::Text("DevIL Version: %s", devilVersion);
 
             }
 
             ImGui::Separator();
 
             if (ImGui::Button("Close")) {
-                showConfig = false; 
+                showConfig = false;
             }
 
             ImGui::End();
         }
-       
+
         if (showAboutWindow)
         {
             ImGui::Begin("About", &showAboutWindow);
@@ -307,7 +307,7 @@ void MyWindow::swapBuffers() {
     ImGui::SetNextWindowPos(ImVec2(0, 20));
     ImGui::SetNextWindowSizeConstraints(ImVec2(200, 100), ImVec2(400, _height - 100));
     ImGui::Begin("Scene Objects", nullptr, ImGuiWindowFlags_NoMove);
-    
+
 
     if (!gameObjects.empty()) {
         for (GameObject* obj : gameObjects) {
@@ -342,6 +342,50 @@ void MyWindow::swapBuffers() {
         }
         if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f, 0.1f, 10.0f)) {
             selectedObject->setScale(scale);
+        }
+
+
+
+        // Mostrar la información de la malla
+        MeshData* meshData = selectedObject->getMeshData();
+        if (meshData) {
+            ImGui::Separator();
+            ImGui::Text("Mesh Information");
+
+            ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);  // Asumimos que cada vértice tiene 3 componentes (x, y, z)
+            ImGui::Text("Indices: %d", meshData->indices.size() / 3);   // Asumimos que cada cara tiene 3 índices (triángulos)
+
+            // Opción para visualizar las normales
+            bool showNormals = false;
+            if (ImGui::CollapsingHeader("Show Normals")) {
+                showNormals = true;
+
+                // Mostrar normales por triángulo
+                if (meshData->normals.size() > 0) {
+                    ImGui::Text("Normals by Triangle:");
+                    for (size_t i = 0; i < meshData->normals.size(); i += 3) {
+                        glm::vec3 normal = glm::vec3(meshData->normals[i], meshData->normals[i + 1], meshData->normals[i + 2]);
+                        ImGui::Text("Normal %d: %.3f, %.3f, %.3f", i / 3, normal.x, normal.y, normal.z);
+                    }
+                }
+
+                // Opción para ver las normales por cara (media de las normales de triángulos)
+                if (meshData->vertices.size() / 3 > 0) {
+                    ImGui::Text("Normals by Face:");
+                    for (size_t i = 0; i < meshData->indices.size(); i += 3) {
+                        glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
+                        glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
+                        glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
+
+                        // Calcular la normal de la cara usando el producto cruzado
+                        glm::vec3 edge1 = vertex2 - vertex1;
+                        glm::vec3 edge2 = vertex3 - vertex1;
+                        glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+
+                        ImGui::Text("Face %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
+                    }
+                }
+            }
         }
     }
     else {

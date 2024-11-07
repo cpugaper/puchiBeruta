@@ -36,6 +36,9 @@ public:
     void setPosition(const glm::vec3& newPosition);
     void setRotation(const glm::vec3& newRotation);
     void setScale(const glm::vec3& newScale);
+
+    MeshData* getMeshData() { return &meshData; } 
+    void setMeshData(const MeshData& data) { meshData = data; }
 };
 
 #endif // GAMEOBJECT_H

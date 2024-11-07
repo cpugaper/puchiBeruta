@@ -17,7 +17,7 @@ void Camera::reset() {
     else {
         std::cout << "No object selected" << std::endl;
     }
-   
+
 }
 
 void Camera::processKeyDown(const SDL_Keysym& keysym) {
