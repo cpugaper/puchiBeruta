@@ -58,6 +58,14 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
 
         case SDL_DROPFILE: {
             fbxFile = event.drop.file;
+
+            // Only admit fbx files
+            std::filesystem::path filePath(fbxFile);
+            if (filePath.extension() != ".fbx") {
+                std::cerr << "File is not an FBX. Ignoring..." << std::endl;
+                break; 
+            }
+
             meshes.clear();
             textureID = 0;
 

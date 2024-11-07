@@ -23,9 +23,10 @@
 #endif
 
 extern Importer importer;
-
 extern std::vector<GameObject*> gameObjects;
 extern MyWindow* window;
+
+ImGuiIO* g_io = nullptr;
 
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
 
@@ -44,6 +45,12 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     if (SDL_GL_SetSwapInterval(1) != 0) throw std::exception(SDL_GetError());
 
     ImGui::CreateContext();
+
+    g_io = &ImGui::GetIO();
+    g_io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable keyboard controls
+    g_io->ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
+    g_io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable multiple viewports
+
     ImGui_ImplSDL2_InitForOpenGL(_window, _ctx);
     ImGui_ImplOpenGL3_Init("#version 130");
 
@@ -133,6 +140,19 @@ void MyWindow::swapBuffers() {
     static bool showAboutWindow = false;
     static bool showGithubWindow = false;
     static bool showConfig = false;
+
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::SetNextWindowBgAlpha(0.0f);
+
+    ImGui::Begin("Dockspace", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar);
+
+    ImGuiID dockspaceId = ImGui::GetID("Dockspace");
+    ImGui::DockSpace(ImGui::GetMainViewport()->ID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::End();
 
     if (ImGui::BeginMainMenuBar()) {
 
@@ -421,5 +441,12 @@ void MyWindow::swapBuffers() {
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    if (g_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        SDL_GL_MakeCurrent(_window, _ctx);
+    }
+
     SDL_GL_SwapWindow(static_cast<SDL_Window*>(_window));
 }
