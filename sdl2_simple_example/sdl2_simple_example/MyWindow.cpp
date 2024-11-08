@@ -239,11 +239,15 @@ void MyWindow::swapBuffers() {
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Configuration")) {
-            showConfig = !showConfig;
+
+        if (ImGui::BeginMenu("Configuration")) { 
+            if (ImGui::MenuItem("Show Config")) {
+                showConfig = true;
+            }
 
             ImGui::EndMenu();
         }
+
         if (ImGui::BeginMenu("Window"))
         {
             ImGui::MenuItem("Inspector", nullptr, &showInspector);
@@ -278,7 +282,7 @@ void MyWindow::swapBuffers() {
                 // Aplicar cambios
                 if (ImGui::Button("Apply Changes")) {
                     // Aquí puedes aplicar los cambios de configuración, como actualizar la ventana o el contexto OpenGL
-                    SDL_SetWindowSize(_window, variables->windowWidth, variables->windowHeight);
+                    SDL_SetWindowSize(_window, variables->windowWidth, variables->windowHeight); 
                     if (variables->fullscreen) {
                         SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
@@ -325,8 +329,9 @@ void MyWindow::swapBuffers() {
                 ImGui::Separator();
 
                 //Información de DevIL (si está integrado)
-                wchar_t* devilVersion = iluGetString(IL_VERSION);
-                ImGui::Text("DevIL Version: %s", devilVersion);
+                std::string devilVersion = std::to_string(IL_VERSION).c_str();
+                //const char* devilVersion = (const char*)ilGetString(IL_VERSION);
+                ImGui::Text("DevIL Version: %s", devilVersion); 
 
             }
 

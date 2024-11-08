@@ -62,6 +62,7 @@ int main(int argc, char** argv) {
 
 	std::cout << "Initializing Devil..." << std::endl;
 	ilInit();
+	iluInit();
 	std::cout << "DevIL initialized with success" << std::endl;
 
 	//std::string sceneFile = "scene.json";
@@ -83,7 +84,7 @@ int main(int argc, char** argv) {
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
 		//gameObjects.emplace_back(objectName, meshes[i], textureID);
-		GameObject* casa = new GameObject(objectName, meshes[i], textureID);
+		GameObject* casa = new GameObject(objectName, meshes[i], 0);
 		variables->window->gameObjects.push_back(casa);
 	}
 

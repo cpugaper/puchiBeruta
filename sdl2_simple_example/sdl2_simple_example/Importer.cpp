@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <IL/il.h>
+#include <IL/ilu.h>
 #include <stdexcept>
 #include <iostream>
 #include <filesystem>
@@ -12,7 +13,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
-
+#include "Variables.h"
 Importer::Importer() {
     initDevIL();
     checkAndCreateDirectories();
@@ -49,6 +50,7 @@ Importer::~Importer() {}
 
 void Importer::initDevIL() {
     ilInit();
+    iluInit(); 
 }
 
 void Importer::checkAndCreateDirectories() {
@@ -160,6 +162,11 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     ilDeleteImages(1, &imageID);
+
+    // Mostrar el tamaño de la textura y el camino
+    std::cout << "Texture loaded: " << texturePath << std::endl;
+    std::cout << "Texture dimensions: " << ilGetInteger(IL_IMAGE_WIDTH) << "x" << ilGetInteger(IL_IMAGE_HEIGHT) << std::endl;
+
     return textureID;
 }
 

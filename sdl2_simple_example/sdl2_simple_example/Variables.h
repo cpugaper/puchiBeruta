@@ -1,6 +1,7 @@
 #pragma once
 #include "MyWindow.h"
 #include <glm/glm.hpp>
+#include <string>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/memory.hpp>  
 #include <cereal/archives/json.hpp>
@@ -18,10 +19,12 @@ public:
 	float textureFilterQuality = 1.0f;  
 	float textureAnisotropicLevel = 4.0f;  
 
-	/*template <class Archive>
+	std::string textureFilePath;
+
+	template <class Archive>
 	void serialize(Archive& archive) {
 		archive(CEREAL_NVP(windowWidth), CEREAL_NVP(windowHeight), CEREAL_NVP(fullscreen), CEREAL_NVP(vsyncEnabled), CEREAL_NVP(textureFilterQuality), CEREAL_NVP(textureAnisotropicLevel));
-	}*/
+	}
 };
 
 extern Variables* variables;
