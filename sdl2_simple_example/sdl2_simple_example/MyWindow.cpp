@@ -439,7 +439,7 @@ void MyWindow::swapBuffers() {
             }
         }
         ImGui::Separator();
-        ImGui::Text("Object Texture: ", variables->window->selectedObject->textureID);
+        ImGui::TextWrapped("Object Texture: %s", variables->textureFilePath.c_str());  
     }
     else {
         ImGui::Text("No GameObject Selected");

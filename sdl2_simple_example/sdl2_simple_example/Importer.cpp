@@ -162,6 +162,11 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     ilDeleteImages(1, &imageID);
+
+    // Mostrar el tamaño de la textura y el camino
+    std::cout << "Texture loaded: " << texturePath << std::endl;
+    std::cout << "Texture dimensions: " << ilGetInteger(IL_IMAGE_WIDTH) << "x" << ilGetInteger(IL_IMAGE_HEIGHT) << std::endl;
+
     return textureID;
 }
 

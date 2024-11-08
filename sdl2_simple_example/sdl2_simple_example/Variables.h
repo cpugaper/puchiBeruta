@@ -1,6 +1,7 @@
 #pragma once
 #include "MyWindow.h"
 #include <glm/glm.hpp>
+#include <string>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/memory.hpp>  
 #include <cereal/archives/json.hpp>
@@ -17,6 +18,8 @@ public:
 	bool vsyncEnabled = true;  
 	float textureFilterQuality = 1.0f;  
 	float textureAnisotropicLevel = 4.0f;  
+
+	std::string textureFilePath;
 
 	template <class Archive>
 	void serialize(Archive& archive) {

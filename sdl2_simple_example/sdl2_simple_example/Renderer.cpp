@@ -84,9 +84,9 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
 
                 break; 
             }
-            else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg") {
+            else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg" || filePath.extension().string() == ".dds") {
                 std::cout << "PNG texture dropped: " << droppedFilePath << std::endl;
-
+                variables->textureFilePath = filePath.string();
                 if (variables->window->selectedObject) {
                     GLuint newTextureID = importer.loadTexture(droppedFilePath); 
                     variables->window->selectedObject->textureID = newTextureID; 
