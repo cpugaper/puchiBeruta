@@ -81,7 +81,7 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
 MyWindow::~MyWindow() {
     // Liberar los recursos de los objetos creados
     for (GameObject* obj : gameObjects) {
-        delete obj; // Asegúrate de liberar la memoria
+        delete obj; // Asegï¿½rate de liberar la memoria
     }
     gameObjects.clear(); // Limpiar la lista
 
@@ -126,7 +126,7 @@ void MyWindow::swapBuffers() {
         _frameCount = 0;
         _lastTime = _currentTime;
 
-        // Almacenar FPS en la historia para el gráfico
+        // Almacenar FPS en la historia para el grï¿½fico
         if (_fpsHistory.size() >= 100) { // Limitar a 100 FPS en la historia
             _fpsHistory.erase(_fpsHistory.begin());
         }
@@ -140,19 +140,42 @@ void MyWindow::swapBuffers() {
     static bool showAboutWindow = false;
     static bool showGithubWindow = false;
     static bool showConfig = false;
+    static bool showInspector = false;
+    static bool showSceneObjects = false;
 
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
-    ImGui::SetNextWindowViewport(viewport->ID);
-    ImGui::SetNextWindowBgAlpha(0.0f);
+    //ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-    ImGui::Begin("Dockspace", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar);
+    //ImGui::SetNextWindowPos(viewport->Pos);
+    //ImGui::SetNextWindowSize(viewport->Size);
+    //ImGui::SetNextWindowViewport(viewport->ID);
+    //ImGui::SetNextWindowBgAlpha(0.0f);
 
-    ImGuiID dockspaceId = ImGui::GetID("Dockspace");
-    ImGui::DockSpace(ImGui::GetMainViewport()->ID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-    ImGui::End();
+    //ImGui::Begin("MainDockspace", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar);
+    //ImGui::DockSpace(ImGui::GetID("MainDockspace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+    //ImGui::End();
+
+    //// Ventana fija a la izquierda
+    //ImGui::SetNextWindowPos(ImVec2(0, 20));
+    //ImGui::SetNextWindowSize(ImVec2(200, _height - 100));
+    //ImGui::Begin("Left Dock (Static)", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking);
+    //ImGui::DockSpace(ImGui::GetID("LeftDock"));
+    //ImGui::Text("This is the left static dock.");
+    //ImGui::End();
+
+    //// Ventana fija a la derecha
+    //ImGui::Begin("Right Dock", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking);
+    //ImGui::DockSpace(ImGui::GetID("RightDock"));
+    //ImGui::Text("This is the right static dock.");
+    //ImGui::End();
+
+    //// Ventana fija en la parte inferior
+    //ImGui::SetNextWindowPos(ImVec2(0, _height - 100));
+    //ImGui::SetNextWindowSize(ImVec2(_width, 100));
+    //ImGui::Begin("Bottom Dock (Static)", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking);
+    //ImGui::DockSpace(ImGui::GetID("BottomDock"));
+    //ImGui::Text("This is the bottom static dock.");
+    //ImGui::End();
 
     if (ImGui::BeginMainMenuBar()) {
 
@@ -225,6 +248,13 @@ void MyWindow::swapBuffers() {
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Window"))
+        {
+            ImGui::MenuItem("Inspector", nullptr, &showInspector);
+            ImGui::MenuItem("Scene Objects", nullptr, &showSceneObjects);
+            ImGui::EndMenu();
+        }
+
         ImGui::EndMainMenuBar();
 
         if (showConfig) {
@@ -232,7 +262,7 @@ void MyWindow::swapBuffers() {
             ImGui::Begin("Config", nullptr);
             if (ImGui::CollapsingHeader("FPS Graph")) {
                 ImGui::Text("FPS: %d", _fps); // Mostrar FPS actual
-                // Mostrar el gráfico de FPS en la ventana
+                // Mostrar el grï¿½fico de FPS en la ventana
                 ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
 
             }
@@ -243,15 +273,15 @@ void MyWindow::swapBuffers() {
                 ImGui::InputInt("Width", &variables->windowWidth);
                 ImGui::InputInt("Height", &variables->windowHeight);
                 if (ImGui::Checkbox("Fullscreen", &variables->fullscreen)) {
-                    // Actualiza la configuración de fullscreen (si se cambia)
+                    // Actualiza la configuraciï¿½n de fullscreen (si se cambia)
                 }
                 if (ImGui::Checkbox("V-Sync", &variables->vsyncEnabled)) {
-                    // Actualiza la configuración de V-Sync
+                    // Actualiza la configuraciï¿½n de V-Sync
                 }
 
                 // Aplicar cambios
                 if (ImGui::Button("Apply Changes")) {
-                    // Aquí puedes aplicar los cambios de configuración, como actualizar la ventana o el contexto OpenGL
+                    // Aquï¿½ puedes aplicar los cambios de configuraciï¿½n, como actualizar la ventana o el contexto OpenGL
                     SDL_SetWindowSize(_window, variables->windowWidth, variables->windowHeight); 
                     if (variables->fullscreen) {
                         SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -270,7 +300,7 @@ void MyWindow::swapBuffers() {
             }
 
             ImGui::Separator();
-            // Información de la memoria (ejemplo, en Windows)
+            // Informaciï¿½n de la memoria (ejemplo, en Windows)
             if (ImGui::CollapsingHeader("Info")) {
                 // (esto depende del sistema operativo)
                 MEMORYSTATUSEX statex;
@@ -284,12 +314,12 @@ void MyWindow::swapBuffers() {
 
                 ImGui::Separator();
 
-                // Información de SDL
+                // Informaciï¿½n de SDL
                 SDL_version sdl_version;
                 SDL_GetVersion(&sdl_version);
                 ImGui::Text("SDL Version: %d.%d.%d", sdl_version.major, sdl_version.minor, sdl_version.patch);
                 ImGui::Separator();
-                // Información de OpenGL
+                // Informaciï¿½n de OpenGL
                 const char* glVersion = (const char*)glGetString(GL_VERSION);
                 const char* glRenderer = (const char*)glGetString(GL_RENDERER);
                 const char* glVendor = (const char*)glGetString(GL_VENDOR);
@@ -298,7 +328,7 @@ void MyWindow::swapBuffers() {
                 ImGui::Text("OpenGL Vendor: %s", glVendor);
                 ImGui::Separator();
 
-                //Información de DevIL (si está integrado)
+                //Informaciï¿½n de DevIL (si estï¿½ integrado)
                 std::string devilVersion = std::to_string(IL_VERSION).c_str();
                 //const char* devilVersion = (const char*)ilGetString(IL_VERSION);
                 ImGui::Text("DevIL Version: %s", devilVersion); 
@@ -353,87 +383,84 @@ void MyWindow::swapBuffers() {
             ImGui::End();
         }
     }
+    
+    if (showSceneObjects)
+    {
+        ImGui::Begin("Scene Objects", nullptr, ImGuiWindowFlags_NoMove);
 
-    // Ventana anclada a la izquierda (Scene Objects)
-    ImGui::SetNextWindowPos(ImVec2(0, 20));
-    ImGui::SetNextWindowSizeConstraints(ImVec2(200, 100), ImVec2(400, _height - 100));
-    ImGui::Begin("Scene Objects", nullptr, ImGuiWindowFlags_NoMove);
-
-
-    if (!gameObjects.empty()) {
-        for (GameObject* obj : gameObjects) {
-            if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
-                selectObject(obj);
+        if (!gameObjects.empty()) {
+            for (GameObject* obj : gameObjects) {
+                if (ImGui::Selectable(obj->getName().c_str(), selectedObject == obj)) {
+                    selectObject(obj);
+                }
             }
         }
+        else {
+            ImGui::Text("No objects in the scene.");
+        }
+        ImGui::End();
     }
-    else {
-        ImGui::Text("No objects in the scene.");
-    }
-    ImGui::End();
 
-    // Ventana anclada a la derecha (Inspector)
-    ImGui::SetNextWindowPos(ImVec2(_width - 210, 20));
-    ImGui::SetNextWindowSize(ImVec2(210, _height - 100)); // Tamaño fijo al inicio
-    ImGui::SetNextWindowSizeConstraints(ImVec2(200, _height - 100), ImVec2(_width - 20, _height - 100)); // Tamaños mínimo y máximo
-    ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove); // Ventana anclada a la derecha
+    if (showInspector)
+    {
+        ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove);
+        if (selectedObject) {
+            ImGui::Text("Transform");
 
-    if (selectedObject) {
-        ImGui::Text("Transform");
+            glm::vec3 position = selectedObject->getPosition();
+            glm::vec3 rotation = selectedObject->getRotation();
+            glm::vec3 scale = selectedObject->getScale();
 
-        glm::vec3 position = selectedObject->getPosition();
-        glm::vec3 rotation = selectedObject->getRotation();
-        glm::vec3 scale = selectedObject->getScale();
-
-        if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
-            selectedObject->setPosition(position);
-        }
-        if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f)) {
-            selectedObject->setRotation(rotation);
-        }
-        if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f, 0.1f, 10.0f)) {
-            selectedObject->setScale(scale);
-        }
+            if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
+                selectedObject->setPosition(position);
+            }
+            if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f)) {
+                selectedObject->setRotation(rotation);
+            }
+            if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f, 0.1f, 10.0f)) {
+                selectedObject->setScale(scale);
+            }
 
 
 
-        // Mostrar la información de la malla
-        MeshData* meshData = selectedObject->getMeshData();
-        if (meshData) {
-            ImGui::Separator();
-            ImGui::Text("Mesh Information");
+            // Mostrar la informaciï¿½n de la malla
+            MeshData* meshData = selectedObject->getMeshData();
+            if (meshData) {
+                ImGui::Separator();
+                ImGui::Text("Mesh Information");
 
-            ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);  // Asumimos que cada vértice tiene 3 componentes (x, y, z)
-            ImGui::Text("Indices: %d", meshData->indices.size() / 3);   // Asumimos que cada cara tiene 3 índices (triángulos)
+                ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);  // Asumimos que cada vï¿½rtice tiene 3 componentes (x, y, z)
+                ImGui::Text("Indices: %d", meshData->indices.size() / 3);   // Asumimos que cada cara tiene 3 ï¿½ndices (triï¿½ngulos)
 
-            // Opción para visualizar las normales
-            bool showNormals = false;
-            if (ImGui::CollapsingHeader("Show Normals")) {
-                showNormals = true;
+                // Opciï¿½n para visualizar las normales
+                bool showNormals = false;
+                if (ImGui::CollapsingHeader("Show Normals")) {
+                    showNormals = true;
 
-                // Mostrar normales por triángulo
-                if (meshData->normals.size() > 0) {
-                    ImGui::Text("Normals by Triangle:");
-                    for (size_t i = 0; i < meshData->normals.size(); i += 3) {
-                        glm::vec3 normal = glm::vec3(meshData->normals[i], meshData->normals[i + 1], meshData->normals[i + 2]);
-                        ImGui::Text("Normal %d: %.3f, %.3f, %.3f", i / 3, normal.x, normal.y, normal.z);
+                    // Mostrar normales por triï¿½ngulo
+                    if (meshData->normals.size() > 0) {
+                        ImGui::Text("Normals by Triangle:");
+                        for (size_t i = 0; i < meshData->normals.size(); i += 3) {
+                            glm::vec3 normal = glm::vec3(meshData->normals[i], meshData->normals[i + 1], meshData->normals[i + 2]);
+                            ImGui::Text("Normal %d: %.3f, %.3f, %.3f", i / 3, normal.x, normal.y, normal.z);
+                        }
                     }
-                }
 
-                // Opción para ver las normales por cara (media de las normales de triángulos)
-                if (meshData->vertices.size() / 3 > 0) {
-                    ImGui::Text("Normals by Face:");
-                    for (size_t i = 0; i < meshData->indices.size(); i += 3) {
-                        glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
-                        glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
-                        glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
+                    // Opciï¿½n para ver las normales por cara (media de las normales de triï¿½ngulos)
+                    if (meshData->vertices.size() / 3 > 0) {
+                        ImGui::Text("Normals by Face:");
+                        for (size_t i = 0; i < meshData->indices.size(); i += 3) {
+                            glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
+                            glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
+                            glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
 
-                        // Calcular la normal de la cara usando el producto cruzado
-                        glm::vec3 edge1 = vertex2 - vertex1;
-                        glm::vec3 edge2 = vertex3 - vertex1;
-                        glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+                            // Calcular la normal de la cara usando el producto cruzado
+                            glm::vec3 edge1 = vertex2 - vertex1;
+                            glm::vec3 edge2 = vertex3 - vertex1;
+                            glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
 
-                        ImGui::Text("Face %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
+                            ImGui::Text("Face %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
+                        }
                     }
                 }
             }
@@ -445,10 +472,6 @@ void MyWindow::swapBuffers() {
             variables->window->selectedObject->textureID = newTextureID;
         }
     }
-    else {
-        ImGui::Text("No GameObject Selected");
-    }
-    ImGui::End();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
