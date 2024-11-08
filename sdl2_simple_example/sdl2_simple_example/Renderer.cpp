@@ -26,7 +26,7 @@ void initOpenGL() {
     glClearColor(0.5, 0.5, 0.5, 1.0);
 }
 
-bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& fbxFile) {
+bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& droppedFilePath) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
@@ -57,34 +57,48 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
             break;
 
         case SDL_DROPFILE: {
-            fbxFile = event.drop.file;
-
+            droppedFilePath = event.drop.file;
+            
             // Only admit fbx files
-            std::filesystem::path filePath(fbxFile);
-            if (filePath.extension() != ".fbx") {
-                std::cerr << "File is not an FBX. Ignoring..." << std::endl;
+            std::filesystem::path filePath(droppedFilePath);
+            if (filePath.extension().string() == ".fbx") {
+                meshes.clear();
+                textureID = 0;
+
+                meshes = importer.loadFBX(droppedFilePath, textureID);
+
+                for (size_t i = 0; i < meshes.size(); ++i) {
+                    const std::string objectName = getFileName(droppedFilePath) + "_" + std::to_string(i);
+                    //variables->window->gameObjects.emplace_back(objectName, meshes[i], textureID); 
+                    GameObject* modelObject = new GameObject(objectName, meshes[i], textureID);
+                    variables->window->gameObjects.push_back(modelObject);
+                    //gameObjects.emplace_back(objectName, meshes[i], textureID);
+                    //variables->window->getGameObjects().push_back();
+                }
+
+                std::string baseName = getFileName(droppedFilePath);
+                std::string outputPath = "Assets/" + baseName + ".dat";
+                importer.saveCustomFormat(outputPath, meshes);
+
+                std::cout << "FBX loaded & saved in: " << outputPath << std::endl;
+
                 break; 
             }
+            else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg") {
+                std::cout << "PNG texture dropped: " << droppedFilePath << std::endl;
 
-            meshes.clear();
-            textureID = 0;
-
-            meshes = importer.loadFBX(fbxFile, textureID);
-
-            for (size_t i = 0; i < meshes.size(); ++i) {
-                const std::string objectName = getFileName(fbxFile) + "_" + std::to_string(i);
-                //variables->window->gameObjects.emplace_back(objectName, meshes[i], textureID); 
-                GameObject* modelObject = new GameObject(objectName, meshes[i], textureID);
-                variables->window->gameObjects.push_back(modelObject);
-                //gameObjects.emplace_back(objectName, meshes[i], textureID);
-                //variables->window->getGameObjects().push_back();
+                if (variables->window->selectedObject) {
+                    GLuint newTextureID = importer.loadTexture(droppedFilePath); 
+                    variables->window->selectedObject->textureID = newTextureID; 
+                    std::cout << "Texture applied to selected object." << std::endl; 
+                }
+                else {
+                    std::cout << "No object selected to apply the texture." << std::endl; 
+                }
+                SDL_free(event.drop.file);  // Liberamos la memoria del archivo 
+                break;
             }
 
-            std::string baseName = getFileName(fbxFile);
-            std::string outputPath = "Assets/" + baseName + ".dat";
-            importer.saveCustomFormat(outputPath, meshes);
-
-            std::cout << "FBX loaded & saved in: " << outputPath << std::endl;
             break;
         }
         case SDL_QUIT:

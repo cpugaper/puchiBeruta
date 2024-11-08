@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <IL/il.h>
+#include <IL/ilu.h>
 #include <stdexcept>
 #include <iostream>
 #include <filesystem>
@@ -12,7 +13,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
-
+#include "Variables.h"
 Importer::Importer() {
     initDevIL();
     checkAndCreateDirectories();
@@ -49,6 +50,7 @@ Importer::~Importer() {}
 
 void Importer::initDevIL() {
     ilInit();
+    iluInit(); 
 }
 
 void Importer::checkAndCreateDirectories() {
