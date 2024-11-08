@@ -20,6 +20,7 @@ public:
 	float textureAnisotropicLevel = 4.0f;  
 
 	std::string textureFilePath;
+	std::string checkerTexture = "Assets/checker_texture.png";
 
 	template <class Archive>
 	void serialize(Archive& archive) {

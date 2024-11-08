@@ -439,7 +439,11 @@ void MyWindow::swapBuffers() {
             }
         }
         ImGui::Separator();
-        ImGui::TextWrapped("Object Texture: %s", variables->textureFilePath.c_str());  
+        ImGui::TextWrapped("Object Texture: %s", variables->textureFilePath.c_str());   
+        if(ImGui::Button("Checked Texture")) {
+            GLuint newTextureID = importer.loadTexture(variables->checkerTexture); 
+            variables->window->selectedObject->textureID = newTextureID;
+        }
     }
     else {
         ImGui::Text("No GameObject Selected");
