@@ -13,6 +13,9 @@ extern Camera camera;
 extern Importer importer;
 extern std::vector<MeshData> meshes;
 extern GLuint textureID;
+GLuint framebuffer = 0;
+GLuint textureColorbuffer = 0;
+GLuint rbo = 0;
 
 std::string getFileName(const std::string& path) {
     return std::filesystem::path(path).stem().string();
@@ -22,8 +25,33 @@ void initOpenGL() {
     glewInit();
     if (!GLEW_VERSION_3_0) throw std::exception("OpenGL 3.0 API is not available.");
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_TEXTURE_2D);
     glClearColor(0.5, 0.5, 0.5, 1.0);
+}
+
+void createFrameBuffer(int width, int height) {
+    if (framebuffer != 0) {
+        cleanupFrameBuffer();
+    }
+
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+    glGenTextures(1, &textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
 bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& droppedFilePath) {
@@ -32,35 +60,17 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
         ImGui_ImplSDL2_ProcessEvent(&event);
 
         switch (event.type) {
-        case SDL_KEYDOWN:
-            camera.processKeyDown(event.key.keysym);
-            break;
-
-        case SDL_KEYUP:
-            camera.processKeyUp(event.key.keysym);
-            break;
-
-        case SDL_MOUSEMOTION:
-            camera.processMouseMotion(event.motion);
-            break;
-
-        case SDL_MOUSEBUTTONDOWN:
-            camera.processMouseButtonDown(event.button);
-            break;
-
-        case SDL_MOUSEBUTTONUP:
-            camera.processMouseButtonUp(event.button);
-            break;
-
-        case SDL_MOUSEWHEEL:
-            camera.processMouseWheel(event.wheel);
-            break;
+        case SDL_KEYDOWN: camera.processKeyDown(event.key.keysym); break;
+        case SDL_KEYUP: camera.processKeyUp(event.key.keysym); break;
+        case SDL_MOUSEMOTION: camera.processMouseMotion(event.motion); break;
+        case SDL_MOUSEBUTTONDOWN: camera.processMouseButtonDown(event.button); break;
+        case SDL_MOUSEBUTTONUP: camera.processMouseButtonUp(event.button); break;
+        case SDL_MOUSEWHEEL: camera.processMouseWheel(event.wheel); break;
 
         case SDL_DROPFILE: {
             droppedFilePath = event.drop.file;
-            
-            // Only admit fbx files
             std::filesystem::path filePath(droppedFilePath);
+
             if (filePath.extension().string() == ".fbx") {
                 meshes.clear();
                 textureID = 0;
@@ -76,8 +86,7 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
                     //variables->window->getGameObjects().push_back();
                 }
 
-                std::string baseName = getFileName(droppedFilePath);
-                std::string outputPath = "Assets/" + baseName + ".dat";
+                std::string outputPath = "Assets/" + getFileName(droppedFilePath) + ".dat";
                 importer.saveCustomFormat(outputPath, meshes);
 
                 std::cout << "FBX loaded & saved in: " << outputPath << std::endl;
@@ -101,31 +110,34 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
 
             break;
         }
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                variables->windowWidth = event.window.data1;
+                variables->windowHeight = event.window.data2;
+                glViewport(0, 0, Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
+            }
+            break;
         case SDL_QUIT:
             return false;
         default:
             break;
         }
     }
-    camera.move(SDL_GetKeyboardState(NULL));
+    camera.move(SDL_GetKeyboardState(nullptr));
     return true;
 }
 
 void drawGrid(float spacing) {
     glDisable(GL_TEXTURE_2D);
-    float gridRange = 1000.0f;
-
     glColor3f(0.7f, 0.7f, 0.7f);
+
+    float gridRange = 1000.0f;
     glBegin(GL_LINES);
 
     // X axis
     for (float i = -gridRange; i <= gridRange; i += spacing) {
-        glVertex3f(i, 0, -gridRange);
+        glVertex3f(i, 0, -gridRange); 
         glVertex3f(i, 0, gridRange);
-    }
-
-    // Z axis
-    for (float i = -gridRange; i <= gridRange; i += spacing) {
         glVertex3f(-gridRange, 0, i);
         glVertex3f(gridRange, 0, i);
     }
@@ -134,10 +146,13 @@ void drawGrid(float spacing) {
 }
 
 void render(const std::vector<GameObject*>& gameObjects) {
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45.0f, static_cast<float>(Variables::WINDOW_SIZE.x) / Variables::WINDOW_SIZE.y, 0.1f, 100.0f);
+    glScalef(1.0f, -1.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -179,5 +194,15 @@ void render(const std::vector<GameObject*>& gameObjects) {
 
         glPopMatrix();
     }
+   
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     glFlush();
+}
+
+void cleanupFrameBuffer() {
+    glDeleteFramebuffers(1, &framebuffer);
+    glDeleteTextures(1, &textureColorbuffer);
+    glDeleteRenderbuffers(1, &rbo);
 }

@@ -45,7 +45,6 @@ std::vector<MeshData> meshes;
 GLuint textureID;
 Importer importer;
 const char* fbxFile = nullptr;
-
 std::vector<GameObject> gameObjects;
 
 #undef main
@@ -84,14 +83,24 @@ int main(int argc, char** argv) {
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
 		//gameObjects.emplace_back(objectName, meshes[i], textureID);
-		GameObject* casa = new GameObject(objectName, meshes[i], 0);
+		auto casa = new GameObject(objectName, meshes[i], 0);
 		variables->window->gameObjects.push_back(casa);
 	}
 
 	while (processEvents(camera, gameObjects, fbxFile)) {
 		const auto t0 = hrclock::now();
 
-		render(variables->window->gameObjects);
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+		variables->window->createDockSpace();
+		render(variables->window->gameObjects); 
+
+		ImGui::Render();
+		ImGui::UpdatePlatformWindows();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		variables->window->swapBuffers();
 
 		const auto t1 = hrclock::now();
@@ -102,6 +111,8 @@ int main(int argc, char** argv) {
 	for (const auto& obj : gameObjects) {
 		std::cout << "Objeto en la escena: " << obj.getName() << std::endl;
 	}
+
+	cleanupFrameBuffer();
 
 	return 0;
 }

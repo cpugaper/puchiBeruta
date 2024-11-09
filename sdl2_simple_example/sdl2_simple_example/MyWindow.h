@@ -8,12 +8,13 @@ struct SDL_Window;
 
 class MyWindow {
 
-	SDL_Window* _window = nullptr;
 	void* _ctx = nullptr;
 
 	int _width = 0;
 	int _height = 0;
 public:
+	
+	SDL_Window* _window = nullptr;
 	std::vector<GameObject*> gameObjects;
 
 public:
@@ -21,8 +22,10 @@ public:
 	int height() const { return _height; }
 	double aspectRatio() const { return static_cast<double>(_width) / _height; }
 
-	MyWindow(const std::string& title, int w, int h);
+	MyWindow(const std::string& title, int w, int hwindow);
 	~MyWindow();
+
+	SDL_Window* getSDLWindow() const { return _window; }
 
 	void swapBuffers();
 	std::vector<GameObject*> getGameObjects() { return gameObjects; }
@@ -30,6 +33,14 @@ public:
 	void selectObject(GameObject* obj);
 
 	void deleteSelectedObject();
+
+	void configMyWindow();
+	void createDockSpace();
+	void createMainMenu();
+	void createHierarchyWindow();
+	void createInspectorWindow();
+	void createProjectWindow();
+	void createSceneWindow();
 
 	GameObject* selectedObject = nullptr;
 	bool objectSelected = false;
