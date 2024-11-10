@@ -7,9 +7,6 @@
 #include <chrono>
 #include <thread>
 #include <exception>
-
-// CUSTOM
-#include "MyWindow.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
@@ -17,10 +14,9 @@
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
-#include "IL/il.h"
-#include "IL/ilu.h"
 #include "IL/ilut.h"
 #include "Importer.h"
+#include "MyWindow.h"
 #include "Camera.h"
 #include "GameObject.h"
 #include "Renderer.h"
@@ -32,15 +28,11 @@
 using namespace std::chrono;
 
 using hrclock = high_resolution_clock;
-//using ivec2 = glm::ivec2;
-//
-//const ivec2 Variables::WINDOW_SIZE(1280, 960);
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
 Camera camera;
 
-// Drop Objects
 std::vector<MeshData> meshes;
 GLuint textureID;
 Importer importer;
@@ -82,11 +74,11 @@ int main(int argc, char** argv) {
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
-		//gameObjects.emplace_back(objectName, meshes[i], textureID);
 		auto casa = new GameObject(objectName, meshes[i], 0);
 		variables->window->gameObjects.push_back(casa);
 	}
 
+	// Main loop: handling events, rendering and maintaining FPS
 	while (processEvents(camera, gameObjects, fbxFile)) {
 		const auto t0 = hrclock::now();
 

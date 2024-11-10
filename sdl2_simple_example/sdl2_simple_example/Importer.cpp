@@ -1,9 +1,7 @@
-// Importer.cpp
 #include "Importer.h"
 #include  <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <IL/il.h>
 #include <IL/ilu.h>
 #include <stdexcept>
 #include <iostream>
@@ -14,6 +12,8 @@
 #include <filesystem>
 #include <fstream>
 #include "Variables.h"
+
+// Initialize DevIL and ensures the existence of necessary directories
 Importer::Importer() {
     initDevIL();
     checkAndCreateDirectories();
@@ -60,20 +60,22 @@ void Importer::checkAndCreateDirectories() {
         "Library/Materials",
         "Library/Models"
     };
+
+	// Browse the necessary directories and create them if they don't exist
     for (const auto& dir : directories) {
         std::filesystem::path dirPath(dir);
 
-        // Create directory if it doesn't exist
         if (!std::filesystem::exists(dirPath)) {
             std::filesystem::create_directories(dirPath);
         }
     }
 }
 
+// Loads an FBX model and its corresponding texture
 std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
-
     std::cout << "Loading model FBX: " << relativeFilePath << std::endl;
 
+	// Gets the absolute path to the FBX file
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
     std::string filePath = (projectPath / relativeFilePath).string();
@@ -122,7 +124,7 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
     std::filesystem::path texturePath = modelPath.parent_path() / (modelPath.stem().string() + ".png");
 
     if (std::filesystem::exists(texturePath)) {
-        textureID = loadTexture(texturePath.string()); // Load Texture
+        textureID = loadTexture(texturePath.string());
         std::cout << "Texture found & loaded: " << texturePath << std::endl;
     }
     else {
@@ -164,7 +166,6 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
 
     ilDeleteImages(1, &imageID);
 
-    // Mostrar el tamaño de la textura y el camino
     std::cout << "Texture loaded: " << texturePath << std::endl;
     std::cout << "Texture dimensions: " << ilGetInteger(IL_IMAGE_WIDTH) << "x" << ilGetInteger(IL_IMAGE_HEIGHT) << std::endl;
 

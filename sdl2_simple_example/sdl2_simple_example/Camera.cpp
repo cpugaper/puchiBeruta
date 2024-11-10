@@ -3,11 +3,13 @@
 #include <iostream>
 #include "Variables.h"
 
+// Initializes variables related to the position and movement of the camera
 Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
 
+// Resets the camera's position and orientation based on the selected object
 void Camera::reset() {
     if (variables->window->objectSelected) {
-        position = -variables->window->selectedObject->getPosition();// glm::vec3(0.0f, -1.0f, -10.0f);
+        position = -variables->window->selectedObject->getPosition();
         position.y -= 1;
         position.z -= 10;
         angleX = angleY = 0.0f;
@@ -92,6 +94,7 @@ void Camera::processMouseWheel(const SDL_MouseWheelEvent& wheel) {
     position.z += wheel.y * 0.3f;
 }
 
+// Moves the camera based on the keys pressed
 void Camera::move(const Uint8* keyboardState) {
     if (isRightMouseDragging) {
         if (keyboardState[SDL_SCANCODE_W]) position.z += speed;

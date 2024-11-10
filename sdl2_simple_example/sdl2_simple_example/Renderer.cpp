@@ -19,10 +19,12 @@ GLuint rbo = 0;
 int framebufferWidth = 1280; 
 int framebufferHeight = 720;
 
+// Gets the filename of a given path
 std::string getFileName(const std::string& path) {
     return std::filesystem::path(path).stem().string();
 }
 
+//Initialises LWE and configures OpenGL for deep rendering
 void initOpenGL() {
     glewInit();
     if (!GLEW_VERSION_3_0) throw std::exception("OpenGL 3.0 API is not available.");
@@ -34,6 +36,7 @@ void createFrameBuffer(int width, int height) {
     framebufferWidth = width;
     framebufferHeight = height;
 
+	// Removy any previous framebuffers before creating a new one
     if (framebuffer != 0) {
         cleanupFrameBuffer();
     }
@@ -59,6 +62,7 @@ void createFrameBuffer(int width, int height) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
+// Processes SDL events and user actions
 bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& droppedFilePath) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -84,11 +88,8 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
 
                 for (size_t i = 0; i < meshes.size(); ++i) {
                     const std::string objectName = getFileName(droppedFilePath) + "_" + std::to_string(i);
-                    //variables->window->gameObjects.emplace_back(objectName, meshes[i], textureID); 
                     GameObject* modelObject = new GameObject(objectName, meshes[i], textureID);
                     variables->window->gameObjects.push_back(modelObject);
-                    //gameObjects.emplace_back(objectName, meshes[i], textureID);
-                    //variables->window->getGameObjects().push_back();
                 }
 
                 std::string outputPath = "Assets/" + getFileName(droppedFilePath) + ".dat";
@@ -109,12 +110,14 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
                 else {
                     std::cout << "No object selected to apply the texture." << std::endl; 
                 }
-                SDL_free(event.drop.file);  // Liberamos la memoria del archivo 
+                SDL_free(event.drop.file);
                 break;
             }
 
             break;
         }
+
+        // Handles the window resize event and adjusts the viewport
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 variables->windowWidth = event.window.data1;
@@ -139,7 +142,6 @@ void drawGrid(float spacing) {
     float gridRange = 1000.0f;
     glBegin(GL_LINES);
 
-    // X axis
     for (float i = -gridRange; i <= gridRange; i += spacing) {
         glVertex3f(i, 0, -gridRange); 
         glVertex3f(i, 0, gridRange);
@@ -166,6 +168,8 @@ void render(const std::vector<GameObject*>& gameObjects) {
 
     drawGrid(0.5f);
 
+
+	// Render every object in the scene
     for (const auto& obj : gameObjects) {
         glPushMatrix();
 

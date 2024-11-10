@@ -1,5 +1,4 @@
 #include "GameObject.h"
-#include "Importer.h"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -7,8 +6,9 @@
 #include <random>
 #include <fstream>
 #include <cereal/archives/json.hpp>
+#include "Importer.h"
 
-extern Importer importer; // Declare extern importer if already created 
+extern Importer importer;
 
 GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID)
     : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
@@ -18,6 +18,7 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
     std::cout << "GameObject created with UUID: " << uuid << std::endl;
 }
 
+// Generate a random UUID to identify each object uniquely
 std::string GameObject::GenerateUUID() {
     std::stringstream ss;
     for (int i = 0; i < 16; i++) {
@@ -27,6 +28,7 @@ std::string GameObject::GenerateUUID() {
     return ss.str();
 }
 
+// Adds a child object to the list of children of this object
 void GameObject::addChild(const GameObject& child) {
     children.push_back(child);
 }
@@ -62,7 +64,6 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
             meshData = meshes[0];
             GameObject* modelObject = new GameObject(primitiveType, meshData, textureID);
             gameObjects.push_back(modelObject);
-            //gameObjects.emplace_back(primitiveType, meshData, textureID);
             std::cout << "Model " << primitiveType << " loaded from " << filePath << std::endl;
         }
     }

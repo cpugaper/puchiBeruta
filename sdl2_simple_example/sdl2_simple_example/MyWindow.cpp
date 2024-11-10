@@ -1,17 +1,17 @@
+#include "MyWindow.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
-#include "MyWindow.h"
-#include "Variables.h"
-#include "Importer.h"
-#include "Renderer.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-#include "GameObject.h"
 #include <SDL2/SDL_opengl.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include "GameObject.h"
+#include "Variables.h"
+#include "Importer.h"
+#include "Renderer.h"
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -33,6 +33,7 @@ static bool showAboutWindow = false;
 static bool showGithubWindow = false;
 static bool showConfig = false;
 
+// MyWindow builder initializing SDL, OpenGL and ImGui
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -62,12 +63,12 @@ MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(
     configMyWindow();
 }
 
+// Destructor that frees memory and closes ImGui and SDL
 MyWindow::~MyWindow() {
-    // Liberar los recursos de los objetos creados
     for (GameObject* obj : gameObjects) {
-        delete obj; // Aseg�rate de liberar la memoria
+        delete obj;
     }
-    gameObjects.clear(); // Limpiar la lista
+    gameObjects.clear();
 
 
     SDL_GL_DeleteContext(_ctx);
@@ -77,13 +78,13 @@ MyWindow::~MyWindow() {
     ImGui::DestroyContext();
 }
 
+// ImGui colour and padding styles configuration
 void MyWindow::configMyWindow()
 {
     ImGuiStyle& style = ImGui::GetStyle();
 
     style.WindowPadding = ImVec2(0.0f, 0.0f);  
 
-    // Colors
     ImVec4* colors = style.Colors;
     colors[ImGuiCol_WindowBg] = ImColor(250, 224, 228);
     colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
@@ -153,6 +154,7 @@ void MyWindow::createDockSpace() {
     ImGui::End();
 }
 
+// Selects an object in the scene
 void MyWindow::selectObject(GameObject* obj) {
     if (selectedObject != obj) {
         selectedObject = obj;
@@ -164,6 +166,7 @@ void MyWindow::selectObject(GameObject* obj) {
     }
 }
 
+// Removes the selected object from the scene
 void MyWindow::deleteSelectedObject() {
     if (selectedObject) {
         auto it = std::find(gameObjects.begin(), gameObjects.end(), selectedObject);
@@ -236,11 +239,9 @@ void MyWindow::createMainMenu() {
         ImGui::EndMainMenuBar();
 
         if (showConfig) {
-            //ImGui::SetNextWindowPos(ImVec2(0, 20));
             ImGui::Begin("Config", nullptr);
             if (ImGui::CollapsingHeader("FPS Graph")) {
-                ImGui::Text("FPS: %d", _fps); // Mostrar FPS actual
-                // Mostrar el gr�fico de FPS en la ventana
+                ImGui::Text("FPS: %d", _fps);
                 ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
 
             }
@@ -250,22 +251,15 @@ void MyWindow::createMainMenu() {
             if (ImGui::CollapsingHeader("Window Settings")) {
                 ImGui::InputInt("Width", &variables->windowWidth);
                 ImGui::InputInt("Height", &variables->windowHeight);
-                if (ImGui::Checkbox("Fullscreen", &variables->fullscreen)) {
-                    // Actualiza la configuraci�n de fullscreen (si se cambia)
-                }
-                if (ImGui::Checkbox("V-Sync", &variables->vsyncEnabled)) {
-                    // Actualiza la configuraci�n de V-Sync
-                }
+                if (ImGui::Checkbox("Fullscreen", &variables->fullscreen)) {}
 
-                // Aplicar cambios
                 if (ImGui::Button("Apply Changes")) {
-                    // Aqu� puedes aplicar los cambios de configuraci�n, como actualizar la ventana o el contexto OpenGL
                     SDL_SetWindowSize(_window, variables->windowWidth, variables->windowHeight);
                     if (variables->fullscreen) {
                         SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
                     else {
-                        SDL_SetWindowFullscreen(_window, 0); // Desactivar fullscreen
+                        SDL_SetWindowFullscreen(_window, 0);
                     }
                 }
             }
@@ -278,9 +272,9 @@ void MyWindow::createMainMenu() {
             }
 
             ImGui::Separator();
-            // Informaci�n de la memoria (ejemplo, en Windows)
+
             if (ImGui::CollapsingHeader("Info")) {
-                // (esto depende del sistema operativo)
+
                 MEMORYSTATUSEX statex;
                 statex.dwLength = sizeof(statex);
                 GlobalMemoryStatusEx(&statex);
@@ -292,12 +286,11 @@ void MyWindow::createMainMenu() {
 
                 ImGui::Separator();
 
-                // Informaci�n de SDL
                 SDL_version sdl_version;
                 SDL_GetVersion(&sdl_version);
                 ImGui::Text("SDL Version: %d.%d.%d", sdl_version.major, sdl_version.minor, sdl_version.patch);
                 ImGui::Separator();
-                // Informaci�n de OpenGL
+
                 const char* glVersion = (const char*)glGetString(GL_VERSION);
                 const char* glRenderer = (const char*)glGetString(GL_RENDERER);
                 const char* glVendor = (const char*)glGetString(GL_VENDOR);
@@ -306,9 +299,7 @@ void MyWindow::createMainMenu() {
                 ImGui::Text("OpenGL Vendor: %s", glVendor);
                 ImGui::Separator();
 
-                //Informaci�n de DevIL (si est� integrado)
                 std::string devilVersion = std::to_string(IL_VERSION).c_str();
-                //const char* devilVersion = (const char*)ilGetString(IL_VERSION);
                 ImGui::Text("DevIL Version: %s", devilVersion);
 
             }
@@ -361,7 +352,6 @@ void MyWindow::createMainMenu() {
             ImGui::End();
         }
     }
-
 }
 
 void MyWindow::createHierarchyWindow()
@@ -380,11 +370,11 @@ void MyWindow::createHierarchyWindow()
     ImGui::End();
 }
 
+// Inspector window por displaying and modifying the properties of the selected object
 void MyWindow::createInspectorWindow()
 {
     ImGui::Begin("Inspector", nullptr);
     if (selectedObject) {
-        // Transform information
         ImGui::Text("Transform");
 
         glm::vec3 position = selectedObject->getPosition();
@@ -405,7 +395,6 @@ void MyWindow::createInspectorWindow()
             selectedObject->resetTransform();
         }
 
-        // Mesh information
         MeshData* meshData = selectedObject->getMeshData();
         if (meshData) {
             ImGui::Separator();
@@ -414,7 +403,6 @@ void MyWindow::createInspectorWindow()
             ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);
             ImGui::Text("Indices: %d", meshData->indices.size() / 3);
 
-            // Visualize normals
             bool showNormals = false;
             if (ImGui::CollapsingHeader("Show Normals")) {
                 showNormals = true;
@@ -434,7 +422,6 @@ void MyWindow::createInspectorWindow()
                         glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
                         glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
 
-                        // Calcular la normal de la cara usando el producto cruzado
                         glm::vec3 edge1 = vertex2 - vertex1;
                         glm::vec3 edge2 = vertex3 - vertex1;
                         glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
@@ -449,8 +436,6 @@ void MyWindow::createInspectorWindow()
         if (ImGui::Button("Checker Texture")) {
             GLuint newTextureID = importer.loadTexture(variables->checkerTexture);
             variables->window->selectedObject->textureID = newTextureID;
-
-            //SDL_free(&variables->checkerTexture);
         }
         
     }
@@ -477,8 +462,8 @@ void MyWindow::createSceneWindow()
     ImGui::End();
 }
 
+// Updated interface and rendering of ImGui content
 void MyWindow::swapBuffers() {
-    // Calculate FPS
     _currentTime = SDL_GetTicks();
     _frameCount++;
 
@@ -487,8 +472,7 @@ void MyWindow::swapBuffers() {
         _frameCount = 0;
         _lastTime = _currentTime;
 
-        // Almacenar FPS en la historia para el gr�fico
-        if (_fpsHistory.size() >= 100) { // Limitar a 100 FPS en la historia
+        if (_fpsHistory.size() >= 100) {
             _fpsHistory.erase(_fpsHistory.begin());
         }
         _fpsHistory.push_back((float)_fps);

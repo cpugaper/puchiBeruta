@@ -1,4 +1,3 @@
-#pragma once
 #include "MyWindow.h"
 #include <glm/glm.hpp>
 #include <string>
@@ -6,6 +5,7 @@
 #include <cereal/types/memory.hpp>  
 #include <cereal/archives/json.hpp>
 
+// Global and window variables
 class Variables {
 public:
 	MyWindow* window;
