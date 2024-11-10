@@ -145,8 +145,16 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     ilBindImage(imageID);
 
     if (!ilLoadImage((const wchar_t*)texturePath.c_str())) {
-        ilDeleteImages(1, &imageID);
-        throw std::runtime_error("Error loading texture");
+        ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+        glGenTextures(1, &imageID);
+        glBindTexture(GL_TEXTURE_2D, imageID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    } else {
+        std::cerr << "Error loading texture: " << texturePath << std::endl;
+        imageID = 0;
     }
 
     ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);

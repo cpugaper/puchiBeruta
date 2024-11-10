@@ -417,7 +417,18 @@ void MyWindow::createInspectorWindow()
             ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);
             ImGui::Text("Indices: %d", meshData->indices.size() / 3);
 
+            bool showNormals = false;
             if (ImGui::CollapsingHeader("Show Normals")) {
+                showNormals = true;
+
+                /*if (meshData->normals.size() >= 0) {
+                    ImGui::Text("Normals by Triangle:");
+                    for (size_t i = 0; i < meshData->normals.size(); i += 3) {
+                        glm::vec3 normal = glm::vec3(meshData->normals[i], meshData->normals[i + 1], meshData->normals[i + 2]);
+                        ImGui::Text("Normal %d: %.3f, %.3f, %.3f", i / 3, normal.x, normal.y, normal.z);
+                    }
+                }*/
+
                 if (meshData->vertices.size() / 3 > 0) {
                     for (size_t i = 0; i < meshData->indices.size(); i += 3) {
                         glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
