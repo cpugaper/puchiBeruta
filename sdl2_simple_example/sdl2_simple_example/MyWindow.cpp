@@ -444,14 +444,18 @@ void MyWindow::createInspectorWindow()
                 }
             }
         }
-    }
-    ImGui::Separator();
-    ImGui::TextWrapped("Object Texture: %s", variables->textureFilePath.c_str());
-    if (ImGui::Button("Checked Texture")) {
-        GLuint newTextureID = importer.loadTexture(variables->checkerTexture);
-        variables->window->selectedObject->textureID = newTextureID;
+        ImGui::Separator();
+        ImGui::TextWrapped("Object Texture: %s", variables->textureFilePath.c_str());
+        if (ImGui::Button("Checker Texture")) {
+            GLuint newTextureID = importer.loadTexture(variables->checkerTexture);
+            variables->window->selectedObject->textureID = newTextureID;
+
+            //SDL_free(&variables->checkerTexture);
+        }
+        
     }
     ImGui::End();
+    
 }
 
 void MyWindow::createProjectWindow()
