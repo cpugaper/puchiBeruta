@@ -167,9 +167,15 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     ilDeleteImages(1, &imageID);
 
     std::cout << "Texture loaded: " << texturePath << std::endl;
-    std::cout << "Texture dimensions: " << ilGetInteger(IL_IMAGE_WIDTH) << "x" << ilGetInteger(IL_IMAGE_HEIGHT) << std::endl;
 
     return textureID;
+}
+void Importer::getTextureDimensions(GLuint textureID, int& width, int& height) {
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Obtener el ancho y alto de la textura
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
 }
 
 void Importer::saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes) {

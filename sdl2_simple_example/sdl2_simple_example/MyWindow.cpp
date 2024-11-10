@@ -433,11 +433,16 @@ void MyWindow::createInspectorWindow()
         }
         ImGui::Separator();
         ImGui::TextWrapped("Object Texture: %s", variables->textureFilePath.c_str());
+
+        importer.getTextureDimensions(selectedObject->textureID, variables->texturewidth, variables->textureheight);
+        ImGui::Text("Texture Dimensions: %d x %d", variables->texturewidth, variables->textureheight);
+
         if (ImGui::Button("Checker Texture")) {
             GLuint newTextureID = importer.loadTexture(variables->checkerTexture);
             variables->window->selectedObject->textureID = newTextureID;
+
+            variables->textureFilePath = variables->checkerTexture;
         }
-        
     }
     ImGui::End();
     
