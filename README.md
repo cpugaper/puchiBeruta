@@ -2,7 +2,7 @@
 <h1 align="center">PuchiBeruta</h1>
 
 ### PuchiBeruta is a simple game engine made for learning purposes. This is the first installment of the project, which includes a series of basic functionalities for the creation and visualisation of 3D models. The engine allows models to be loaded, cameras to be manipulated and textures to be managed. 
-#### Github link: 
+#### Github link: https://github.com/CITM-UPC/puchiBeruta_CRM
 
 <br>
 
