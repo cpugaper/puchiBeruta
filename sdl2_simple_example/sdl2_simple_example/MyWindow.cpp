@@ -33,6 +33,13 @@ static bool showAboutWindow = false;
 static bool showGithubWindow = false;
 static bool showConfig = false;
 
+struct TriangleFace {
+    glm::vec3 normal;
+    std::vector<size_t> triangleIndices; 
+};
+bool areNormalsEqual(const glm::vec3& n1, const glm::vec3& n2, float epsilon = 0.0001f) {
+    return glm::length(n1 - n2) < epsilon;
+}
 // MyWindow builder initializing SDL, OpenGL and ImGui
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
 
@@ -419,6 +426,8 @@ void MyWindow::createInspectorWindow()
 
             if (ImGui::CollapsingHeader("Show Normals")) {
                 if (meshData->vertices.size() / 3 > 0) {
+                    std::unordered_map<std::string, TriangleFace> faces;
+                    ImGui::Text("---Triangle Normals---");
                     for (size_t i = 0; i < meshData->indices.size(); i += 3) {
                         glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
                         glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
@@ -428,8 +437,34 @@ void MyWindow::createInspectorWindow()
                         glm::vec3 edge2 = vertex3 - vertex1;
                         glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
 
-                        ImGui::Text("Triangles %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
+                        ImGui::Text("Triangle %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
+
+                        std::string normalKey = std::to_string(faceNormal.x) + "," + std::to_string(faceNormal.y) + "," + std::to_string(faceNormal.z);
+
+                        bool found = false;
+                        for (auto& pair : faces) {
+                            if (areNormalsEqual(pair.second.normal, faceNormal)) {
+                                pair.second.triangleIndices.push_back(i / 3);
+                                found = true;
+                                break;
+                            }
+                        }
+ 
+                        if (!found) {
+                            faces[normalKey] = TriangleFace{ faceNormal, {i / 3} };
+                        }
                     }
+                    ImGui::Separator(); 
+                    ImGui::Text("---Face Normals---");
+                    for (const auto& faceEntry : faces) {
+                        const TriangleFace& face = faceEntry.second;
+                        ImGui::Text("Face Normal: %.3f, %.3f, %.3f", face.normal.x, face.normal.y, face.normal.z);
+                        for (int triangleIndex : face.triangleIndices) {
+                            ImGui::Text("  Triangle Index: %d", triangleIndex);
+                        }
+                    }
+
+                    
                 }
             }
         }
