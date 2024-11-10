@@ -12,6 +12,9 @@ extern Importer importer; // Declare extern importer if already created
 
 GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID)
     : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
+    initialPosition = position;
+    initialRotation = rotation;
+    initialScale = scale;
     std::cout << "GameObject created with UUID: " << uuid << std::endl;
 }
 
@@ -88,4 +91,10 @@ void GameObject::setRotation(const glm::vec3& newRotation) {
 
 void GameObject::setScale(const glm::vec3& newScale) {
     scale = newScale;
+}
+
+void GameObject::resetTransform() {
+    position = initialPosition;
+    rotation = initialRotation;
+    scale = initialScale;
 }

@@ -10,6 +10,9 @@ extern GLuint framebuffer;
 extern GLuint textureColorbuffer;
 extern GLuint rbo;
 
+extern int framebufferWidth;
+extern int framebufferHeight;
+
 void initOpenGL();
 bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& fbxFile);
 void render(const std::vector<GameObject*>& gameObjects);

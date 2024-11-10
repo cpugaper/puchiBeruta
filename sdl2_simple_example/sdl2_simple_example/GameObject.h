@@ -54,6 +54,10 @@ public:
     glm::vec3 rotation;
     glm::vec3 scale;
 
+    glm::vec3 initialPosition;
+    glm::vec3 initialRotation;
+    glm::vec3 initialScale;
+
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
 
     void addChild(const GameObject& child);
@@ -70,6 +74,8 @@ public:
     void setPosition(const glm::vec3& newPosition);
     void setRotation(const glm::vec3& newRotation);
     void setScale(const glm::vec3& newScale);
+
+    void resetTransform();
 
    /* MeshData toMeshData() const {
         MeshData meshData;

@@ -81,11 +81,19 @@ void MyWindow::configMyWindow()
 {
     ImGuiStyle& style = ImGui::GetStyle();
 
+    style.WindowPadding = ImVec2(0.0f, 0.0f);  
+
     // Colors
     ImVec4* colors = style.Colors;
     colors[ImGuiCol_WindowBg] = ImColor(250, 224, 228);
     colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
     colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208);
+    colors[ImGuiCol_DockingPreview] = ImColor(102, 155, 188);
+    colors[ImGuiCol_Tab] = ImColor(248, 249, 250);            
+    colors[ImGuiCol_TabHovered] = ImColor(233, 236, 239);     
+    colors[ImGuiCol_TabActive] = ImColor(222, 226, 230);       
+    colors[ImGuiCol_TabUnfocused] = ImColor(206, 212, 218);     
+    colors[ImGuiCol_TabUnfocusedActive] = ImColor(173, 181, 189); 
     colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199);
     colors[ImGuiCol_TitleBgActive] = ImColor(255, 153, 172);
     colors[ImGuiCol_TitleBgCollapsed] = ImColor(249, 190, 199);
@@ -101,6 +109,18 @@ void MyWindow::configMyWindow()
     colors[ImGuiCol_Header] = ImColor(250, 224, 228);
     colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172);
     colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161);
+}
+
+void MyWindow::updateSceneSize() {
+    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+    int newWidth = static_cast<int>(availableSize.x);
+    int newHeight = static_cast<int>(availableSize.y);
+
+    if (newWidth != framebufferWidth || newHeight != framebufferHeight) {
+        framebufferWidth = newWidth;
+        framebufferHeight = newHeight;
+        createFrameBuffer(framebufferWidth, framebufferHeight);
+    }
 }
 
 void MyWindow::createDockSpace() {
@@ -381,6 +401,10 @@ void MyWindow::createInspectorWindow()
             selectedObject->setScale(scale);
         }
 
+        if (ImGui::Button("Reset")) {
+            selectedObject->resetTransform();
+        }
+
         // Mesh information
         MeshData* meshData = selectedObject->getMeshData();
         if (meshData) {
@@ -439,22 +463,12 @@ void MyWindow::createProjectWindow()
 
 void MyWindow::createSceneWindow()
 {
-    int sceneWidth = 1280;
-    int sceneHeight = 960;
-
-    createFrameBuffer(sceneWidth, sceneHeight);
-
     ImGui::Begin("Scene", nullptr);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    render(variables->window->gameObjects);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    updateSceneSize();
 
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-    ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(sceneWidth, sceneHeight));
+    ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(framebufferWidth, framebufferHeight));
 
     ImGui::End();
 }

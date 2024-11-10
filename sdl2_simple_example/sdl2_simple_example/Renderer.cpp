@@ -16,6 +16,8 @@ extern GLuint textureID;
 GLuint framebuffer = 0;
 GLuint textureColorbuffer = 0;
 GLuint rbo = 0;
+int framebufferWidth = 1280; 
+int framebufferHeight = 720;
 
 std::string getFileName(const std::string& path) {
     return std::filesystem::path(path).stem().string();
@@ -29,6 +31,9 @@ void initOpenGL() {
 }
 
 void createFrameBuffer(int width, int height) {
+    framebufferWidth = width;
+    framebufferHeight = height;
+
     if (framebuffer != 0) {
         cleanupFrameBuffer();
     }
@@ -147,11 +152,12 @@ void drawGrid(float spacing) {
 
 void render(const std::vector<GameObject*>& gameObjects) {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glViewport(0, 0, framebufferWidth, framebufferHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, static_cast<float>(Variables::WINDOW_SIZE.x) / Variables::WINDOW_SIZE.y, 0.1f, 100.0f);
+    gluPerspective(45.0f, static_cast<float>(framebufferWidth) / framebufferHeight, 0.1f, 100.0f);
     glScalef(1.0f, -1.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -187,7 +193,6 @@ void render(const std::vector<GameObject*>& gameObjects) {
         glDrawElements(GL_TRIANGLES, obj->meshData.indices.size(), GL_UNSIGNED_INT, obj->meshData.indices.data());
 
         glDisableClientState(GL_VERTEX_ARRAY);
-
         if (!obj->meshData.textCoords.empty()) {
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
@@ -196,6 +201,7 @@ void render(const std::vector<GameObject*>& gameObjects) {
     }
    
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glFlush();

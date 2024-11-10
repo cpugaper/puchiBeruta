@@ -22,7 +22,7 @@ public:
 	int height() const { return _height; }
 	double aspectRatio() const { return static_cast<double>(_width) / _height; }
 
-	MyWindow(const std::string& title, int w, int hwindow);
+	MyWindow(const std::string& title, int w, int h);
 	~MyWindow();
 
 	SDL_Window* getSDLWindow() const { return _window; }
@@ -35,6 +35,8 @@ public:
 	void deleteSelectedObject();
 
 	void configMyWindow();
+	void updateSceneSize();
+
 	void createDockSpace();
 	void createMainMenu();
 	void createHierarchyWindow();
@@ -53,7 +55,6 @@ public:
 	}*/
 
 private:
-
 	unsigned int _lastTime = 0;
 	unsigned int _currentTime = 0;
 	unsigned int _fps = 0;
