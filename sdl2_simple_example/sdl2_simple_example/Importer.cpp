@@ -78,7 +78,8 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
 	// Gets the absolute path to the FBX file
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
-    std::string filePath = (projectPath / relativeFilePath).string();
+    //std::string filePath = (projectPath / relativeFilePath).string();
+    std::string filePath = (relativeFilePath);
 
     if (!std::filesystem::exists(filePath)) {
         throw std::runtime_error("FBX does not exist: " + filePath);
