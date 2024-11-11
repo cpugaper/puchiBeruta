@@ -39,11 +39,30 @@ Importer importer;
 const char* fbxFile = nullptr;
 std::vector<GameObject> gameObjects;
 
+//void detachConsole() {
+//#if defined(_WIN32)
+//	FreeConsole();
+//#endif
+//}
+//
+//void logMessage(const std::string& message) {
+//	if (variables && variables->window) {  
+//		variables->window->console.addLog(message.c_str());
+//	}
+//	else {
+//		std::cerr << "Advertencia: no se pudo registrar mensaje - 'variables' o 'window' no inicializados." << std::endl;
+//	}
+//}
+
 #undef main
 int main(int argc, char** argv) {
 
-	std::cout << "Initializing SDL..." << std::endl;
+	/*detachConsole(); */
 	variables = new Variables;
+
+	/*logMessage("holaaa");*/
+	std::cout << "Initializing SDL..." << std::endl;
+
 	variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
 	std::cout << "SDL initialized with success" << std::endl;
 

@@ -37,9 +37,11 @@ struct TriangleFace {
     glm::vec3 normal;
     std::vector<size_t> triangleIndices; 
 };
+
 bool areNormalsEqual(const glm::vec3& n1, const glm::vec3& n2, float epsilon = 0.0001f) {
     return glm::length(n1 - n2) < epsilon;
 }
+
 // MyWindow builder initializing SDL, OpenGL and ImGui
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
 
@@ -157,6 +159,8 @@ void MyWindow::createDockSpace() {
     createInspectorWindow();
     createProjectWindow();
     createSceneWindow();
+
+    console.display();
 
     ImGui::End();
 }

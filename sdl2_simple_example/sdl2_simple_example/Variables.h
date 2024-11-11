@@ -22,10 +22,10 @@ public:
 	std::string textureFilePath;
 	std::string checkerTexture = "Assets/checker_texture.png";
 
-	template <class Archive>
+	/*template <class Archive>
 	void serialize(Archive& archive) {
 		archive(CEREAL_NVP(windowWidth), CEREAL_NVP(windowHeight), CEREAL_NVP(fullscreen), CEREAL_NVP(vsyncEnabled), CEREAL_NVP(textureFilterQuality), CEREAL_NVP(textureAnisotropicLevel));
-	}
+	}*/
 public:
 	int texturewidth = 0, textureheight = 0;
 };

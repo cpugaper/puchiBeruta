@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include "GameObject.h"
+#include "ConsoleWindow.h"
+
 struct SDL_Window;
 
 class MyWindow {
@@ -16,6 +18,7 @@ public:
 	
 	SDL_Window* _window = nullptr;
 	std::vector<GameObject*> gameObjects;
+	ConsoleWindow console;
 
 public:
 	int width() const { return _width; }
@@ -31,7 +34,6 @@ public:
 	std::vector<GameObject*> getGameObjects() { return gameObjects; }
 
 	void selectObject(GameObject* obj);
-
 	void deleteSelectedObject();
 
 	void configMyWindow();
