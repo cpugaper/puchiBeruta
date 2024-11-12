@@ -19,4 +19,6 @@ private:
     static const size_t maxLogs = 100;
 };
 
+extern ConsoleWindow console;
+
 #endif // CONSOLE_WINDOW_H

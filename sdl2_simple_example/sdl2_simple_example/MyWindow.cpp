@@ -12,6 +12,7 @@
 #include "Variables.h"
 #include "Importer.h"
 #include "Renderer.h"
+#include "ConsoleWindow.h"
 
 #include <IL/il.h>
 #include <IL/ilu.h>

@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include "Variables.h"
+#include "ConsoleWindow.h"
 
 // Initializes variables related to the position and movement of the camera
 Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
@@ -17,7 +18,7 @@ void Camera::reset() {
         speed = 0.1f;
     }
     else {
-        std::cout << "No object selected" << std::endl;
+        console.addLog("No object selected");
     }
 
 }

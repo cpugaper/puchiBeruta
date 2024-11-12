@@ -8,6 +8,7 @@
 #include "Importer.h"
 #include "GameObject.h"
 #include "Variables.h"
+#include "ConsoleWindow.h"
 
 extern Camera camera;
 extern Importer importer;
@@ -95,20 +96,24 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
                 std::string outputPath = "Assets/" + getFileName(droppedFilePath) + ".dat";
                 importer.saveCustomFormat(outputPath, meshes);
 
-                std::cout << "FBX loaded & saved in: " << outputPath << std::endl;
+                console.addLog("FBX loaded & saved in: " + outputPath);
+               /* std::cout << "FBX loaded & saved in: " << outputPath << std::endl;*/
 
                 break; 
             }
             else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg" || filePath.extension().string() == ".dds") {
-                std::cout << "PNG texture dropped: " << droppedFilePath << std::endl;
+                console.addLog("PNG texture dropped: " + std::string(droppedFilePath));
+              /*  std::cout << "PNG texture dropped: " << droppedFilePath << std::endl;*/
                 variables->textureFilePath = filePath.string();
                 if (variables->window->selectedObject) {
                     GLuint newTextureID = importer.loadTexture(droppedFilePath); 
                     variables->window->selectedObject->textureID = newTextureID; 
-                    std::cout << "Texture applied to selected object." << std::endl; 
+                    console.addLog("Texture applied to selected object.");
+                /*    std::cout << "Texture applied to selected object." << std::endl; */
                 }
                 else {
-                    std::cout << "No object selected to apply the texture." << std::endl; 
+                    console.addLog("No object selected to apply the texture.");
+                /*    std::cout << "No object selected to apply the texture." << std::endl; */
                 }
                 SDL_free(event.drop.file);
                 break;
@@ -167,7 +172,6 @@ void render(const std::vector<GameObject*>& gameObjects) {
     camera.applyCameraTransformations();
 
     drawGrid(0.5f);
-
 
 	// Render every object in the scene
     for (const auto& obj : gameObjects) {

@@ -21,6 +21,7 @@
 #include "GameObject.h"
 #include "Renderer.h"
 #include "Variables.h"
+#include "ConsoleWindow.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
@@ -32,10 +33,10 @@ static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
 Camera camera;
-
 std::vector<MeshData> meshes;
 GLuint textureID;
 Importer importer;
+ConsoleWindow console;
 const char* fbxFile = nullptr;
 std::vector<GameObject> gameObjects;
 
@@ -43,16 +44,7 @@ std::vector<GameObject> gameObjects;
 //#if defined(_WIN32)
 //	FreeConsole();
 //#endif
-//}
-//
-//void logMessage(const std::string& message) {
-//	if (variables && variables->window) {  
-//		variables->window->console.addLog(message.c_str());
-//	}
-//	else {
-//		std::cerr << "Advertencia: no se pudo registrar mensaje - 'variables' o 'window' no inicializados." << std::endl;
-//	}
-//}
+
 
 #undef main
 int main(int argc, char** argv) {
@@ -60,20 +52,25 @@ int main(int argc, char** argv) {
 	/*detachConsole(); */
 	variables = new Variables;
 
-	/*logMessage("holaaa");*/
-	std::cout << "Initializing SDL..." << std::endl;
+	console.addLog("Initializing SDL...");
+	/*std::cout << "Initializing SDL..." << std::endl;*/
 
 	variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
-	std::cout << "SDL initialized with success" << std::endl;
+	console.addLog("SDL initialized with success");
+	/*std::cout << "SDL initialized with success" << std::endl;*/
 
-	std::cout << "Initializing OpenGL..." << std::endl;
+	console.addLog("Initializing OpenGL...");
+	/*std::cout << "Initializing OpenGL..." << std::endl;*/
 	initOpenGL();
-	std::cout << "OpenGL initialized with success" << std::endl;
+	console.addLog("OpenGL initialized with success");
+	/*std::cout << "OpenGL initialized with success" << std::endl;*/
 
-	std::cout << "Initializing Devil..." << std::endl;
+	console.addLog("Initializing Devil...");
+	/*std::cout << "Initializing Devil..." << std::endl;*/
 	ilInit();
 	iluInit();
-	std::cout << "DevIL initialized with success" << std::endl;
+	console.addLog("DevIL initialized with success");
+	/*std::cout << "DevIL initialized with success" << std::endl;*/
 
 	//std::string sceneFile = "scene.json";
 	//if (std::filesystem::exists(sceneFile)) {
@@ -88,7 +85,8 @@ int main(int argc, char** argv) {
 	//	importer.saveScene(sceneFile, meshes);
 	//}
 
-	std::cout << "Loading model FBX..." << std::endl;
+	console.addLog("Loading model FBX...");
+	/*std::cout << "Loading model FBX..." << std::endl;*/
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
@@ -106,7 +104,7 @@ int main(int argc, char** argv) {
 		ImGui::NewFrame();
 
 		variables->window->createDockSpace();
-		render(variables->window->gameObjects); 
+		render(variables->window->gameObjects);
 
 		ImGui::Render();
 		ImGui::UpdatePlatformWindows();
@@ -120,7 +118,8 @@ int main(int argc, char** argv) {
 	}
 
 	for (const auto& obj : gameObjects) {
-		std::cout << "Objeto en la escena: " << obj.getName() << std::endl;
+		console.addLog("Objeto en la escena: " + obj.getName());
+		/*std::cout << "Objeto en la escena: " << obj.getName() << std::endl;*/
 	}
 
 	cleanupFrameBuffer();

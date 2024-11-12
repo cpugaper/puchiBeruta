@@ -18,17 +18,9 @@ void ConsoleWindow::clearLogs() {
 
 void ConsoleWindow::display() {
     ImGui::Begin("Console");
-
-    if (ImGui::Button("Clear")) {
-        clearLogs();
+    for (const std::string& log : logs) {
+        ImGui::Text("%s", log.c_str());
     }
-
-    ImGui::Separator();
-
-    for (const auto& log : logs) {
-        ImGui::TextUnformatted(log.c_str());
-    }
-
     ImGui::End();
 }
 

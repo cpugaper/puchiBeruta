@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cereal/archives/json.hpp>
 #include "Importer.h"
+#include "ConsoleWindow.h"
 
 extern Importer importer;
 
@@ -15,7 +16,8 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
     initialPosition = position;
     initialRotation = rotation;
     initialScale = scale;
-    std::cout << "GameObject created with UUID: " << uuid << std::endl;
+    console.addLog("GameObject created with UUID: " + uuid);
+    /*std::cout << "GameObject created with UUID: " << uuid << std::endl;*/
 }
 
 // Generate a random UUID to identify each object uniquely
@@ -64,11 +66,13 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
             meshData = meshes[0];
             GameObject* modelObject = new GameObject(primitiveType, meshData, textureID);
             gameObjects.push_back(modelObject);
-            std::cout << "Model " << primitiveType << " loaded from " << filePath << std::endl;
+            console.addLog("Model " + primitiveType + " loaded from " + filePath);
+            /*std::cout << "Model " << primitiveType << " loaded from " << filePath << std::endl;*/
         }
     }
     catch (const std::exception& e) {
-        std::cerr << "Error when loading model " << primitiveType << ": " << e.what() << std::endl;
+        console.addLog("Error when loading model " + primitiveType + ": " + e.what());
+       /* std::cerr << "Error when loading model " << primitiveType << ": " << e.what() << std::endl;*/
     }
 }
 
