@@ -37,7 +37,7 @@ static bool showConfig = false;
 
 static bool darkTheme = true;
 static bool lightTheme = false;
-static bool colacaoTheme = false;
+static bool winterTheme = false;
 
 struct TriangleFace {
     glm::vec3 normal;
@@ -139,7 +139,7 @@ void MyWindow::configMyWindow()
         colors[ImGuiCol_HeaderHovered] = ImColor(181, 114, 129);
         darkTheme = true;
         lightTheme = false;
-        colacaoTheme = false;
+        winterTheme = false;
     }
     if (lightTheme) {
         colors[ImGuiCol_WindowBg] = ImColor(255, 240, 230);
@@ -168,36 +168,44 @@ void MyWindow::configMyWindow()
         colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161);
         lightTheme = true; 
         darkTheme = false; 
-        colacaoTheme = false;
+        winterTheme = false;
     }
-    if (colacaoTheme) {
-        colors[ImGuiCol_WindowBg] = ImColor(210, 180, 140);           
-        colors[ImGuiCol_MenuBarBg] = ImColor(255, 200, 100);            
-        colors[ImGuiCol_FrameBg] = ImColor(220, 180, 130);              
-        colors[ImGuiCol_DockingPreview] = ImColor(100, 120, 160);    
-        colors[ImGuiCol_Tab] = ImColor(220, 100, 90);                  
-        colors[ImGuiCol_TabHovered] = ImColor(100, 150, 220);            
-        colors[ImGuiCol_TabActive] = ImColor(70, 130, 180);           
-        colors[ImGuiCol_TabUnfocused] = ImColor(180, 140, 110);        
-        colors[ImGuiCol_TabUnfocusedActive] = ImColor(140, 110, 80);    
-        colors[ImGuiCol_TitleBg] = ImColor(220, 70, 50);           
-        colors[ImGuiCol_TitleBgActive] = ImColor(255, 80, 60);        
-        colors[ImGuiCol_TitleBgCollapsed] = ImColor(220, 70, 50);  
-        colors[ImGuiCol_PopupBg] = ImColor(240, 220, 180);              
-        colors[ImGuiCol_ScrollbarBg] = ImColor(230, 220, 180);       
-        colors[ImGuiCol_ScrollbarGrab] = ImColor(200, 140, 90);         
-        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 150, 100); 
-        colors[ImGuiCol_Border] = ImColor(255, 120, 100);               
-        colors[ImGuiCol_Button] = ImColor(255, 80, 60);     
-        colors[ImGuiCol_ButtonHovered] = ImColor(255, 100, 80);    
-        colors[ImGuiCol_ButtonActive] = ImColor(255, 120, 100);        
-        colors[ImGuiCol_Text] = ImColor(50, 50, 50);                  
-        colors[ImGuiCol_Header] = ImColor(180, 160, 130);           
-        colors[ImGuiCol_HeaderActive] = ImColor(255, 100, 60);         
-        colors[ImGuiCol_HeaderHovered] = ImColor(255, 140, 100);  
+    if (winterTheme) {
+        colors[ImGuiCol_WindowBg] = ImColor(15, 15, 20);  
+        colors[ImGuiCol_MenuBarBg] = ImColor(40, 45, 60);
+        colors[ImGuiCol_FrameBg] = ImColor(35, 40, 55); 
+        colors[ImGuiCol_DockingPreview] = ImColor(65, 80, 110);  
+        colors[ImGuiCol_Tab] = ImColor(50, 55, 70);  
+        colors[ImGuiCol_TabHovered] = ImColor(75, 90, 120);  
+        colors[ImGuiCol_TabActive] = ImColor(95, 115, 150); 
+        colors[ImGuiCol_TabUnfocused] = ImColor(40, 45, 60);  
+        colors[ImGuiCol_TabUnfocusedActive] = ImColor(65, 80, 110);
+        colors[ImGuiCol_TitleBg] = ImColor(50, 55, 70);  
+        colors[ImGuiCol_TitleBgActive] = ImColor(95, 115, 150); 
+        colors[ImGuiCol_TitleBgCollapsed] = ImColor(40, 45, 60); 
+        colors[ImGuiCol_PopupBg] = ImColor(30, 35, 45);  
+        colors[ImGuiCol_ScrollbarBg] = ImColor(35, 40, 55);  
+        colors[ImGuiCol_ScrollbarGrab] = ImColor(85, 100, 130);  
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(105, 120, 150);  
+        colors[ImGuiCol_Border] = ImColor(95, 115, 150); 
+        colors[ImGuiCol_Button] = ImColor(135, 180, 230);  
+        colors[ImGuiCol_ButtonHovered] = ImColor(150, 190, 240);  
+        colors[ImGuiCol_ButtonActive] = ImColor(170, 210, 255);  
+        colors[ImGuiCol_Text] = ImColor(235, 235, 235);  
+        colors[ImGuiCol_Header] = ImColor(50, 55, 70); 
+        colors[ImGuiCol_HeaderActive] = ImColor(95, 115, 150);  
+        colors[ImGuiCol_HeaderHovered] = ImColor(75, 90, 120);  
+        colors[ImGuiCol_CheckMark] = ImColor(135, 180, 230);  
+        colors[ImGuiCol_SliderGrab] = ImColor(85, 100, 130); 
+        colors[ImGuiCol_SliderGrabActive] = ImColor(95, 115, 150);  
+        colors[ImGuiCol_Separator] = ImColor(60, 70, 90); 
+        colors[ImGuiCol_SeparatorHovered] = ImColor(75, 90, 120);  
+        colors[ImGuiCol_SeparatorActive] = ImColor(95, 115, 150);  
+        colors[ImGuiCol_DragDropTarget] = ImColor(65, 80, 110); 
+
         lightTheme = false;
         darkTheme = false;
-        colacaoTheme = true;
+        winterTheme = true;
     }
 }
 
@@ -348,17 +356,17 @@ void MyWindow::createMainMenu() {
                 ImGui::Text("Choose a mode");
                 if (ImGui::Checkbox("Dark theme", &darkTheme)) {
                     lightTheme = false;
-                    colacaoTheme = false;
+                    winterTheme = false;
                     configMyWindow(); 
                 }
 
                 if (ImGui::Checkbox("Light theme", &lightTheme)) {
                     darkTheme = false;
-                    colacaoTheme = false;
+                    winterTheme = false;
                     configMyWindow();  
                 }
 
-                if (ImGui::Checkbox("Colacao theme", &colacaoTheme)) {
+                if (ImGui::Checkbox("Winter theme", &winterTheme)) {
                     lightTheme = false;
                     darkTheme = false;
                     configMyWindow();
