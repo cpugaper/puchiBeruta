@@ -160,8 +160,7 @@ void MyWindow::createDockSpace() {
     createInspectorWindow();
     createProjectWindow();
     createSceneWindow();
-
-    console.display();
+    console.displayConsole();
 
     ImGui::End();
 }

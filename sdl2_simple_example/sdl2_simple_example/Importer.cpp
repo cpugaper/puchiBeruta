@@ -75,12 +75,9 @@ void Importer::checkAndCreateDirectories() {
 // Loads an FBX model and its corresponding texture
 std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
     console.addLog("Loading model FBX: " + relativeFilePath);
-    /*std::cout << "Loading model FBX: " << relativeFilePath << std::endl;*/
-
 	// Gets the absolute path to the FBX file
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
-    //std::string filePath = (projectPath / relativeFilePath).string();
     std::string filePath = (relativeFilePath);
 
     if (!std::filesystem::exists(filePath)) {
@@ -96,8 +93,6 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
     }
 
     console.addLog("Model loaded with success, number of meshes: " + scene->mNumMeshes);
-    //std::cout << "Model loaded with success, number of meshes: " << scene->mNumMeshes << std::endl;
-
     std::vector<MeshData> meshes;
 
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
@@ -130,18 +125,15 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
     if (std::filesystem::exists(texturePath)) {
         textureID = loadTexture(texturePath.string());
         console.addLog("Texture found & loaded: " + texturePath.string());
-       /* std::cout << "Texture found & loaded: " << texturePath << std::endl;*/
     }
     else {
         console.addLog("Texture not found for " + filePath);
-       /* std::cout << "Texture not found for " << filePath << std::endl;*/
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
 
     console.addLog("Loading time for FBX: " + std::to_string(elapsed.count()) + " seconds");
-   /* std::cout << "Loading time for FBX: " << elapsed.count() << " seconds" << std::endl;*/
 
     return meshes;
 }
@@ -161,7 +153,6 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
 
     } else {
         console.addLog("Error loading texture: " + texturePath);
-        //std::cerr << "Error loading texture: " << texturePath << std::endl;
         imageID = 0;
     }
 
@@ -183,7 +174,6 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     ilDeleteImages(1, &imageID);
 
     console.addLog("Texture loaded: " + texturePath);
- /*   std::cout << "Texture loaded: " << texturePath << std::endl;*/
 
     return textureID;
 }
@@ -217,7 +207,6 @@ void Importer::saveCustomFormat(const std::string& outputPath, const std::vector
     }
 
     console.addLog("File saved in custom format: " + outputPath);
-  /*  std::cout << "File saved in custom format: " << outputPath << std::endl;*/
 }
 
 std::vector<MeshData> Importer::loadCustomFormat(const std::string& inputPath) {
@@ -255,7 +244,6 @@ std::vector<MeshData> Importer::loadCustomFormat(const std::string& inputPath) {
     std::chrono::duration<double> elapsed = end - start;
 
     console.addLog("Loading time for custom file: " + std::to_string(elapsed.count()) + " seconds");
-    //std::cout << "Loading time for custom file: " << elapsed.count() << " seconds" << std::endl;
 
     return meshes;
 }

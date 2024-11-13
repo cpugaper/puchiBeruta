@@ -58,7 +58,7 @@ void createFrameBuffer(int width, int height) {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+        console.addLog("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
@@ -97,23 +97,19 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
                 importer.saveCustomFormat(outputPath, meshes);
 
                 console.addLog("FBX loaded & saved in: " + outputPath);
-               /* std::cout << "FBX loaded & saved in: " << outputPath << std::endl;*/
 
                 break; 
             }
             else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg" || filePath.extension().string() == ".dds") {
                 console.addLog("PNG texture dropped: " + std::string(droppedFilePath));
-              /*  std::cout << "PNG texture dropped: " << droppedFilePath << std::endl;*/
                 variables->textureFilePath = filePath.string();
                 if (variables->window->selectedObject) {
                     GLuint newTextureID = importer.loadTexture(droppedFilePath); 
                     variables->window->selectedObject->textureID = newTextureID; 
                     console.addLog("Texture applied to selected object.");
-                /*    std::cout << "Texture applied to selected object." << std::endl; */
                 }
                 else {
                     console.addLog("No object selected to apply the texture.");
-                /*    std::cout << "No object selected to apply the texture." << std::endl; */
                 }
                 SDL_free(event.drop.file);
                 break;

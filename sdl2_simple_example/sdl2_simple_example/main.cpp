@@ -1,5 +1,6 @@
 #include <iostream>
 #include <filesystem>
+#include <windows.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <glm/glm.hpp>
@@ -36,41 +37,27 @@ Camera camera;
 std::vector<MeshData> meshes;
 GLuint textureID;
 Importer importer;
-ConsoleWindow console;
 const char* fbxFile = nullptr;
 std::vector<GameObject> gameObjects;
-
-//void detachConsole() {
-//#if defined(_WIN32)
-//	FreeConsole();
-//#endif
-
 
 #undef main
 int main(int argc, char** argv) {
 
-	/*detachConsole(); */
 	variables = new Variables;
 
 	console.addLog("Initializing SDL...");
-	/*std::cout << "Initializing SDL..." << std::endl;*/
 
 	variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
 	console.addLog("SDL initialized with success");
-	/*std::cout << "SDL initialized with success" << std::endl;*/
 
 	console.addLog("Initializing OpenGL...");
-	/*std::cout << "Initializing OpenGL..." << std::endl;*/
 	initOpenGL();
 	console.addLog("OpenGL initialized with success");
-	/*std::cout << "OpenGL initialized with success" << std::endl;*/
 
 	console.addLog("Initializing Devil...");
-	/*std::cout << "Initializing Devil..." << std::endl;*/
 	ilInit();
 	iluInit();
 	console.addLog("DevIL initialized with success");
-	/*std::cout << "DevIL initialized with success" << std::endl;*/
 
 	//std::string sceneFile = "scene.json";
 	//if (std::filesystem::exists(sceneFile)) {
@@ -86,7 +73,6 @@ int main(int argc, char** argv) {
 	//}
 
 	console.addLog("Loading model FBX...");
-	/*std::cout << "Loading model FBX..." << std::endl;*/
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
@@ -119,7 +105,6 @@ int main(int argc, char** argv) {
 
 	for (const auto& obj : gameObjects) {
 		console.addLog("Objeto en la escena: " + obj.getName());
-		/*std::cout << "Objeto en la escena: " << obj.getName() << std::endl;*/
 	}
 
 	cleanupFrameBuffer();

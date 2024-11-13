@@ -12,9 +12,8 @@ public:
 
     void addLog(const std::string& log);
     void clearLogs();
-    void display();
+    void displayConsole();
 
-private:
     std::vector<std::string> logs;
     static const size_t maxLogs = 100;
 };

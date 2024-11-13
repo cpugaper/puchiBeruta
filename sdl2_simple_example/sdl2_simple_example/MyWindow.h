@@ -18,7 +18,6 @@ public:
 	
 	SDL_Window* _window = nullptr;
 	std::vector<GameObject*> gameObjects;
-	ConsoleWindow console;
 
 public:
 	int width() const { return _width; }
