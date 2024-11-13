@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include "GameObject.h"
 #include "Variables.h"
 #include "Importer.h"
@@ -188,6 +189,20 @@ void MyWindow::deleteSelectedObject() {
         selectedObject = nullptr;
         objectSelected = false;
     }
+}
+
+// Method that lists the files in the "assets" folder
+std::vector<std::filesystem::path> MyWindow::listAssets(const std::string& folderPath) {
+    std::vector<std::filesystem::path> assetFiles;
+    if (std::filesystem::exists(folderPath) && std::filesystem::is_directory(folderPath)) {
+        for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
+            if (entry.is_regular_file() &&
+                (entry.path().extension() == ".fbx" || entry.path().extension() == ".png")) {
+                assetFiles.push_back(entry.path());
+            }
+        }
+    }
+    return assetFiles;
 }
 
 void MyWindow::createMainMenu() {
@@ -467,8 +482,6 @@ void MyWindow::createInspectorWindow()
                             ImGui::Text("  Triangle Index: %d", triangleIndex);
                         }
                     }
-
-                    
                 }
             }
         }
@@ -499,10 +512,54 @@ void MyWindow::createInspectorWindow()
     
 }
 
-void MyWindow::createProjectWindow()
-{
+void MyWindow::createProjectWindow() {
     ImGui::Begin("Project", nullptr);
-    ImGui::Text("Assets list goes here");
+    const std::string assetsFolder = "assets";
+    static std::vector<std::filesystem::path> assetFiles = listAssets(assetsFolder);
+
+    for (const auto& asset : assetFiles) {
+        if (ImGui::Selectable(asset.filename().string().c_str())) {
+            variables->selectedAsset = asset;
+        }
+
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+            std::string assetPathStr = asset.string();
+            ImGui::SetDragDropPayload("ASSET_PATH", assetPathStr.c_str(), assetPathStr.size());
+            ImGui::Text("Dragging %s", asset.filename().string().c_str());
+            ImGui::EndDragDropSource();
+        }
+    }
+
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_PATH")) {
+            const char* droppedFilePath = (const char*)payload->Data;
+            std::filesystem::path filePath(droppedFilePath);
+
+            if (!variables->window->selectedObject) {
+                console.addLog("No object selected to apply the asset.");
+                ImGui::EndDragDropTarget();
+                ImGui::End();
+                return;
+            }
+
+            if (filePath.extension() == ".fbx") {
+                importer.loadFBX(droppedFilePath, variables->window->selectedObject->textureID);
+                console.addLog("FBX loaded from drag and drop.");
+            }
+            else if (filePath.extension() == ".png" || filePath.extension() == ".jpg" || filePath.extension() == ".dds") {
+                console.addLog("Texture dropped: " + std::string(droppedFilePath));
+
+                std::filesystem::path texturePath = std::filesystem::absolute(filePath);  // Get the full path of the texture
+
+                GLuint newTextureID = importer.loadTexture(texturePath.string());
+
+                variables->window->selectedObject->textureID = newTextureID;
+                console.addLog("Texture applied to selected object.");
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
     ImGui::End();
 }
 

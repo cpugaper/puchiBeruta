@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <filesystem>
 #include "GameObject.h"
 #include "ConsoleWindow.h"
 
@@ -39,6 +40,7 @@ public:
 	void updateSceneSize();
 
 	void createDockSpace();
+	std::vector<std::filesystem::path> listAssets(const std::string& folderPath);
 	void createMainMenu();
 	void createHierarchyWindow();
 	void createInspectorWindow();
