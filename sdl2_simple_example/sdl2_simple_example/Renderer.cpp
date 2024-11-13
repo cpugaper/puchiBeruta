@@ -81,12 +81,6 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
             droppedFilePath = event.drop.file;
             std::filesystem::path filePath(droppedFilePath);
 
-            if (!variables->window->selectedObject) {
-                console.addLog("No object selected to apply the asset.");
-                SDL_free(event.drop.file);
-                break;
-            }
-
             if (filePath.extension().string() == ".fbx") {
                 meshes.clear();
                 textureID = 0;
@@ -103,17 +97,24 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
                 importer.saveCustomFormat(outputPath, meshes);
 
                 console.addLog("FBX loaded & saved in: " + outputPath);
+
+                break;
             }
             else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg" || filePath.extension().string() == ".dds") {
-                console.addLog("Texture dropped: " + std::string(droppedFilePath));
-
-                std::filesystem::path texturePath = std::filesystem::absolute(filePath);  // Ensure we get the absolute path
-                GLuint newTextureID = importer.loadTexture(texturePath.string());
-                variables->window->selectedObject->textureID = newTextureID;
-                console.addLog("Texture applied to selected object.");
+                console.addLog("PNG texture dropped: " + std::string(droppedFilePath));
+                variables->textureFilePath = filePath.string();
+                if (variables->window->selectedObject) {
+                    GLuint newTextureID = importer.loadTexture(droppedFilePath);
+                    variables->window->selectedObject->textureID = newTextureID;
+                    console.addLog("Texture applied to selected object.");
+                }
+                else {
+                    console.addLog("No object selected to apply the texture.");
+                }
+                SDL_free(event.drop.file);
+                break;
             }
 
-            SDL_free(event.drop.file);
             break;
         }
 

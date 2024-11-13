@@ -4,7 +4,6 @@
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/memory.hpp>  
 #include <cereal/archives/json.hpp>
-#include <filesystem>
 
 // Global and window variables
 class Variables {
@@ -22,8 +21,6 @@ public:
 
 	std::string textureFilePath;
 	std::string checkerTexture = "Assets/checker_texture.png";
-
-	std::filesystem::path selectedAsset;
 
 	/*template <class Archive>
 	void serialize(Archive& archive) {
