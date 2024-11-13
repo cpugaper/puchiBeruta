@@ -35,6 +35,10 @@ static bool showAboutWindow = false;
 static bool showGithubWindow = false;
 static bool showConfig = false;
 
+static bool darkTheme = true;
+static bool lightTheme = false;
+static bool colacaoTheme = false;
+
 struct TriangleFace {
     glm::vec3 normal;
     std::vector<size_t> triangleIndices; 
@@ -44,8 +48,18 @@ bool areNormalsEqual(const glm::vec3& n1, const glm::vec3& n2, float epsilon = 0
     return glm::length(n1 - n2) < epsilon;
 }
 
+void hideConsoleWindow() {
+#if defined(_WIN32)
+    HWND hwnd = GetConsoleWindow(); 
+    if (hwnd != NULL) {
+        ShowWindow(hwnd, SW_HIDE);
+    }
+#endif
+}
+
 // MyWindow builder initializing SDL, OpenGL and ImGui
 MyWindow::MyWindow(const std::string& title, int w, int h) : _width(w), _height(h), selectedObject(nullptr) {
+    hideConsoleWindow();
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -97,30 +111,94 @@ void MyWindow::configMyWindow()
     style.WindowPadding = ImVec2(0.0f, 0.0f);  
 
     ImVec4* colors = style.Colors;
-    colors[ImGuiCol_WindowBg] = ImColor(250, 224, 228);
-    colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
-    colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208);
-    colors[ImGuiCol_DockingPreview] = ImColor(102, 155, 188);
-    colors[ImGuiCol_Tab] = ImColor(248, 249, 250);            
-    colors[ImGuiCol_TabHovered] = ImColor(233, 236, 239);     
-    colors[ImGuiCol_TabActive] = ImColor(222, 226, 230);       
-    colors[ImGuiCol_TabUnfocused] = ImColor(206, 212, 218);     
-    colors[ImGuiCol_TabUnfocusedActive] = ImColor(173, 181, 189); 
-    colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199);
-    colors[ImGuiCol_TitleBgActive] = ImColor(255, 153, 172);
-    colors[ImGuiCol_TitleBgCollapsed] = ImColor(249, 190, 199);
-    colors[ImGuiCol_PopupBg] = ImColor(250, 224, 228);
-    colors[ImGuiCol_ScrollbarBg] = ImColor(247, 202, 208);
-    colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 153, 172);
-    colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 133, 161);
-    colors[ImGuiCol_Border] = ImColor(255, 71, 126);
-    colors[ImGuiCol_Button] = ImColor(251, 177, 189);
-    colors[ImGuiCol_ButtonHovered] = ImColor(255, 133, 161);
-    colors[ImGuiCol_ButtonActive] = ImColor(255, 112, 150);
-    colors[ImGuiCol_Text] = ImColor(0, 0, 0);
-    colors[ImGuiCol_Header] = ImColor(250, 224, 228);
-    colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172);
-    colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161);
+
+    if (darkTheme) {
+        colors[ImGuiCol_WindowBg] = ImColor(40, 40, 40);
+        colors[ImGuiCol_MenuBarBg] = ImColor(219, 112, 147);
+        colors[ImGuiCol_FrameBg] = ImColor(50, 50, 50);
+        colors[ImGuiCol_DockingPreview] = ImColor(60, 90, 120);
+        colors[ImGuiCol_Tab] = ImColor(183, 110, 121);
+        colors[ImGuiCol_TabHovered] = ImColor(219, 112, 147);
+        colors[ImGuiCol_TabActive] = ImColor(219, 112, 147);
+        colors[ImGuiCol_TabUnfocused] = ImColor(183, 110, 121);
+        colors[ImGuiCol_TabUnfocusedActive] = ImColor(70, 70, 80);
+        colors[ImGuiCol_TitleBg] = ImColor(45, 45, 50);
+        colors[ImGuiCol_TitleBgActive] = ImColor(60, 60, 70);
+        colors[ImGuiCol_TitleBgCollapsed] = ImColor(45, 45, 50);
+        colors[ImGuiCol_PopupBg] = ImColor(50, 50, 50);
+        colors[ImGuiCol_ScrollbarBg] = ImColor(70, 70, 70);
+        colors[ImGuiCol_ScrollbarGrab] = ImColor(181, 114, 129);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(219, 112, 147);
+        colors[ImGuiCol_Border] = ImColor(219, 112, 147);
+        colors[ImGuiCol_Button] = ImColor(183, 110, 121);
+        colors[ImGuiCol_ButtonHovered] = ImColor(181, 114, 129);
+        colors[ImGuiCol_ButtonActive] = ImColor(219, 112, 147);
+        colors[ImGuiCol_Text] = ImColor(220, 220, 220);
+        colors[ImGuiCol_Header] = ImColor(40, 40, 40);
+        colors[ImGuiCol_HeaderActive] = ImColor(219, 112, 147);
+        colors[ImGuiCol_HeaderHovered] = ImColor(181, 114, 129);
+        darkTheme = true;
+        lightTheme = false;
+        colacaoTheme = false;
+    }
+    if (lightTheme) {
+        colors[ImGuiCol_WindowBg] = ImColor(255, 240, 230);
+        colors[ImGuiCol_MenuBarBg] = ImColor(255, 112, 150);
+        colors[ImGuiCol_FrameBg] = ImColor(247, 202, 208);
+        colors[ImGuiCol_DockingPreview] = ImColor(102, 155, 188);
+        colors[ImGuiCol_Tab] = ImColor(248, 249, 250);
+        colors[ImGuiCol_TabHovered] = ImColor(233, 236, 239);
+        colors[ImGuiCol_TabActive] = ImColor(222, 226, 230);
+        colors[ImGuiCol_TabUnfocused] = ImColor(206, 212, 218);
+        colors[ImGuiCol_TabUnfocusedActive] = ImColor(173, 181, 189);
+        colors[ImGuiCol_TitleBg] = ImColor(249, 190, 199);
+        colors[ImGuiCol_TitleBgActive] = ImColor(255, 153, 172);
+        colors[ImGuiCol_TitleBgCollapsed] = ImColor(249, 190, 199);
+        colors[ImGuiCol_PopupBg] = ImColor(250, 224, 228);
+        colors[ImGuiCol_ScrollbarBg] = ImColor(247, 202, 208);
+        colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 153, 172);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 133, 161);
+        colors[ImGuiCol_Border] = ImColor(255, 112, 150);
+        colors[ImGuiCol_Button] = ImColor(251, 177, 189);
+        colors[ImGuiCol_ButtonHovered] = ImColor(255, 133, 161);
+        colors[ImGuiCol_ButtonActive] = ImColor(255, 112, 150);
+        colors[ImGuiCol_Text] = ImColor(0, 0, 0);
+        colors[ImGuiCol_Header] = ImColor(250, 224, 228);
+        colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172);
+        colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161);
+        lightTheme = true; 
+        darkTheme = false; 
+        colacaoTheme = false;
+    }
+    if (colacaoTheme) {
+        colors[ImGuiCol_WindowBg] = ImColor(210, 180, 140);           
+        colors[ImGuiCol_MenuBarBg] = ImColor(255, 200, 100);            
+        colors[ImGuiCol_FrameBg] = ImColor(220, 180, 130);              
+        colors[ImGuiCol_DockingPreview] = ImColor(100, 120, 160);    
+        colors[ImGuiCol_Tab] = ImColor(220, 100, 90);                  
+        colors[ImGuiCol_TabHovered] = ImColor(100, 150, 220);            
+        colors[ImGuiCol_TabActive] = ImColor(70, 130, 180);           
+        colors[ImGuiCol_TabUnfocused] = ImColor(180, 140, 110);        
+        colors[ImGuiCol_TabUnfocusedActive] = ImColor(140, 110, 80);    
+        colors[ImGuiCol_TitleBg] = ImColor(220, 70, 50);           
+        colors[ImGuiCol_TitleBgActive] = ImColor(255, 80, 60);        
+        colors[ImGuiCol_TitleBgCollapsed] = ImColor(220, 70, 50);  
+        colors[ImGuiCol_PopupBg] = ImColor(240, 220, 180);              
+        colors[ImGuiCol_ScrollbarBg] = ImColor(230, 220, 180);       
+        colors[ImGuiCol_ScrollbarGrab] = ImColor(200, 140, 90);         
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 150, 100); 
+        colors[ImGuiCol_Border] = ImColor(255, 120, 100);               
+        colors[ImGuiCol_Button] = ImColor(255, 80, 60);     
+        colors[ImGuiCol_ButtonHovered] = ImColor(255, 100, 80);    
+        colors[ImGuiCol_ButtonActive] = ImColor(255, 120, 100);        
+        colors[ImGuiCol_Text] = ImColor(50, 50, 50);                  
+        colors[ImGuiCol_Header] = ImColor(180, 160, 130);           
+        colors[ImGuiCol_HeaderActive] = ImColor(255, 100, 60);         
+        colors[ImGuiCol_HeaderHovered] = ImColor(255, 140, 100);  
+        lightTheme = false;
+        darkTheme = false;
+        colacaoTheme = true;
+    }
 }
 
 void MyWindow::updateSceneSize() {
@@ -246,7 +324,6 @@ void MyWindow::createMainMenu() {
 
             ImGui::EndMenu();
         }
-
         if (ImGui::BeginMenu("Help")) {
             if (ImGui::MenuItem("GitHub")) {
                 showGithubWindow = true;
@@ -266,6 +343,31 @@ void MyWindow::createMainMenu() {
 
         if (showConfig) {
             ImGui::Begin("Config", nullptr);
+
+            if (ImGui::CollapsingHeader("Window Theme")) {
+                ImGui::Text("Choose a mode");
+                if (ImGui::Checkbox("Dark theme", &darkTheme)) {
+                    lightTheme = false;
+                    colacaoTheme = false;
+                    configMyWindow(); 
+                }
+
+                if (ImGui::Checkbox("Light theme", &lightTheme)) {
+                    darkTheme = false;
+                    colacaoTheme = false;
+                    configMyWindow();  
+                }
+
+                if (ImGui::Checkbox("Colacao theme", &colacaoTheme)) {
+                    lightTheme = false;
+                    darkTheme = false;
+                    configMyWindow();
+                }
+
+            }
+
+            ImGui::Separator();
+
             if (ImGui::CollapsingHeader("FPS Graph")) {
                 ImGui::Text("FPS: %d", _fps);
                 ImGui::PlotLines("FPS", _fpsHistory.data(), _fpsHistory.size(), 0, nullptr, 0.0f, 100.0f, ImVec2(0, 80));
@@ -345,7 +447,7 @@ void MyWindow::createMainMenu() {
             }
 
             ImGui::Separator();
-
+            
             if (ImGui::Button("Close")) {
                 showConfig = false;
             }

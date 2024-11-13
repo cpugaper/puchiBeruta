@@ -72,7 +72,6 @@ int main(int argc, char** argv) {
 	//	importer.saveScene(sceneFile, meshes);
 	//}
 
-	console.addLog("Loading model FBX...");
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {

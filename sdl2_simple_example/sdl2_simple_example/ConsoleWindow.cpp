@@ -5,7 +5,7 @@
 
 ConsoleWindow console;
 
-ConsoleWindow::ConsoleWindow() {}
+ConsoleWindow::ConsoleWindow() : autoScroll(true) {}
 
 ConsoleWindow::~ConsoleWindow() {}
 
@@ -15,11 +15,16 @@ void ConsoleWindow::addLog(const std::string& log) {
             logs.erase(logs.begin());  
         }
         logs.push_back(log);
+
+        if (autoScroll) {
+            scrollToBottom = true;
+        }
     }
 }
 
 void ConsoleWindow::clearLogs() {
     logs.clear();
+    autoScroll = true; 
 }
 
 void ConsoleWindow::displayConsole() {
@@ -30,8 +35,16 @@ void ConsoleWindow::displayConsole() {
         ImGui::Text("%s", log.c_str());
     }
 
-    if (logs.size() > 0) {
-        ImGui::SetScrollHereY(1.0f);  
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+        autoScroll = true; 
+    }
+    else if (ImGui::GetScrollY() < ImGui::GetScrollMaxY()) {
+        autoScroll = false; 
+    }
+
+    if (autoScroll && scrollToBottom) {
+        ImGui::SetScrollHereY(1.0f);
+        scrollToBottom = false;
     }
 
     ImGui::EndChild();

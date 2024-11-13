@@ -14,6 +14,9 @@ public:
     void clearLogs();
     void displayConsole();
 
+    bool autoScroll;
+    bool scrollToBottom;
+
     std::vector<std::string> logs;
     static const size_t maxLogs = 100;
 };
