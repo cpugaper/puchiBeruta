@@ -9,6 +9,8 @@
 
 class Camera {
 public:
+	static Camera camera;
+
 	Camera();
 
 	void reset();

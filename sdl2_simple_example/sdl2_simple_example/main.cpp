@@ -33,12 +33,12 @@ using hrclock = high_resolution_clock;
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
-Camera camera;
+extern Camera camera;
 std::vector<MeshData> meshes;
 GLuint textureID;
-Importer importer;
+extern Importer importer;
+extern std::vector<GameObject> gameObjects;
 const char* fbxFile = nullptr;
-std::vector<GameObject> gameObjects;
 
 #undef main
 int main(int argc, char** argv) {

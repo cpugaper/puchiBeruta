@@ -14,6 +14,8 @@
 #include "Variables.h"
 #include "ConsoleWindow.h"
 
+Importer importer;
+
 // Initialize DevIL and ensures the existence of necessary directories
 Importer::Importer() {
     initDevIL();

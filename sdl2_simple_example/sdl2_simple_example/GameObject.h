@@ -44,6 +44,8 @@ struct MeshData {
 
 class GameObject {
 public:
+    static std::vector<GameObject*> gameObjects;
+
     std::string uuid;
     std::string name;
     std::vector<GameObject> children;
@@ -61,9 +63,7 @@ public:
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
 
     void addChild(const GameObject& child);
-
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
-
     glm::mat4 getTransformMatrix() const;
 
     const std::string& getName() const { return name; }

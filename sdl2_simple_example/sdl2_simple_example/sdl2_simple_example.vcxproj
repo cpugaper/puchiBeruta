@@ -132,7 +132,9 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ConsoleWindow.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="HierarchyWindow.cpp" />
     <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="InspectorWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyWindow.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -142,7 +144,9 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConsoleWindow.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="HierarchyWindow.h" />
     <ClInclude Include="Importer.h" />
+    <ClInclude Include="InspectorWindow.h" />
     <ClInclude Include="MyWindow.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />

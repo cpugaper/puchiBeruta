@@ -8,6 +8,8 @@
 
 class Importer {
 public:
+    static Importer importer;
+
     Importer();
     ~Importer();
 

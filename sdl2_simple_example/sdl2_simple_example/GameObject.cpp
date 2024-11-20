@@ -10,6 +10,7 @@
 #include "ConsoleWindow.h"
 
 extern Importer importer;
+std::vector<GameObject> gameObjects;
 
 GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID)
     : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
