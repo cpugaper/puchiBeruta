@@ -21,19 +21,19 @@ int framebufferWidth = 1280;
 int framebufferHeight = 720;
 
 // Gets the filename of a given path
-std::string getFileName(const std::string& path) {
+std::string Renderer::getFileName(const std::string& path) {
     return std::filesystem::path(path).stem().string();
 }
 
 //Initialises LWE and configures OpenGL for deep rendering
-void initOpenGL() {
+void Renderer::initOpenGL() {
     glewInit();
     if (!GLEW_VERSION_3_0) throw std::exception("OpenGL 3.0 API is not available.");
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5, 0.5, 0.5, 1.0);
 }
 
-void createFrameBuffer(int width, int height) {
+void Renderer::createFrameBuffer(int width, int height) {
     framebufferWidth = width;
     framebufferHeight = height;
 
@@ -64,7 +64,7 @@ void createFrameBuffer(int width, int height) {
 }
 
 // Processes SDL events and user actions
-bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& droppedFilePath) {
+bool Renderer::processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const char*& droppedFilePath) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
@@ -78,43 +78,12 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
         case SDL_MOUSEWHEEL: camera.processMouseWheel(event.wheel); break;
 
         case SDL_DROPFILE: {
-            droppedFilePath = event.drop.file;
-            std::filesystem::path filePath(droppedFilePath);
+            const char* droppedFilePath = event.drop.file;
 
-            if (filePath.extension().string() == ".fbx") {
-                meshes.clear();
-                textureID = 0;
-
-                meshes = importer.loadFBX(droppedFilePath, textureID);
-
-                for (size_t i = 0; i < meshes.size(); ++i) {
-                    const std::string objectName = getFileName(droppedFilePath) + "_" + std::to_string(i);
-                    GameObject* modelObject = new GameObject(objectName, meshes[i], textureID);
-                    variables->window->gameObjects.push_back(modelObject);
-                }
-
-                std::string outputPath = "Assets/" + getFileName(droppedFilePath) + ".dat";
-                importer.saveCustomFormat(outputPath, meshes);
-
-                console.addLog("FBX loaded & saved in: " + outputPath);
-
-                break;
+            if (droppedFilePath) {
+                Renderer::HandleDroppedFile(droppedFilePath); // Usa la nueva función en Renderer
+                SDL_free(event.drop.file); // Libera la memoria asignada
             }
-            else if (filePath.extension().string() == ".png" || filePath.extension().string() == ".jpg" || filePath.extension().string() == ".dds") {
-                console.addLog("PNG texture dropped: " + std::string(droppedFilePath));
-                variables->textureFilePath = filePath.string();
-                if (variables->window->selectedObject) {
-                    GLuint newTextureID = importer.loadTexture(droppedFilePath);
-                    variables->window->selectedObject->textureID = newTextureID;
-                    console.addLog("Texture applied to selected object.");
-                }
-                else {
-                    console.addLog("No object selected to apply the texture.");
-                }
-                SDL_free(event.drop.file);
-                break;
-            }
-
             break;
         }
 
@@ -136,7 +105,60 @@ bool processEvents(Camera& camera, std::vector<GameObject>& gameObjects, const c
     return true;
 }
 
-void drawGrid(float spacing) {
+void Renderer::HandleDroppedFile(const char* droppedFile) {
+    std::filesystem::path filePath(droppedFile);
+    std::string extension = filePath.extension().string();
+    std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+    if (extension == ".fbx") {
+        // Importar modelo FBX
+        meshes.clear();
+        textureID = 0;
+
+        meshes = importer.loadFBX(droppedFile, textureID);
+
+        for (size_t i = 0; i < meshes.size(); ++i) {
+            const std::string objectName = getFileName(droppedFile) + "_" + std::to_string(i);
+            GameObject* newObject = new GameObject(objectName, meshes[i], textureID);
+            variables->window->gameObjects.push_back(newObject);
+        }
+
+        std::string outputPath = "Assets/" + getFileName(droppedFile) + ".dat";
+        importer.saveCustomFormat(outputPath, meshes);
+
+        console.addLog("FBX model loaded and saved in: " + outputPath);
+    }
+    else if (extension == ".png" || extension == ".jpg" || extension == ".dds") {
+        // Importar textura
+        GLuint newTextureID = importer.loadTexture(droppedFile);
+        variables->textureFilePath = filePath.string();
+
+        if (variables->window->selectedObject) {
+            variables->window->selectedObject->textureID = newTextureID;
+            console.addLog("Texture applied to selected object.");
+        }
+        else {
+            console.addLog("No object selected to apply the texture.");
+        }
+    }
+    else {
+        console.addLog("Unsupported file type: " + extension);
+    }
+}
+
+void Renderer::HandleDragDropTarget() {
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetFile")) {
+            const char* droppedFile = static_cast<const char*>(payload->Data);
+            if (droppedFile) {
+                HandleDroppedFile(droppedFile);
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+}
+
+void Renderer::drawGrid(float spacing) {
     glDisable(GL_TEXTURE_2D);
     glColor3f(0.7f, 0.7f, 0.7f);
 
@@ -153,7 +175,7 @@ void drawGrid(float spacing) {
     glEnd();
 }
 
-void render(const std::vector<GameObject*>& gameObjects) {
+void Renderer::render(const std::vector<GameObject*>& gameObjects) {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -211,7 +233,7 @@ void render(const std::vector<GameObject*>& gameObjects) {
     glFlush();
 }
 
-void cleanupFrameBuffer() {
+void Renderer::cleanupFrameBuffer() {
     glDeleteFramebuffers(1, &framebuffer);
     glDeleteTextures(1, &textureColorbuffer);
     glDeleteRenderbuffers(1, &rbo);

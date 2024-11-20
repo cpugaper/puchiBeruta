@@ -62,6 +62,8 @@ private:
 	unsigned int _frameCount = 0;
 	std::vector<float> _fpsHistory;
 
+
+
 };
 
 #endif // MYWINDOW_H	

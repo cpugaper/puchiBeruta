@@ -33,6 +33,7 @@ using hrclock = high_resolution_clock;
 static const unsigned int FPS = 60;
 static const auto FRAME_DT = 1.0s / FPS;
 
+Renderer renderer;
 Camera camera;
 std::vector<MeshData> meshes;
 GLuint textureID;
@@ -46,12 +47,11 @@ int main(int argc, char** argv) {
 	variables = new Variables;
 
 	console.addLog("Initializing SDL...");
-
 	variables->window = new MyWindow("SDL2 Simple Example", Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
 	console.addLog("SDL initialized with success");
 
 	console.addLog("Initializing OpenGL...");
-	initOpenGL();
+	renderer.initOpenGL();
 	console.addLog("OpenGL initialized with success");
 
 	console.addLog("Initializing Devil...");
@@ -75,13 +75,13 @@ int main(int argc, char** argv) {
 	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
-		std::string objectName = getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
+		std::string objectName = renderer.getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
 		auto casa = new GameObject(objectName, meshes[i], 0);
 		variables->window->gameObjects.push_back(casa);
 	}
 
 	// Main loop: handling events, rendering and maintaining FPS
-	while (processEvents(camera, gameObjects, fbxFile)) {
+	while (renderer.processEvents(camera, gameObjects, fbxFile)) {
 		const auto t0 = hrclock::now();
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
 		ImGui::NewFrame();
 
 		variables->window->createDockSpace();
-		render(variables->window->gameObjects);
+		renderer.render(variables->window->gameObjects);
 
 		ImGui::Render();
 		ImGui::UpdatePlatformWindows();
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 		console.addLog("Objeto en la escena: " + obj.getName());
 	}
 
-	cleanupFrameBuffer();
+	renderer.cleanupFrameBuffer();
 
 	return 0;
 }
