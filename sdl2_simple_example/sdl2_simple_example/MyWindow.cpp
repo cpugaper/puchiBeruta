@@ -488,7 +488,8 @@ void MyWindow::createMainMenu() {
     }
 }
 
-void MyWindow::createProjectWindow() {
+void MyWindow::createProjectWindow() 
+{
     ImGui::Begin("Project", nullptr);
     static std::string assetsPath = "Assets";
     if (!std::filesystem::exists(assetsPath)) {
@@ -506,12 +507,13 @@ void MyWindow::createProjectWindow() {
                 renderer.HandleDroppedFile(filePath.c_str());
             }
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                ImGui::SetDragDropPayload("AssetFile", filePath.c_str(), filePath.size() + 1);
-                ImGui::Text("Dragging %s", fileName.c_str());
+                ImGui::SetDragDropPayload("AssetFile", filePath.c_str(), filePath.length() + 1);
+                ImGui::Text("Arrastra: %s", entry.path().filename().string().c_str());
                 ImGui::EndDragDropSource();
             }
         }
     }
+
     ImGui::End();
 }
 

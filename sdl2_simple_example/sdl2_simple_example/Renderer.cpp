@@ -83,8 +83,8 @@ bool Renderer::processEvents(Camera& camera, std::vector<GameObject>& gameObject
             const char* droppedFilePath = event.drop.file;
 
             if (droppedFilePath) {
-                Renderer::HandleDroppedFile(droppedFilePath); // Usa la nueva función en Renderer
-                SDL_free(event.drop.file); // Libera la memoria asignada
+                Renderer::HandleDroppedFile(droppedFilePath);
+                SDL_free(event.drop.file);
             }
             break;
         }
@@ -130,7 +130,7 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
 
         console.addLog("FBX model loaded and saved in: " + outputPath);
     }
-    else if (extension == ".png" || extension == ".jpg" || extension == ".dds") {
+    else if (extension == ".png" || extension == ".dds") {
         // Importar textura
         GLuint newTextureID = importer.loadTexture(droppedFile);
         variables->textureFilePath = filePath.string();

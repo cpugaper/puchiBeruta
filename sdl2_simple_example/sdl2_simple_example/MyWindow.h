@@ -60,7 +60,9 @@ private:
 	unsigned int _frameCount = 0;
 	std::vector<float> _fpsHistory;
 
-
+	bool showFiles = false;        // Para saber si mostrar los archivos
+	std::string selectedFile;      // Para almacenar el archivo seleccionado
+	std::string folderPath = "Assets";
 
 };
 
