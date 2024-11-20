@@ -27,6 +27,7 @@
 #include <unistd.h>      // To obtain memory in Linux
 #endif
 
+extern Renderer renderer;
 extern Importer importer;
 extern std::vector<GameObject*> gameObjects;
 extern MyWindow* window;
@@ -214,7 +215,7 @@ void MyWindow::updateSceneSize() {
     if (newWidth != framebufferWidth || newHeight != framebufferHeight) {
         framebufferWidth = newWidth;
         framebufferHeight = newHeight;
-        createFrameBuffer(framebufferWidth, framebufferHeight);
+        renderer.createFrameBuffer(framebufferWidth, framebufferHeight);
     }
 }
 
@@ -487,10 +488,30 @@ void MyWindow::createMainMenu() {
     }
 }
 
-void MyWindow::createProjectWindow()
-{
+void MyWindow::createProjectWindow() {
     ImGui::Begin("Project", nullptr);
-    ImGui::Text("Assets list goes here");
+    static std::string assetsPath = "Assets";
+    if (!std::filesystem::exists(assetsPath)) {
+        ImGui::Text("Assets folder not found: %s", assetsPath.c_str());
+        ImGui::End();
+        return;
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(assetsPath)) {
+        if (entry.is_regular_file()) {
+            std::string filePath = entry.path().string();
+            std::string fileName = entry.path().filename().string();
+            std::string extension = entry.path().extension().string();
+            std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+            if (ImGui::Button(fileName.c_str())) {
+                renderer.HandleDroppedFile(filePath.c_str());
+            }
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+                ImGui::SetDragDropPayload("AssetFile", filePath.c_str(), filePath.size() + 1);
+                ImGui::Text("Dragging %s", fileName.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+    }
     ImGui::End();
 }
 
@@ -502,6 +523,17 @@ void MyWindow::createSceneWindow()
 
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(framebufferWidth, framebufferHeight));
+
+    // Drag & Drop Management
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetFile")) {
+            const char* droppedFilePath = (const char*)payload->Data;
+            if (droppedFilePath) {
+                renderer.HandleDroppedFile(droppedFilePath);
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
 
     ImGui::End();
 }

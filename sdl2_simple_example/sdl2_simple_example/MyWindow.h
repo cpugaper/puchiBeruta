@@ -40,8 +40,6 @@ public:
 
 	void createDockSpace();
 	void createMainMenu();
-	void createHierarchyWindow();
-	void createInspectorWindow();
 	void createProjectWindow();
 	void createSceneWindow();
 
@@ -61,6 +59,8 @@ private:
 	unsigned int _fps = 0;
 	unsigned int _frameCount = 0;
 	std::vector<float> _fpsHistory;
+
+
 
 };
 
