@@ -17,6 +17,7 @@
 #include "ProjectWindow.h"
 #include "InspectorWindow.h"
 #include "HierarchyWindow.h"
+#include "SceneWindow.h"
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -37,6 +38,7 @@ InspectorWindow inspectorWindow;
 HierarchyWindow hierarchyWindow;
 ConsoleWindow consoleWindow;
 ProjectWindow projectWindow;
+SceneWindow sceneWindow;
 
 ImGuiIO* g_io = nullptr;
 
@@ -209,18 +211,6 @@ void MyWindow::configMyWindow()
     }
 }
 
-void MyWindow::updateSceneSize() {
-    ImVec2 availableSize = ImGui::GetContentRegionAvail();
-    int newWidth = static_cast<int>(availableSize.x);
-    int newHeight = static_cast<int>(availableSize.y);
-
-    if (newWidth != framebufferWidth || newHeight != framebufferHeight) {
-        framebufferWidth = newWidth;
-        framebufferHeight = newHeight;
-        renderer.createFrameBuffer(framebufferWidth, framebufferHeight);
-    }
-}
-
 void MyWindow::createDockSpace() {
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
@@ -246,7 +236,7 @@ void MyWindow::createDockSpace() {
     hierarchyWindow.render(gameObjects, selectedObject);
     inspectorWindow.render(selectedObject);
     projectWindow.render(); 
-    createSceneWindow();
+    sceneWindow.render();
     console.displayConsole();
 
     ImGui::End();
@@ -488,29 +478,6 @@ void MyWindow::createMainMenu() {
             ImGui::End();
         }
     }
-}
-
-void MyWindow::createSceneWindow()
-{
-    ImGui::Begin("Scene", nullptr);
-
-    updateSceneSize();
-
-    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-    ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(framebufferWidth, framebufferHeight));
-
-    // Drag & Drop Management
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetFile")) {
-            const char* droppedFilePath = (const char*)payload->Data;
-            if (droppedFilePath) {
-                renderer.HandleDroppedFile(droppedFilePath);
-            }
-        }
-        ImGui::EndDragDropTarget();
-    }
-
-    ImGui::End();
 }
 
 // Updated interface and rendering of ImGui content
