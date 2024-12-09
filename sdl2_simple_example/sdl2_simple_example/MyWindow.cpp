@@ -244,12 +244,20 @@ void MyWindow::createDockSpace() {
 
 // Selects an object in the scene
 void MyWindow::selectObject(GameObject* obj) {
-    if (std::find(selectedObjects.begin(), selectedObjects.end(), obj) == selectedObjects.end()) {
-        selectedObjects.clear(); 
-        selectedObjects.push_back(obj); 
+    const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+    if (keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL]) {
+        auto it = std::find(selectedObjects.begin(), selectedObjects.end(), obj);
+        if (it != selectedObjects.end()) {
+            selectedObjects.erase(it);
+        }
+        else {
+            selectedObjects.push_back(obj);
+        }
     }
     else {
-        selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), obj), selectedObjects.end());
+        selectedObjects.clear();
+        selectedObjects.push_back(obj);
     }
 
     if (selectedObjects.empty()) {
@@ -257,29 +265,9 @@ void MyWindow::selectObject(GameObject* obj) {
         objectSelected = false;
     }
     else {
-        selectedObject = selectedObjects.back(); 
+        selectedObject = selectedObjects.back();
         objectSelected = true;
     }
-}
-
-// Removes the selected objects from the scene
-void MyWindow::deleteSelectedObject() {
-    if (selectedObjects.empty()) return;
-
-    for (GameObject* obj : selectedObjects) {
-        if (obj->parent != nullptr) {
-            obj->parent->removeChild(obj);  
-        }
-        auto it = std::find(gameObjects.begin(), gameObjects.end(), obj);
-        if (it != gameObjects.end()) {
-            delete* it; 
-            gameObjects.erase(it);  
-        }
-    }
-
-    selectedObjects.clear();
-    selectedObject = nullptr;
-    objectSelected = false;
 }
 
 

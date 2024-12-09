@@ -37,9 +37,6 @@ void Camera::processKeyDown(const SDL_Keysym& keysym) {
     if (keysym.sym == SDLK_f) {
         reset();
     }
-    if (keysym.sym == SDLK_DELETE) {
-        variables->window->deleteSelectedObject();
-    }
 }
 
 void Camera::processKeyUp(const SDL_Keysym& keysym) {

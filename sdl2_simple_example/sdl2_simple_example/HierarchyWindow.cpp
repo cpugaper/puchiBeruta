@@ -10,6 +10,14 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, GameObject*&
 
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
+        if (keyboardState[SDL_SCANCODE_DELETE]) {
+            for (GameObject* obj : selectedObjects) {
+                gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), obj), gameObjects.end());
+                delete obj; 
+            }
+            selectedObjects.clear(); 
+        }
+
         for (GameObject* obj : gameObjects) {
 
             bool isSelected = (std::find(selectedObjects.begin(), selectedObjects.end(), obj) != selectedObjects.end());
