@@ -244,28 +244,44 @@ void MyWindow::createDockSpace() {
 
 // Selects an object in the scene
 void MyWindow::selectObject(GameObject* obj) {
-    if (selectedObject != obj) {
-        selectedObject = obj;
-        objectSelected = true;
+    if (std::find(selectedObjects.begin(), selectedObjects.end(), obj) == selectedObjects.end()) {
+        selectedObjects.clear(); 
+        selectedObjects.push_back(obj); 
     }
     else {
+        selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), obj), selectedObjects.end());
+    }
+
+    if (selectedObjects.empty()) {
         selectedObject = nullptr;
         objectSelected = false;
+    }
+    else {
+        selectedObject = selectedObjects.back(); 
+        objectSelected = true;
     }
 }
 
-// Removes the selected object from the scene
+// Removes the selected objects from the scene
 void MyWindow::deleteSelectedObject() {
-    if (selectedObject) {
-        auto it = std::find(gameObjects.begin(), gameObjects.end(), selectedObject);
-        if (it != gameObjects.end()) {
-            delete* it;
-            gameObjects.erase(it);
+    if (selectedObjects.empty()) return;
+
+    for (GameObject* obj : selectedObjects) {
+        if (obj->parent != nullptr) {
+            obj->parent->removeChild(obj);  
         }
-        selectedObject = nullptr;
-        objectSelected = false;
+        auto it = std::find(gameObjects.begin(), gameObjects.end(), obj);
+        if (it != gameObjects.end()) {
+            delete* it; 
+            gameObjects.erase(it);  
+        }
     }
+
+    selectedObjects.clear();
+    selectedObject = nullptr;
+    objectSelected = false;
 }
+
 
 void MyWindow::createMainMenu() {
     if (ImGui::BeginMainMenuBar()) {

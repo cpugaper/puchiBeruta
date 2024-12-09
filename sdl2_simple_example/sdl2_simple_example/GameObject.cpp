@@ -18,7 +18,6 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
     initialRotation = rotation;
     initialScale = scale;
     console.addLog("GameObject created with UUID: " + uuid);
-    /*std::cout << "GameObject created with UUID: " << uuid << std::endl;*/
 }
 
 // Generate a random UUID to identify each object uniquely
@@ -32,8 +31,18 @@ std::string GameObject::GenerateUUID() {
 }
 
 // Adds a child object to the list of children of this object
-void GameObject::addChild(const GameObject& child) {
+void GameObject::addChild(GameObject* child) {
+    child->parent = this;
     children.push_back(child);
+}
+
+void GameObject::removeChild(GameObject* child) {
+    auto it = std::find(children.begin(), children.end(), child);
+
+    if (it != children.end()) {
+        children.erase(it);
+        child->parent = nullptr;
+    }
 }
 
 void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects) {
@@ -68,12 +77,10 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
             GameObject* modelObject = new GameObject(primitiveType, meshData, textureID);
             gameObjects.push_back(modelObject);
             console.addLog("Model " + primitiveType + " loaded from " + filePath);
-            /*std::cout << "Model " << primitiveType << " loaded from " << filePath << std::endl;*/
         }
     }
     catch (const std::exception& e) {
         console.addLog("Error when loading model " + primitiveType + ": " + e.what());
-       /* std::cerr << "Error when loading model " << primitiveType << ": " << e.what() << std::endl;*/
     }
 }
 
@@ -85,6 +92,30 @@ glm::mat4 GameObject::getTransformMatrix() const {
     transform = glm::rotate(transform, glm::radians(rotation.z), glm::vec3(0, 0, 1));
     transform = glm::scale(transform, scale);
     return transform;
+}
+
+// Transforms for parenting logic
+
+glm::mat4 GameObject::getFinalTransformMatrix() const {
+    glm::mat4 finalTransform = getTransformMatrix();
+
+    if (parent != nullptr) {
+        finalTransform = parent->getFinalTransformMatrix() * finalTransform;
+    }
+    return finalTransform;
+}
+
+void GameObject::updateChildTransforms() {
+
+    globalTransform = getFinalTransformMatrix();
+
+    for (GameObject* child : children) {
+        child->position = position + child->initialPosition; 
+        child->rotation = rotation + child->initialRotation; 
+        child->scale = scale * child->initialScale; 
+
+        child->updateChildTransforms();
+    }
 }
 
 void GameObject::setPosition(const glm::vec3& newPosition) {

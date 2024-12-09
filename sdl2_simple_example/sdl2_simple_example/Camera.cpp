@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Variables.h"
 #include "ConsoleWindow.h"
+#include "MyWindow.h"
 
 Camera camera; 
 
@@ -37,9 +38,7 @@ void Camera::processKeyDown(const SDL_Keysym& keysym) {
         reset();
     }
     if (keysym.sym == SDLK_DELETE) {
-        if (variables->window->objectSelected) {
-            variables->window->deleteSelectedObject();
-        }
+        variables->window->deleteSelectedObject();
     }
 }
 

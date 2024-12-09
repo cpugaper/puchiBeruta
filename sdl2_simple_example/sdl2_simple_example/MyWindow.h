@@ -18,6 +18,8 @@ public:
 	
 	SDL_Window* _window = nullptr;
 	std::vector<GameObject*> gameObjects;
+	std::vector<GameObject*> selectedObjects;  
+	GameObject* selectedObject;
 
 public:
 	int width() const { return _width; }
@@ -36,14 +38,10 @@ public:
 	void deleteSelectedObject();
 
 	void configMyWindow();
-	void updateSceneSize();
 
 	void createDockSpace();
 	void createMainMenu();
-	void createProjectWindow();
-	void createSceneWindow();
 
-	GameObject* selectedObject = nullptr;
 	bool objectSelected = false;
 
 	/*template <class Archive>

@@ -48,7 +48,8 @@ public:
 
     std::string uuid;
     std::string name;
-    std::vector<GameObject> children;
+    std::vector<GameObject*> children;
+    GameObject* parent = nullptr; 
     MeshData meshData;
     GLuint textureID;
 
@@ -60,9 +61,16 @@ public:
     glm::vec3 initialRotation;
     glm::vec3 initialScale;
 
+    glm::mat4 globalTransform;
+
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
 
-    void addChild(const GameObject& child);
+    // PARENTING
+    void addChild(GameObject* child);
+    void removeChild(GameObject* child);
+    void updateChildTransforms();
+    glm::mat4 getFinalTransformMatrix() const;
+
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
     glm::mat4 getTransformMatrix() const;
 
