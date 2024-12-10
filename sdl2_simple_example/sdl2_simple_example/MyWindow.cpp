@@ -233,7 +233,7 @@ void MyWindow::createDockSpace() {
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
     createMainMenu();
-    hierarchyWindow.render(gameObjects, selectedObject);
+    hierarchyWindow.render(gameObjects, selectedObjects, selectedObject);
     inspectorWindow.render(selectedObject);
     projectWindow.render(); 
     sceneWindow.render();
@@ -260,13 +260,9 @@ void MyWindow::selectObject(GameObject* obj) {
         selectedObjects.push_back(obj);
     }
 
-    if (selectedObjects.empty()) {
-        selectedObject = nullptr;
-        objectSelected = false;
-    }
-    else {
-        selectedObject = selectedObjects.back();
-        objectSelected = true;
+    console.addLog("Selected objects:");
+    for (GameObject* o : selectedObjects) {
+        console.addLog(("  - " + o->getName()).c_str());
     }
 }
 

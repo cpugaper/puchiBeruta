@@ -12,18 +12,22 @@ Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), ob
 
 // Resets the camera's position and orientation based on the selected object
 void Camera::reset() {
-    if (variables->window->objectSelected) {
-        position = -variables->window->selectedObject->getPosition();
+    if (variables->window->selectedObjects.size() == 1) {
+        GameObject* obj = variables->window->selectedObjects.front();
+        position = -obj->getPosition();
         position.y -= 1;
         position.z -= 10;
         angleX = angleY = 0.0f;
         objectAngleX = objectAngleY = 0.0f;
         speed = 0.1f;
+        console.addLog(("Camera reset to object: " + obj->getName()).c_str());
+    }
+    else if (variables->window->selectedObjects.empty()) {
+        console.addLog("No object selected, cannot reset camera");
     }
     else {
-        console.addLog("No object selected");
+        console.addLog("More than 1 object selected, cannot reset camera");
     }
-
 }
 
 void Camera::processKeyDown(const SDL_Keysym& keysym) {
@@ -35,6 +39,7 @@ void Camera::processKeyDown(const SDL_Keysym& keysym) {
         altPressed = true;
     }
     if (keysym.sym == SDLK_f) {
+        console.addLog("Reset key (F) pressed");
         reset();
     }
 }

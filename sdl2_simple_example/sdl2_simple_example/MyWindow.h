@@ -35,14 +35,11 @@ public:
 	std::vector<GameObject*> getGameObjects() { return gameObjects; }
 
 	void selectObject(GameObject* obj);
-	void deleteSelectedObject();
 
 	void configMyWindow();
 
 	void createDockSpace();
 	void createMainMenu();
-
-	bool objectSelected = false;
 
 	/*template <class Archive>
 	void serialize(Archive& archive) {

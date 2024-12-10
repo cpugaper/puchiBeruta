@@ -1,9 +1,7 @@
 #include "HierarchyWindow.h"
 #include <SDL2/SDL_events.h>
 
-std::vector<GameObject*> selectedObjects;
-
-void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, GameObject*& selectedObject) {
+void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject) {
     ImGui::Begin("Hierarchy", nullptr);
 
     if (!gameObjects.empty()) {
@@ -64,11 +62,11 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, GameObject*&
     }
     ImGui::End();
 
-    handleParenting();
-    applyTransforms(gameObjects);
+    handleParenting(selectedObjects);
+    applyTransforms(gameObjects, selectedObjects);
 }
 
-void HierarchyWindow::handleParenting() {
+void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects) {
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
     if (keyboardState[SDL_SCANCODE_P]) {
@@ -89,7 +87,7 @@ void HierarchyWindow::handleParenting() {
     }
 }
 
-void HierarchyWindow::applyTransforms(std::vector<GameObject*>& gameObjects) {
+void HierarchyWindow::applyTransforms(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects) {
     if (selectedObjects.empty()) return;
 
     GameObject* lastSelected = selectedObjects.back();
