@@ -10,7 +10,7 @@
 #include <cereal/types/string.hpp>
 #include <cereal/archives/json.hpp>
 #include <GL/glew.h>
-
+#include "Ray.h"
 struct MeshData {
     std::string name;
     std::vector<GLfloat> vertices;
@@ -86,6 +86,7 @@ public:
     void setScale(const glm::vec3& newScale);
 
     void resetTransform();
+<<<<<<< Updated upstream
 
     /* MeshData toMeshData() const {
          MeshData meshData;
@@ -96,6 +97,18 @@ public:
          meshData.transform = getTransformMatrix();
          return meshData;
      }*/
+=======
+    bool intersectsRay(const Ray& ray, float& t);
+   /* MeshData toMeshData() const {
+        MeshData meshData;
+        meshData.name = this->name;
+        meshData.vertices = this->meshData.vertices;  
+        meshData.indices = this->meshData.indices;   
+        meshData.textCoords = this->meshData.textCoords;
+        meshData.transform = getTransformMatrix();    
+        return meshData;
+    }*/
+>>>>>>> Stashed changes
 
      //template <class Archive>
      //void serialize(Archive& archive) {

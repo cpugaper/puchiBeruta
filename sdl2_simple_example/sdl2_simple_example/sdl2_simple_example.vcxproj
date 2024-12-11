@@ -151,6 +151,7 @@
     <ClInclude Include="InspectorWindow.h" />
     <ClInclude Include="MyWindow.h" />
     <ClInclude Include="ProjectWindow.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />

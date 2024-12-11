@@ -4,6 +4,7 @@
 #include "Variables.h"
 #include "ConsoleWindow.h"
 #include "MyWindow.h"
+#include "Ray.h"
 
 Camera camera;
 
@@ -114,4 +115,51 @@ void Camera::applyCameraTransformations() {
     glTranslatef(position.x, position.y, position.z);
     glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
     glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f);
+}
+
+glm::mat4 Camera::getViewMatrix() const {
+    return glm::lookAt(position, position + getForwardDirection(), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const {
+    return glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+}
+
+glm::vec3 Camera::getForwardDirection() const {
+    // La dirección hacia adelante se calcula como un vector usando los ángulos de rotación de la cámara.
+    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f)); // rotación alrededor del eje Y
+    rotationMatrix = glm::rotate(rotationMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f)); // rotación alrededor del eje X
+
+    // Dirección hacia adelante (inicialmente [0.0, 0.0, -1.0], es decir, mirando hacia el eje Z negativo)
+    glm::vec4 forward = rotationMatrix * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+
+    return glm::vec3(forward);
+}
+
+Ray Camera::getMouseRay(float mouseX, float mouseY, float width, float height) {
+    glm::mat4 projection = getProjectionMatrix(width / height);
+    glm::mat4 view = getViewMatrix();
+    
+    // Normalizamos las coordenadas del mouse a valores de [-1, 1]
+    glm::vec4 mouseClipSpace = glm::vec4(
+        (mouseX / width) * 2.0f - 1.0f,
+        1.0f - (mouseY / height) * 2.0f,
+        -1.0f, 1.0f
+    );
+
+    // Invertimos las matrices de vista y proyección
+    glm::mat4 invProjection = glm::inverse(projection);
+    glm::mat4 invView = glm::inverse(view);
+    
+    // Convertimos las coordenadas de la pantalla a espacio de mundo
+    glm::vec4 worldSpaceRay = invProjection * mouseClipSpace;
+    worldSpaceRay = invView * glm::vec4(worldSpaceRay.x, worldSpaceRay.y, -1.0f, 0.0f);
+
+    // El rayo comienza en la cámara y tiene una dirección que apunta hacia el objeto
+    glm::vec3 rayOrigin = position;
+    glm::vec3 rayDirection = glm::normalize(glm::vec3(worldSpaceRay));
+
+    console.addLog("gettingmouseray - rayorigin: x = " + std::to_string(rayOrigin.x) + ", y = " + std::to_string(rayOrigin.y) + ", z = " + std::to_string(rayOrigin.z)); 
+
+    return Ray(rayOrigin, rayDirection);
 }

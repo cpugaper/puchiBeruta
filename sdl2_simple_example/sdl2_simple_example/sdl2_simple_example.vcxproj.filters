@@ -98,10 +98,14 @@
     <ClInclude Include="SceneWindow.h">
       <Filter>Header Files\Windows</Filter>
     </ClInclude>
+<<<<<<< Updated upstream
     <ClInclude Include="resource3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MyWindow.h">
+=======
+    <ClInclude Include="Ray.h">
+>>>>>>> Stashed changes
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
