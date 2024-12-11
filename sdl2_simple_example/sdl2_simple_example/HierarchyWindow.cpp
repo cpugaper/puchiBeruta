@@ -16,11 +16,10 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
             selectedObjects.clear(); 
         }
 
-        for (GameObject* obj : gameObjects) {
+        std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {
 
             bool isSelected = (std::find(selectedObjects.begin(), selectedObjects.end(), obj) != selectedObjects.end());
             bool isParent = !obj->children.empty();
-            bool isChild = obj->parent != nullptr;
 
             // Visual help 
             if (isSelected && selectedObject == obj) {
@@ -33,28 +32,39 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
                 ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.3f, 0.3f, 1.0f)); // Others
             }
 
-            if (isChild) {
-                ImGui::Text("  - %s", obj->getName().c_str()); 
-            }
-            else {
-                if (ImGui::Selectable(obj->getName().c_str(), isSelected)) {
-                    if (keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL]) {
-                        if (isSelected) {
-                            selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), obj), selectedObjects.end());
-                        }
-                        else {
-                            selectedObjects.push_back(obj);
-                        }
+            bool isItemClicked = ImGui::Selectable(obj->getName().c_str(), isSelected);
+
+            if (isItemClicked) {
+                if (keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL]) {
+                    if (isSelected) {
+                        selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), obj), selectedObjects.end());
                     }
                     else {
-                        selectedObjects.clear();
                         selectedObjects.push_back(obj);
                     }
-                    selectedObject = obj; // Last selected object
                 }
+                else {
+                    selectedObjects.clear();
+                    selectedObjects.push_back(obj);
+                }
+                selectedObject = obj; // Last selected object
             }
 
-            ImGui::PopStyleColor();  
+            ImGui::PopStyleColor();
+
+            if (!obj->children.empty()) {
+                ImGui::Indent();
+                for (GameObject* child : obj->children) {
+                    renderGameObject(child);
+                }
+                ImGui::Unindent();
+            }
+        };
+
+        for (GameObject* obj : gameObjects) {
+            if (obj->parent == nullptr) {
+                renderGameObject(obj);
+            }
         }
     }
     else {
@@ -77,7 +87,11 @@ void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects)
             selectedObjects.pop_back();
 
             for (GameObject* child : selectedObjects) {
+                //glm::mat4 childGlobalTransform = child->getFinalTransformMatrix();
                 parent->addChild(child);
+                //glm::mat4 parentGlobalTransform = parent->getFinalTransformMatrix();
+                //glm::mat4 newLocalTransform = glm::inverse(parentGlobalTransform) * childGlobalTransform;
+                //child->setTransformFromMatrix(newLocalTransform);
             }
 
             parent->updateChildTransforms();

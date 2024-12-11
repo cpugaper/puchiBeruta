@@ -105,6 +105,24 @@ glm::mat4 GameObject::getFinalTransformMatrix() const {
     return finalTransform;
 }
 
+//void GameObject::setTransformFromMatrix(const glm::mat4& transform) {
+//    scale = glm::vec3(
+//        glm::length(glm::vec3(transform[0])),
+//        glm::length(glm::vec3(transform[1])),
+//        glm::length(glm::vec3(transform[2]))
+//    );
+//
+//    position = glm::vec3(transform[3]);
+//
+//    glm::mat3 rotationMatrix = glm::mat3(
+//        glm::vec3(transform[0]) / scale.x,
+//        glm::vec3(transform[1]) / scale.y,
+//        glm::vec3(transform[2]) / scale.z
+//    );
+//    rotation = glm::degrees(glm::eulerAngles(glm::quat_cast(rotationMatrix)));
+//}
+
+
 void GameObject::updateChildTransforms() {
 
     globalTransform = getFinalTransformMatrix();
@@ -115,6 +133,13 @@ void GameObject::updateChildTransforms() {
         child->scale = scale * child->initialScale; 
 
         child->updateChildTransforms();
+
+   /*     glm::mat4 parentGlobalTransform = globalTransform;
+        glm::mat4 childGlobalTransform = child->getFinalTransformMatrix();
+        glm::mat4 newLocalTransform = glm::inverse(parentGlobalTransform) * childGlobalTransform;
+
+        child->setTransformFromMatrix(newLocalTransform);
+        child->updateChildTransforms();*/
     }
 }
 
