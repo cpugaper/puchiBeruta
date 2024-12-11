@@ -5,7 +5,7 @@
 #include "ConsoleWindow.h"
 #include "MyWindow.h"
 
-Camera camera; 
+Camera camera;
 
 // Initializes variables related to the position and movement of the camera
 Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}

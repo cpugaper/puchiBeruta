@@ -19,10 +19,10 @@ struct MeshData {
     std::vector<GLfloat> normals;
     glm::mat4 transform;
 
-  /*  template <class Archive>
-    void serialize(Archive& archive) {
-        archive(CEREAL_NVP(name), CEREAL_NVP(vertices), CEREAL_NVP(indices), CEREAL_NVP(textCoords), CEREAL_NVP(transform));
-    }*/
+    /*  template <class Archive>
+      void serialize(Archive& archive) {
+          archive(CEREAL_NVP(name), CEREAL_NVP(vertices), CEREAL_NVP(indices), CEREAL_NVP(textCoords), CEREAL_NVP(transform));
+      }*/
 };
 
 // To be able to serialize glm::vec3 & glm::mat4
@@ -49,7 +49,7 @@ public:
     std::string uuid;
     std::string name;
     std::vector<GameObject*> children;
-    GameObject* parent = nullptr; 
+    GameObject* parent = nullptr;
     MeshData meshData;
     GLuint textureID;
 
@@ -85,26 +85,26 @@ public:
 
     void resetTransform();
 
-   /* MeshData toMeshData() const {
-        MeshData meshData;
-        meshData.name = this->name;
-        meshData.vertices = this->meshData.vertices;  
-        meshData.indices = this->meshData.indices;   
-        meshData.textCoords = this->meshData.textCoords;
-        meshData.transform = getTransformMatrix();    
-        return meshData;
-    }*/
+    /* MeshData toMeshData() const {
+         MeshData meshData;
+         meshData.name = this->name;
+         meshData.vertices = this->meshData.vertices;
+         meshData.indices = this->meshData.indices;
+         meshData.textCoords = this->meshData.textCoords;
+         meshData.transform = getTransformMatrix();
+         return meshData;
+     }*/
 
-    //template <class Archive>
-    //void serialize(Archive& archive) {
-    //    uint32_t texID = static_cast<uint32_t>(textureID);
-    //    archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(children), CEREAL_NVP(meshData),
-    //        CEREAL_NVP(textureID), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale));
-    //}
+     //template <class Archive>
+     //void serialize(Archive& archive) {
+     //    uint32_t texID = static_cast<uint32_t>(textureID);
+     //    archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(children), CEREAL_NVP(meshData),
+     //        CEREAL_NVP(textureID), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale));
+     //}
 
     static std::string GenerateUUID();
 
-    MeshData* getMeshData() { return &meshData; } 
+    MeshData* getMeshData() { return &meshData; }
     void setMeshData(const MeshData& data) { meshData = data; }
 };
 

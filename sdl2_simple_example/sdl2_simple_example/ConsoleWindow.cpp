@@ -12,7 +12,7 @@ ConsoleWindow::~ConsoleWindow() {}
 void ConsoleWindow::addLog(const std::string& log) {
     if (std::find(logs.begin(), logs.end(), log) == logs.end()) {
         if (logs.size() >= maxLogs) {
-            logs.erase(logs.begin());  
+            logs.erase(logs.begin());
         }
         logs.push_back(log);
 
@@ -24,7 +24,7 @@ void ConsoleWindow::addLog(const std::string& log) {
 
 void ConsoleWindow::clearLogs() {
     logs.clear();
-    autoScroll = true; 
+    autoScroll = true;
 }
 
 void ConsoleWindow::displayConsole() {
@@ -36,10 +36,10 @@ void ConsoleWindow::displayConsole() {
     }
 
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-        autoScroll = true; 
+        autoScroll = true;
     }
     else if (ImGui::GetScrollY() < ImGui::GetScrollMaxY()) {
-        autoScroll = false; 
+        autoScroll = false;
     }
 
     if (autoScroll && scrollToBottom) {

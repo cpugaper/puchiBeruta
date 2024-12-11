@@ -52,7 +52,7 @@ static bool winterTheme = false;
 
 void hideConsoleWindow() {
 #if defined(_WIN32)
-    HWND hwnd = GetConsoleWindow(); 
+    HWND hwnd = GetConsoleWindow();
     if (hwnd != NULL) {
         ShowWindow(hwnd, SW_HIDE);
     }
@@ -110,7 +110,7 @@ void MyWindow::configMyWindow()
 {
     ImGuiStyle& style = ImGui::GetStyle();
 
-    style.WindowPadding = ImVec2(0.0f, 0.0f);  
+    style.WindowPadding = ImVec2(0.0f, 0.0f);
 
     ImVec4* colors = style.Colors;
 
@@ -168,42 +168,42 @@ void MyWindow::configMyWindow()
         colors[ImGuiCol_Header] = ImColor(250, 224, 228);
         colors[ImGuiCol_HeaderActive] = ImColor(255, 153, 172);
         colors[ImGuiCol_HeaderHovered] = ImColor(255, 133, 161);
-        lightTheme = true; 
-        darkTheme = false; 
+        lightTheme = true;
+        darkTheme = false;
         winterTheme = false;
     }
     if (winterTheme) {
-        colors[ImGuiCol_WindowBg] = ImColor(15, 15, 20);  
+        colors[ImGuiCol_WindowBg] = ImColor(15, 15, 20);
         colors[ImGuiCol_MenuBarBg] = ImColor(40, 45, 60);
-        colors[ImGuiCol_FrameBg] = ImColor(35, 40, 55); 
-        colors[ImGuiCol_DockingPreview] = ImColor(65, 80, 110);  
-        colors[ImGuiCol_Tab] = ImColor(50, 55, 70);  
-        colors[ImGuiCol_TabHovered] = ImColor(75, 90, 120);  
-        colors[ImGuiCol_TabActive] = ImColor(95, 115, 150); 
-        colors[ImGuiCol_TabUnfocused] = ImColor(40, 45, 60);  
+        colors[ImGuiCol_FrameBg] = ImColor(35, 40, 55);
+        colors[ImGuiCol_DockingPreview] = ImColor(65, 80, 110);
+        colors[ImGuiCol_Tab] = ImColor(50, 55, 70);
+        colors[ImGuiCol_TabHovered] = ImColor(75, 90, 120);
+        colors[ImGuiCol_TabActive] = ImColor(95, 115, 150);
+        colors[ImGuiCol_TabUnfocused] = ImColor(40, 45, 60);
         colors[ImGuiCol_TabUnfocusedActive] = ImColor(65, 80, 110);
-        colors[ImGuiCol_TitleBg] = ImColor(50, 55, 70);  
-        colors[ImGuiCol_TitleBgActive] = ImColor(95, 115, 150); 
-        colors[ImGuiCol_TitleBgCollapsed] = ImColor(40, 45, 60); 
-        colors[ImGuiCol_PopupBg] = ImColor(30, 35, 45);  
-        colors[ImGuiCol_ScrollbarBg] = ImColor(35, 40, 55);  
-        colors[ImGuiCol_ScrollbarGrab] = ImColor(85, 100, 130);  
-        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(105, 120, 150);  
-        colors[ImGuiCol_Border] = ImColor(95, 115, 150); 
-        colors[ImGuiCol_Button] = ImColor(135, 180, 230);  
-        colors[ImGuiCol_ButtonHovered] = ImColor(150, 190, 240);  
-        colors[ImGuiCol_ButtonActive] = ImColor(170, 210, 255);  
-        colors[ImGuiCol_Text] = ImColor(235, 235, 235);  
-        colors[ImGuiCol_Header] = ImColor(50, 55, 70); 
-        colors[ImGuiCol_HeaderActive] = ImColor(95, 115, 150);  
-        colors[ImGuiCol_HeaderHovered] = ImColor(75, 90, 120);  
-        colors[ImGuiCol_CheckMark] = ImColor(135, 180, 230);  
-        colors[ImGuiCol_SliderGrab] = ImColor(85, 100, 130); 
-        colors[ImGuiCol_SliderGrabActive] = ImColor(95, 115, 150);  
-        colors[ImGuiCol_Separator] = ImColor(60, 70, 90); 
-        colors[ImGuiCol_SeparatorHovered] = ImColor(75, 90, 120);  
-        colors[ImGuiCol_SeparatorActive] = ImColor(95, 115, 150);  
-        colors[ImGuiCol_DragDropTarget] = ImColor(65, 80, 110); 
+        colors[ImGuiCol_TitleBg] = ImColor(50, 55, 70);
+        colors[ImGuiCol_TitleBgActive] = ImColor(95, 115, 150);
+        colors[ImGuiCol_TitleBgCollapsed] = ImColor(40, 45, 60);
+        colors[ImGuiCol_PopupBg] = ImColor(30, 35, 45);
+        colors[ImGuiCol_ScrollbarBg] = ImColor(35, 40, 55);
+        colors[ImGuiCol_ScrollbarGrab] = ImColor(85, 100, 130);
+        colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(105, 120, 150);
+        colors[ImGuiCol_Border] = ImColor(95, 115, 150);
+        colors[ImGuiCol_Button] = ImColor(135, 180, 230);
+        colors[ImGuiCol_ButtonHovered] = ImColor(150, 190, 240);
+        colors[ImGuiCol_ButtonActive] = ImColor(170, 210, 255);
+        colors[ImGuiCol_Text] = ImColor(235, 235, 235);
+        colors[ImGuiCol_Header] = ImColor(50, 55, 70);
+        colors[ImGuiCol_HeaderActive] = ImColor(95, 115, 150);
+        colors[ImGuiCol_HeaderHovered] = ImColor(75, 90, 120);
+        colors[ImGuiCol_CheckMark] = ImColor(135, 180, 230);
+        colors[ImGuiCol_SliderGrab] = ImColor(85, 100, 130);
+        colors[ImGuiCol_SliderGrabActive] = ImColor(95, 115, 150);
+        colors[ImGuiCol_Separator] = ImColor(60, 70, 90);
+        colors[ImGuiCol_SeparatorHovered] = ImColor(75, 90, 120);
+        colors[ImGuiCol_SeparatorActive] = ImColor(95, 115, 150);
+        colors[ImGuiCol_DragDropTarget] = ImColor(65, 80, 110);
 
         lightTheme = false;
         darkTheme = false;
@@ -235,7 +235,7 @@ void MyWindow::createDockSpace() {
     createMainMenu();
     hierarchyWindow.render(gameObjects, selectedObjects, selectedObject);
     inspectorWindow.render(selectedObject);
-    projectWindow.render(); 
+    projectWindow.render();
     sceneWindow.render();
     console.displayConsole();
 
@@ -333,13 +333,13 @@ void MyWindow::createMainMenu() {
                 if (ImGui::Checkbox("Dark theme", &darkTheme)) {
                     lightTheme = false;
                     winterTheme = false;
-                    configMyWindow(); 
+                    configMyWindow();
                 }
 
                 if (ImGui::Checkbox("Light theme", &lightTheme)) {
                     darkTheme = false;
                     winterTheme = false;
-                    configMyWindow();  
+                    configMyWindow();
                 }
 
                 if (ImGui::Checkbox("Winter theme", &winterTheme)) {
@@ -385,11 +385,11 @@ void MyWindow::createMainMenu() {
             if (ImGui::CollapsingHeader("Object Settings")) {
                 GameObject* selectedObject = variables->window->selectedObject;
                 if (selectedObject) {
-                    char nameBuffer[256]; 
-                    strncpy_s(nameBuffer, selectedObject->name.c_str(), sizeof(nameBuffer) - 1); 
+                    char nameBuffer[256];
+                    strncpy_s(nameBuffer, selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
 
                     if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
-                        selectedObject->name = std::string(nameBuffer); 
+                        selectedObject->name = std::string(nameBuffer);
                     }
                 }
                 else {
@@ -431,7 +431,7 @@ void MyWindow::createMainMenu() {
             }
 
             ImGui::Separator();
-            
+
             if (ImGui::Button("Close")) {
                 showConfig = false;
             }

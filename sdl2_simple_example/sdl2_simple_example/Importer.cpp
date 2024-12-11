@@ -53,7 +53,7 @@ Importer::~Importer() {}
 
 void Importer::initDevIL() {
     ilInit();
-    iluInit(); 
+    iluInit();
 }
 
 void Importer::checkAndCreateDirectories() {
@@ -64,7 +64,7 @@ void Importer::checkAndCreateDirectories() {
         "Library/Models"
     };
 
-	// Browse the necessary directories and create them if they don't exist
+    // Browse the necessary directories and create them if they don't exist
     for (const auto& dir : directories) {
         std::filesystem::path dirPath(dir);
 
@@ -77,7 +77,7 @@ void Importer::checkAndCreateDirectories() {
 // Loads an FBX model and its corresponding texture
 std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
     console.addLog("Loading model FBX: " + relativeFilePath);
-	// Gets the absolute path to the FBX file
+    // Gets the absolute path to the FBX file
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
     std::string filePath = (relativeFilePath);
@@ -153,7 +153,8 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    } else {
+    }
+    else {
         console.addLog("Error loading texture: " + texturePath);
         imageID = 0;
     }
