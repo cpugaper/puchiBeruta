@@ -86,18 +86,7 @@ public:
     void setScale(const glm::vec3& newScale);
 
     void resetTransform();
-<<<<<<< Updated upstream
 
-    /* MeshData toMeshData() const {
-         MeshData meshData;
-         meshData.name = this->name;
-         meshData.vertices = this->meshData.vertices;
-         meshData.indices = this->meshData.indices;
-         meshData.textCoords = this->meshData.textCoords;
-         meshData.transform = getTransformMatrix();
-         return meshData;
-     }*/
-=======
     bool intersectsRay(const Ray& ray, float& t);
    /* MeshData toMeshData() const {
         MeshData meshData;
@@ -108,14 +97,6 @@ public:
         meshData.transform = getTransformMatrix();    
         return meshData;
     }*/
->>>>>>> Stashed changes
-
-     //template <class Archive>
-     //void serialize(Archive& archive) {
-     //    uint32_t texID = static_cast<uint32_t>(textureID);
-     //    archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(children), CEREAL_NVP(meshData),
-     //        CEREAL_NVP(textureID), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale));
-     //}
 
     static std::string GenerateUUID();
 
