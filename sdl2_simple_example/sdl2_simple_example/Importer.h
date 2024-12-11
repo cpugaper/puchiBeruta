@@ -19,7 +19,7 @@ public:
     void saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes);
     std::vector<MeshData> loadCustomFormat(const std::string& inputPath);
 
-    void getTextureDimensions(GLuint textureID, int& width, int& height); 
+    void getTextureDimensions(GLuint textureID, int& width, int& height);
     /*void saveScene(const std::string& outputPath, const std::vector<MeshData>& meshes);
     std::vector<MeshData> loadScene(const std::string& inputPath);*/
 

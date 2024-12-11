@@ -128,9 +128,9 @@ void GameObject::updateChildTransforms() {
     globalTransform = getFinalTransformMatrix();
 
     for (GameObject* child : children) {
-        child->position = position + child->initialPosition; 
-        child->rotation = rotation + child->initialRotation; 
-        child->scale = scale * child->initialScale; 
+        child->position = position + child->initialPosition;
+        child->rotation = rotation + child->initialRotation;
+        child->scale = scale * child->initialScale;
 
         child->updateChildTransforms();
 

@@ -14,7 +14,7 @@ extern GLuint rbo;
 extern int framebufferWidth;
 extern int framebufferHeight;
 
-class Renderer{
+class Renderer {
 public:
 	static Renderer renderer;
 

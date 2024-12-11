@@ -15,10 +15,10 @@ class MyWindow {
 	int _width = 0;
 	int _height = 0;
 public:
-	
+
 	SDL_Window* _window = nullptr;
 	std::vector<GameObject*> gameObjects;
-	std::vector<GameObject*> selectedObjects;  
+	std::vector<GameObject*> selectedObjects;
 	GameObject* selectedObject;
 
 public:

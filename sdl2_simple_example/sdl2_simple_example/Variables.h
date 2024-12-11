@@ -15,9 +15,9 @@ public:
 	int windowWidth = 1280;
 	int windowHeight = 800;
 	bool fullscreen = false;
-	bool vsyncEnabled = true;  
-	float textureFilterQuality = 1.0f;  
-	float textureAnisotropicLevel = 4.0f;  
+	bool vsyncEnabled = true;
+	float textureFilterQuality = 1.0f;
+	float textureAnisotropicLevel = 4.0f;
 
 	std::string textureFilePath;
 	std::string checkerTexture = "Assets/checker_texture.png";

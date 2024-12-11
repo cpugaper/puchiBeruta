@@ -17,10 +17,10 @@ extern GLuint textureID;
 GLuint framebuffer = 0;
 GLuint textureColorbuffer = 0;
 GLuint rbo = 0;
-int framebufferWidth = 1280; 
+int framebufferWidth = 1280;
 int framebufferHeight = 720;
 
-Renderer renderer; 
+Renderer renderer;
 
 // Gets the filename of a given path
 std::string Renderer::getFileName(const std::string& path) {
@@ -39,7 +39,7 @@ void Renderer::createFrameBuffer(int width, int height) {
     framebufferWidth = width;
     framebufferHeight = height;
 
-	// Removy any previous framebuffers before creating a new one
+    // Removy any previous framebuffers before creating a new one
     if (framebuffer != 0) {
         cleanupFrameBuffer();
     }
@@ -62,7 +62,7 @@ void Renderer::createFrameBuffer(int width, int height) {
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         console.addLog("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 // Processes SDL events and user actions
@@ -89,7 +89,7 @@ bool Renderer::processEvents(Camera& camera, std::vector<GameObject>& gameObject
             break;
         }
 
-        // Handles the window resize event and adjusts the viewport
+                         // Handles the window resize event and adjusts the viewport
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 variables->windowWidth = event.window.data1;
@@ -168,7 +168,7 @@ void Renderer::drawGrid(float spacing) {
     glBegin(GL_LINES);
 
     for (float i = -gridRange; i <= gridRange; i += spacing) {
-        glVertex3f(i, 0, -gridRange); 
+        glVertex3f(i, 0, -gridRange);
         glVertex3f(i, 0, gridRange);
         glVertex3f(-gridRange, 0, i);
         glVertex3f(gridRange, 0, i);
@@ -193,7 +193,7 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
 
     drawGrid(0.5f);
 
-	// Render every object in the scene
+    // Render every object in the scene
     for (const auto& obj : gameObjects) {
         glPushMatrix();
 
@@ -227,11 +227,11 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
 
         glPopMatrix();
     }
-   
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     glFlush();
 }
 

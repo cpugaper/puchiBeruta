@@ -11,9 +11,9 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
         if (keyboardState[SDL_SCANCODE_DELETE]) {
             for (GameObject* obj : selectedObjects) {
                 gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), obj), gameObjects.end());
-                delete obj; 
+                delete obj;
             }
-            selectedObjects.clear(); 
+            selectedObjects.clear();
         }
 
         std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {
@@ -83,7 +83,7 @@ void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects)
 
         if (selectedObjects.size() > 1) {
 
-            GameObject* parent = selectedObjects.back(); 
+            GameObject* parent = selectedObjects.back();
             selectedObjects.pop_back();
 
             for (GameObject* child : selectedObjects) {
@@ -96,7 +96,7 @@ void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects)
 
             parent->updateChildTransforms();
             selectedObjects.clear();
-            selectedObjects.push_back(parent); 
+            selectedObjects.push_back(parent);
         }
     }
 }

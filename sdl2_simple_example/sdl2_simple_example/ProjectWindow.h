@@ -8,6 +8,9 @@
 class ProjectWindow {
 public:
     void render();
+
+private:
+    std::string selectedFilePath;
 };
 
 #endif // PROJECTWINDOW_H
