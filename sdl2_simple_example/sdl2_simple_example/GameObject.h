@@ -71,8 +71,6 @@ public:
     void updateChildTransforms();
     glm::mat4 getFinalTransformMatrix() const;
 
-    void setTransformFromMatrix(const glm::mat4& transform);
-
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
     glm::mat4 getTransformMatrix() const;
 

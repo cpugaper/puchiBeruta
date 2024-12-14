@@ -27,12 +27,24 @@ void InspectorWindow::render(GameObject* selectedObject) {
 
         if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
             selectedObject->setPosition(position);
+
+            if (!selectedObject->children.empty()) {
+                selectedObject->updateChildTransforms();  
+            }
         }
         if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f)) {
             selectedObject->setRotation(rotation);
+
+            if (!selectedObject->children.empty()) {
+                selectedObject->updateChildTransforms();
+            }
         }
         if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f, 0.1f, 10.0f)) {
             selectedObject->setScale(scale);
+
+            if (!selectedObject->children.empty()) {
+                selectedObject->updateChildTransforms();
+            }
         }
 
         if (ImGui::Button("Reset")) {

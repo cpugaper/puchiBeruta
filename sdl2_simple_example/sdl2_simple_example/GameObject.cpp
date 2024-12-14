@@ -33,7 +33,14 @@ std::string GameObject::GenerateUUID() {
 // Adds a child object to the list of children of this object
 void GameObject::addChild(GameObject* child) {
     child->parent = this;
+
+    child->initialPosition = child->position - this->position;  
+    child->initialRotation = child->rotation - this->rotation; 
+    child->initialScale = child->scale / this->scale;
+
     children.push_back(child);
+
+    updateChildTransforms();
 }
 
 void GameObject::removeChild(GameObject* child) {
@@ -97,49 +104,27 @@ glm::mat4 GameObject::getTransformMatrix() const {
 // Transforms for parenting logic
 
 glm::mat4 GameObject::getFinalTransformMatrix() const {
-    glm::mat4 finalTransform = getTransformMatrix();
+    glm::mat4 localTransform = getTransformMatrix();
 
     if (parent != nullptr) {
-        finalTransform = parent->getFinalTransformMatrix() * finalTransform;
+        return parent->getFinalTransformMatrix() * localTransform;
     }
-    return finalTransform;
+    return localTransform;
 }
 
-//void GameObject::setTransformFromMatrix(const glm::mat4& transform) {
-//    scale = glm::vec3(
-//        glm::length(glm::vec3(transform[0])),
-//        glm::length(glm::vec3(transform[1])),
-//        glm::length(glm::vec3(transform[2]))
-//    );
-//
-//    position = glm::vec3(transform[3]);
-//
-//    glm::mat3 rotationMatrix = glm::mat3(
-//        glm::vec3(transform[0]) / scale.x,
-//        glm::vec3(transform[1]) / scale.y,
-//        glm::vec3(transform[2]) / scale.z
-//    );
-//    rotation = glm::degrees(glm::eulerAngles(glm::quat_cast(rotationMatrix)));
-//}
-
-
 void GameObject::updateChildTransforms() {
+    glm::vec3 localPosition = position;
+    glm::vec3 localRotation = rotation;
+    glm::vec3 localScale = scale;
 
     globalTransform = getFinalTransformMatrix();
 
     for (GameObject* child : children) {
-        child->position = position + child->initialPosition;
-        child->rotation = rotation + child->initialRotation;
-        child->scale = scale * child->initialScale;
+        child->position = this->position + child->initialPosition;
+        child->rotation = this->rotation + child->initialRotation;
+        child->scale = this->scale * child->initialScale;
 
         child->updateChildTransforms();
-
-   /*     glm::mat4 parentGlobalTransform = globalTransform;
-        glm::mat4 childGlobalTransform = child->getFinalTransformMatrix();
-        glm::mat4 newLocalTransform = glm::inverse(parentGlobalTransform) * childGlobalTransform;
-
-        child->setTransformFromMatrix(newLocalTransform);
-        child->updateChildTransforms();*/
     }
 }
 

@@ -1,6 +1,37 @@
 #include "HierarchyWindow.h"
 #include <SDL2/SDL_events.h>
 
+void HierarchyWindow::deleteSelectedObjects(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects) {
+    std::vector<GameObject*> objectsToDelete = selectedObjects;
+
+    for (auto it = objectsToDelete.begin(); it != objectsToDelete.end();) {
+        GameObject* obj = *it;
+        if (obj->parent && std::find(objectsToDelete.begin(), objectsToDelete.end(), obj->parent) != objectsToDelete.end()) {
+            it = objectsToDelete.erase(it);
+            continue;
+        }
+        ++it;
+    }
+
+    for (GameObject* obj : objectsToDelete) {
+        if (obj->parent) {
+            obj->parent->removeChild(obj);
+        }
+        deleteObjectAndChildren(obj, gameObjects);
+    }
+    selectedObjects.clear();
+}
+
+void HierarchyWindow::deleteObjectAndChildren(GameObject* obj, std::vector<GameObject*>& gameObjects) {
+    std::vector<GameObject*> childrenCopy = obj->children;
+    for (GameObject* child : childrenCopy) {
+        deleteObjectAndChildren(child, gameObjects);
+    }
+    obj->children.clear();
+    gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), obj), gameObjects.end());
+    delete obj;
+}
+
 void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject) {
     ImGui::Begin("Hierarchy", nullptr);
 
@@ -9,11 +40,7 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
         if (keyboardState[SDL_SCANCODE_DELETE]) {
-            for (GameObject* obj : selectedObjects) {
-                gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), obj), gameObjects.end());
-                delete obj;
-            }
-            selectedObjects.clear();
+            deleteSelectedObjects(gameObjects, selectedObjects);
         }
 
         std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {
@@ -87,11 +114,7 @@ void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects)
             selectedObjects.pop_back();
 
             for (GameObject* child : selectedObjects) {
-                //glm::mat4 childGlobalTransform = child->getFinalTransformMatrix();
                 parent->addChild(child);
-                //glm::mat4 parentGlobalTransform = parent->getFinalTransformMatrix();
-                //glm::mat4 newLocalTransform = glm::inverse(parentGlobalTransform) * childGlobalTransform;
-                //child->setTransformFromMatrix(newLocalTransform);
             }
 
             parent->updateChildTransforms();
