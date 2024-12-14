@@ -108,19 +108,36 @@ void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects)
 
     if (keyboardState[SDL_SCANCODE_P]) {
 
-        if (selectedObjects.size() > 1) {
+        if (!pKeyPressed) {
+            pKeyPressed = true;
 
-            GameObject* parent = selectedObjects.back();
-            selectedObjects.pop_back();
-
-            for (GameObject* child : selectedObjects) {
-                parent->addChild(child);
+            // Case 1: Undo parent-child relation 
+            if (selectedObjects.size() == 1) {
+                GameObject* parent = selectedObjects[0];
+                if (!parent->children.empty()) {
+                    std::vector<GameObject*> childrenCopy = parent->children;
+                    for (GameObject* child : childrenCopy) {
+                        parent->removeChild(child);
+                    }
+                }
             }
+            // Case 2: Create parent-child relation
+            else if (selectedObjects.size() > 1) {
+                GameObject* potentialParent = selectedObjects.back();
+                selectedObjects.pop_back();
 
-            parent->updateChildTransforms();
-            selectedObjects.clear();
-            selectedObjects.push_back(parent);
+                for (GameObject* child : selectedObjects) {
+                    potentialParent->addChild(child);
+                }
+
+                potentialParent->updateChildTransforms();
+                selectedObjects.clear();
+                selectedObjects.push_back(potentialParent);
+            }
         }
+    }
+    else {
+        pKeyPressed = false; 
     }
 }
 

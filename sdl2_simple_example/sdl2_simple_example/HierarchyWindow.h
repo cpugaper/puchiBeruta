@@ -11,6 +11,8 @@ public:
     void render(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject);
     void handleParenting(std::vector<GameObject*>& selectedObjects);
     void applyTransforms(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects);
+
+    bool pKeyPressed = false; 
 };
 
 #endif // HIERARCHYWINDOW_H
