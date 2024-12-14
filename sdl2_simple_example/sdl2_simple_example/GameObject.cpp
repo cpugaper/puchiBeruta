@@ -91,6 +91,15 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
     }
 }
 
+void GameObject::createEmptyObject(const std::string& name, std::vector<GameObject*>& gameObjects) {
+    MeshData emptyMeshData;
+    GLuint emptyTextureID = 0;
+    GameObject* emptyObject = new GameObject(name, emptyMeshData, emptyTextureID);
+
+    gameObjects.push_back(emptyObject);
+    console.addLog("Empty object created");
+}
+
 glm::mat4 GameObject::getTransformMatrix() const {
     glm::mat4 transform = glm::mat4(1.0f);
     transform = glm::translate(transform, position);

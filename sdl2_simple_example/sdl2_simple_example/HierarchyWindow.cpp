@@ -138,3 +138,5 @@ void HierarchyWindow::applyTransforms(std::vector<GameObject*>& gameObjects, std
         lastSelected->updateChildTransforms();
     }
 }
+
+

@@ -72,6 +72,7 @@ public:
     glm::mat4 getFinalTransformMatrix() const;
 
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
+    static void createEmptyObject(const std::string& name, std::vector<GameObject*>& gameObjects);
     glm::mat4 getTransformMatrix() const;
 
     const std::string& getName() const { return name; }

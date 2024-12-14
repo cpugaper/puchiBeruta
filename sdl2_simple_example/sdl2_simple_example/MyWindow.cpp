@@ -293,6 +293,7 @@ void MyWindow::createMainMenu() {
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("GameObject")) {
+            if (ImGui::MenuItem("Empty Object")) { GameObject::createEmptyObject("Empty", gameObjects); }
             if (ImGui::MenuItem("Sphere")) { GameObject::createPrimitive("Sphere", gameObjects); }
             if (ImGui::MenuItem("Cube")) { GameObject::createPrimitive("Cube", gameObjects); }
             if (ImGui::MenuItem("Cylinder")) { GameObject::createPrimitive("Cylinder", gameObjects); }

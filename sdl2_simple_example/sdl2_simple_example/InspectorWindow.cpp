@@ -50,6 +50,16 @@ void InspectorWindow::render(GameObject* selectedObject) {
         if (ImGui::Button("Reset")) {
             selectedObject->resetTransform();
         }
+        
+        // TO CHANGE OBJECT NAME
+        ImGui::Separator();
+        static char nameBuffer[256];  
+        strncpy_s(nameBuffer, sizeof(nameBuffer), selectedObject->getName().c_str(), _TRUNCATE); 
+
+        if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+            selectedObject->name = std::string(nameBuffer); 
+        }
+        //----------
 
         MeshData* meshData = selectedObject->getMeshData();
         if (meshData) {
