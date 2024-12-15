@@ -13,8 +13,12 @@ public:
     Importer();
     ~Importer();
 
+    std::vector<MeshData> loadModelFromCustomFormat(const std::string& relativeFilePath, GLuint& textureID);
     std::vector<MeshData> loadFBX(const std::string& relativefilePath, GLuint& textureID);
     GLuint loadTexture(const std::string& texturePath);
+
+    void processAssetsToLibrary();
+    void loadModel(const std::string& relativeFilePath, GLuint& textureID);
 
     void saveCustomFormat(const std::string& outputPath, const std::vector<MeshData>& meshes);
     std::vector<MeshData> loadCustomFormat(const std::string& inputPath);

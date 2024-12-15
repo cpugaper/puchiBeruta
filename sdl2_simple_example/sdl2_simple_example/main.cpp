@@ -72,10 +72,10 @@ int main(int argc, char** argv) {
 	//	importer.saveScene(sceneFile, meshes);
 	//}
 
-	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
+	meshes = importer.loadFBX("Library/Models/BakerHouse.dat", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
-		std::string objectName = renderer.getFileName("Assets/BakerHouse.fbx") + "_" + std::to_string(i);
+		std::string objectName = renderer.getFileName("Library/Models/BakerHouse.dat") + "_" + std::to_string(i);
 		auto casa = new GameObject(objectName, meshes[i], 0);
 		variables->window->gameObjects.push_back(casa);
 	}

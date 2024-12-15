@@ -83,13 +83,13 @@ bool Renderer::processEvents(Camera& camera, std::vector<GameObject>& gameObject
             const char* droppedFilePath = event.drop.file;
 
             if (droppedFilePath) {
-                Renderer::HandleDroppedFile(droppedFilePath);
+                HandleDroppedFile(droppedFilePath);
                 SDL_free(event.drop.file);
             }
             break;
         }
 
-                         // Handles the window resize event and adjusts the viewport
+        // Handles the window resize event and adjusts the viewport
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 variables->windowWidth = event.window.data1;
@@ -112,11 +112,36 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
     std::string extension = filePath.extension().string();
     std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
-    if (extension == ".fbx") {
-        // Importar modelo FBX
-        meshes.clear();
-        textureID = 0;
+    if (extension == ".dat") {
+        try {
+            // Cargar meshes desde el archivo .dat
+            meshes = importer.loadCustomFormat(filePath.string());
 
+            // Buscar textura asociada en Library/Textures
+            std::filesystem::path texturePathPNG = std::filesystem::path("Library/Textures") /
+                (filePath.stem().string() + ".png");
+
+            GLuint textureID = 0;
+            if (std::filesystem::exists(texturePathPNG)) {
+                textureID = importer.loadTexture(texturePathPNG.string());
+            }
+
+            // Crear objetos de juego para cada mesh
+            for (size_t i = 0; i < meshes.size(); ++i) {
+                const std::string objectName = getFileName(filePath.string()) + "_" + std::to_string(i);
+                GameObject* newObject = new GameObject(objectName, meshes[i], textureID);
+                variables->window->gameObjects.push_back(newObject);
+            }
+
+            console.addLog("DAT model loaded: " + filePath.string());
+        }
+        catch (const std::exception& e) {
+            console.addLog("Error loading DAT file: " + std::string(e.what()));
+        }
+    }
+
+    // Si es un FBX, usa el método de importación de FBX
+    else if (extension == ".fbx") {
         meshes = importer.loadFBX(droppedFile, textureID);
 
         for (size_t i = 0; i < meshes.size(); ++i) {
@@ -125,11 +150,13 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
             variables->window->gameObjects.push_back(newObject);
         }
 
-        std::string outputPath = "Assets/" + getFileName(droppedFile) + ".dat";
+        std::string outputPath = "Library/Models/" + getFileName(droppedFile) + ".dat";
         importer.saveCustomFormat(outputPath, meshes);
 
         console.addLog("FBX model loaded and saved in: " + outputPath);
+        
     }
+
     else if (extension == ".png" || extension == ".dds") {
         // Importar textura
         GLuint newTextureID = importer.loadTexture(droppedFile);
@@ -150,7 +177,7 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
 
 void Renderer::HandleDragDropTarget() {
     if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetFile")) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("LibraryFile")) {
             const char* droppedFile = static_cast<const char*>(payload->Data);
             if (droppedFile) {
                 HandleDroppedFile(droppedFile);

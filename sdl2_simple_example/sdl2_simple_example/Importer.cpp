@@ -59,39 +59,118 @@ void Importer::initDevIL() {
 void Importer::checkAndCreateDirectories() {
     const std::vector<std::string> directories = {
         "Assets",
-        "Library/Meshes",
-        "Library/Materials",
-        "Library/Models"
+        "Library/Models",
+        "Library/Textures",
+        "Library/Materials"
     };
 
     // Browse the necessary directories and create them if they don't exist
     for (const auto& dir : directories) {
         std::filesystem::path dirPath(dir);
-
         if (!std::filesystem::exists(dirPath)) {
             std::filesystem::create_directories(dirPath);
         }
     }
+    processAssetsToLibrary();
+}
+
+void Importer::processAssetsToLibrary() {
+    for (const auto& entry : std::filesystem::directory_iterator("Assets")) {
+        if (entry.is_regular_file()) {
+            std::string extension = entry.path().extension().string();
+            std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+            if (extension == ".fbx") {
+                // Existing FBX processing logic
+                std::string fileName = entry.path().filename().string();
+                std::string outputPath = "Library/Models/" + entry.path().stem().string() + ".dat";
+
+                if (!std::filesystem::exists(outputPath)) {
+                    GLuint textureID = 0;
+                    std::vector<MeshData> meshes = loadFBX(entry.path().string(), textureID);
+
+                    saveCustomFormat(outputPath, meshes);
+
+                    std::filesystem::path texturePathPNG = entry.path().parent_path() /
+                        (entry.path().stem().string() + ".png");
+
+                    if (std::filesystem::exists(texturePathPNG)) {
+                        std::filesystem::path destTexturePath = "Library/Textures/" +
+                            texturePathPNG.filename().string();
+                        std::filesystem::copy(texturePathPNG, destTexturePath,
+                            std::filesystem::copy_options::overwrite_existing);
+                    }
+                }
+            }
+            else if (extension == ".dat" || extension == ".png") {
+                // Copy .dat and .png files to their respective Library directories
+                if (extension == ".dat") {
+                    std::filesystem::path destPath = "Library/Models/" + entry.path().filename().string();
+                    std::filesystem::copy(entry.path(), destPath,
+                        std::filesystem::copy_options::overwrite_existing);
+                }
+                else if (extension == ".png") {
+                    std::filesystem::path destPath = "Library/Textures/" + entry.path().filename().string();
+                    std::filesystem::copy(entry.path(), destPath,
+                        std::filesystem::copy_options::overwrite_existing);
+                }
+            }
+        }
+    }
+}
+
+std::vector<MeshData> Importer::loadModelFromCustomFormat(const std::string& relativeFilePath, GLuint& textureID) {
+    console.addLog("Loading model from custom format: " + relativeFilePath);
+
+    // Construct full path
+    std::string currentPath = std::filesystem::current_path().string();
+    std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
+    std::string filePath = (projectPath / relativeFilePath).string();
+
+    if (!std::filesystem::exists(filePath)) {
+        console.addLog("Custom format model does not exist: " + filePath);
+        return {};
+    }
+
+    // Try to load corresponding texture
+    std::filesystem::path modelPath(filePath);
+    std::filesystem::path texturePath = "Library/Textures/" + modelPath.stem().string() + ".png";
+
+    if (std::filesystem::exists(texturePath)) {
+        textureID = loadTexture(texturePath.string());
+        console.addLog("Texture found & loaded: " + texturePath.string());
+    }
+    else {
+        console.addLog("Texture not found for " + filePath);
+        textureID = 0;
+    }
+
+    // Load meshes from .dat file
+    return loadCustomFormat(filePath);
 }
 
 // Loads an FBX model and its corresponding texture
 std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
     console.addLog("Loading model FBX: " + relativeFilePath);
+
     // Gets the absolute path to the FBX file
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
-    std::string filePath = (relativeFilePath);
+    std::string filePath = (projectPath / relativeFilePath).string();
 
     if (!std::filesystem::exists(filePath)) {
-        throw std::runtime_error("FBX does not exist: " + filePath);
+        console.addLog("FBX does not exist: " + filePath);
+        return {};
     }
 
     auto start = std::chrono::high_resolution_clock::now();
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
+
     if (!scene) {
-        throw std::runtime_error("Error loading FBX: " + std::string(importer.GetErrorString()));
+        console.addLog("Error loading FBX: " + std::string(importer.GetErrorString()));
+        return {};
     }
 
     console.addLog("Model loaded with success, number of meshes: " + scene->mNumMeshes);

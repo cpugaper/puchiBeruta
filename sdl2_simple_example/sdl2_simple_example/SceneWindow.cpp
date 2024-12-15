@@ -29,7 +29,7 @@ void SceneWindow::render() {
             if (obj->intersectsRay(ray, t)) {
                 // Si el rayo interseca el objeto, seleccionarlo
                 variables->window->selectedObject = obj;
-                console.addLog("He seleccionado un objeto de la escena");
+                console.addLog("Selected scene object");
                 break; // Solo seleccionamos el primer objeto con el que interseca el rayo
             }
         }
@@ -41,7 +41,7 @@ void SceneWindow::render() {
 
     // Drag & Drop Management
     if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetFile")) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("LibraryFile")) {
             const char* droppedFilePath = (const char*)payload->Data;
             if (droppedFilePath) {
                 renderer.HandleDroppedFile(droppedFilePath);
