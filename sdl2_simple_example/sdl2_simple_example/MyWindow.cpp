@@ -383,7 +383,7 @@ void MyWindow::createMainMenu() {
                 ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
                 ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
             }*/
-            if (ImGui::CollapsingHeader("Object Settings")) {
+            /*if (ImGui::CollapsingHeader("Object Settings")) {
                 GameObject* selectedObject = variables->window->selectedObject;
                 if (selectedObject) {
                     char nameBuffer[256];
@@ -396,7 +396,7 @@ void MyWindow::createMainMenu() {
                 else {
                     ImGui::Text("No object selected");
                 }
-            }
+            }*/
 
             ImGui::Separator();
 

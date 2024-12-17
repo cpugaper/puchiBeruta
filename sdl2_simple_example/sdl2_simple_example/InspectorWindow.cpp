@@ -19,6 +19,15 @@ bool areNormalsEqual(const glm::vec3& n1, const glm::vec3& n2, float epsilon = 0
 void InspectorWindow::render(GameObject* selectedObject) {
     ImGui::Begin("Inspector", nullptr);
     if (selectedObject) {
+        //GameObject* selectedObject = variables->window->selectedObject;
+        if (selectedObject) {
+            char nameBuffer[256];
+            strncpy_s(nameBuffer, selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
+
+            if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
+                selectedObject->name = std::string(nameBuffer);
+            }
+        }
         ImGui::Text("Transform");
 
         glm::vec3 position = selectedObject->getPosition();
