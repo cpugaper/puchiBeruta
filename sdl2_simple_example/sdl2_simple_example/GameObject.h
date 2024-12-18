@@ -10,7 +10,7 @@
 #include <cereal/types/string.hpp>
 #include <cereal/archives/json.hpp>
 #include <GL/glew.h>
-#include "Ray.h"
+
 struct MeshData {
     std::string name;
     std::vector<GLfloat> vertices;
@@ -86,7 +86,6 @@ public:
 
     void resetTransform();
 
-    bool intersectsRay(const Ray& ray, float& t);
    /* MeshData toMeshData() const {
         MeshData meshData;
         meshData.name = this->name;

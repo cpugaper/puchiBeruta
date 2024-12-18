@@ -27,11 +27,9 @@ public:
 
 	void applyCameraTransformations();
 
-
-	glm::mat4 getViewMatrix() const;
-	glm::vec3 getForwardDirection() const;
-	glm::mat4 getProjectionMatrix(float aspectRatio) const; 
-	Ray getMouseRay(float mouseX, float mouseY, float width, float height);
+	Ray getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight);
+	void checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight);
+	
 private:
 	glm::vec3 position;
 	float angleX, angleY;

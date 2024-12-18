@@ -84,6 +84,9 @@ void Camera::processMouseButtonDown(const SDL_MouseButtonEvent& button) {
     if (button.button == SDL_BUTTON_RIGHT) {
         isRightMouseDragging = true;
     }
+    if (button.button == SDL_BUTTON_LEFT) {
+        checkRaycast(button.x, button.y, variables->window->width(), variables->window->height());// variables->windowWidth, variables->windowHeight);//screenWidth, screenHeight);
+    }
 }
 
 void Camera::processMouseButtonUp(const SDL_MouseButtonEvent& button) {
@@ -117,49 +120,56 @@ void Camera::applyCameraTransformations() {
     glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f);
 }
 
-glm::mat4 Camera::getViewMatrix() const {
-    return glm::lookAt(position, position + getForwardDirection(), glm::vec3(0.0f, 1.0f, 0.0f));
+Ray Camera::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight) {
+    console.addLog("Entra funcion getrayfrommouse");
+    console.addLog("X: " + mouseX); 
+    console.addLog("Y: " + mouseY);
+    // Convertir las coordenadas del mouse a coordenadas normalizadas (NDC)
+    float x = (2.0f * mouseX) / screenWidth - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / screenHeight;  // Invertimos el eje Y
+
+    // Obtener la matriz de proyección inversa y vista inversa
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+    glm::mat4 view = glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glm::mat4 inverseProjectionView = glm::inverse(projection * view);
+
+    // Proyectar el punto del ratón hacia un rayo en el espacio 3D
+    glm::vec4 clipSpacePos(x, y, -1.0f, 1.0f);
+    glm::vec4 worldPos = inverseProjectionView * clipSpacePos;
+
+    glm::vec3 rayDirection = glm::normalize(glm::vec3(worldPos) - position);
+    return Ray(position, rayDirection);
 }
+// Método que verifica si el rayo interseca con algún objeto en la escena
+void Camera::checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight) {
+    Ray ray = getRayFromMouse(mouseX, mouseY, screenWidth, screenHeight);
 
-glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const {
-    return glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
-}
+    for (auto& obj : variables->window->gameObjects) {
+        MeshData* meshData = obj->getMeshData();
+        if (meshData) {
+            for (size_t i = 0; i < meshData->indices.size(); i += 3) {
+                glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
+                glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
+                glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
+                
+                glm::vec3 edge1 = vertex2 - vertex1;
+                glm::vec3 edge2 = vertex3 - vertex1;
+                glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
 
-glm::vec3 Camera::getForwardDirection() const {
-    // La dirección hacia adelante se calcula como un vector usando los ángulos de rotación de la cámara.
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angleY), glm::vec3(0.0f, 1.0f, 0.0f)); // rotación alrededor del eje Y
-    rotationMatrix = glm::rotate(rotationMatrix, glm::radians(angleX), glm::vec3(1.0f, 0.0f, 0.0f)); // rotación alrededor del eje X
+               /* ImGui::Text("Triangle %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
 
-    // Dirección hacia adelante (inicialmente [0.0, 0.0, -1.0], es decir, mirando hacia el eje Z negativo)
-    glm::vec4 forward = rotationMatrix * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+                std::string normalKey = std::to_string(faceNormal.x) + "," + std::to_string(faceNormal.y) + "," + std::to_string(faceNormal.z);
+*/
 
-    return glm::vec3(forward);
-}
-
-Ray Camera::getMouseRay(float mouseX, float mouseY, float width, float height) {
-    glm::mat4 projection = getProjectionMatrix(width / height);
-    glm::mat4 view = getViewMatrix();
-    
-    // Normalizamos las coordenadas del mouse a valores de [-1, 1]
-    glm::vec4 mouseClipSpace = glm::vec4(
-        (mouseX / width) * 2.0f - 1.0f,
-        1.0f - (mouseY / height) * 2.0f,
-        -1.0f, 1.0f
-    );
-
-    // Invertimos las matrices de vista y proyección
-    glm::mat4 invProjection = glm::inverse(projection);
-    glm::mat4 invView = glm::inverse(view);
-    
-    // Convertimos las coordenadas de la pantalla a espacio de mundo
-    glm::vec4 worldSpaceRay = invProjection * mouseClipSpace;
-    worldSpaceRay = invView * glm::vec4(worldSpaceRay.x, worldSpaceRay.y, -1.0f, 0.0f);
-
-    // El rayo comienza en la cámara y tiene una dirección que apunta hacia el objeto
-    glm::vec3 rayOrigin = position;
-    glm::vec3 rayDirection = glm::normalize(glm::vec3(worldSpaceRay));
-
-    console.addLog("gettingmouseray - rayorigin: x = " + std::to_string(rayOrigin.x) + ", y = " + std::to_string(rayOrigin.y) + ", z = " + std::to_string(rayOrigin.z)); 
-
-    return Ray(rayOrigin, rayDirection);
+                float t = 0.0f;
+                if (ray.intersectsTriangle(vertex1, vertex2, vertex3, t)) {
+                    console.addLog("Objeto seleccionado: " + obj->getName());
+                    console.addLog("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ");
+                    variables->window->selectedObjects.push_back(obj);
+                    break;
+                }
+            }
+        }
+    }
 }
