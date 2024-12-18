@@ -6,7 +6,6 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/base_class.hpp> 
 #include <cereal/archives/json.hpp>
-#include "Ray.h"
 
 class Camera {
 public:
@@ -27,11 +26,9 @@ public:
 
 	void applyCameraTransformations();
 
-	Ray getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight);
-	void checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight);
-	
+	glm::vec3 position; 
 private:
-	glm::vec3 position;
+	
 	float angleX, angleY;
 	float objectAngleX, objectAngleY;
 	float speed;

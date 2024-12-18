@@ -5,8 +5,10 @@
 #include "ConsoleWindow.h"
 #include "MyWindow.h"
 #include "Ray.h"
+#include "SceneWindow.h"
 
 Camera camera;
+extern SceneWindow sceneWindow;
 
 // Initializes variables related to the position and movement of the camera
 Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
@@ -85,7 +87,7 @@ void Camera::processMouseButtonDown(const SDL_MouseButtonEvent& button) {
         isRightMouseDragging = true;
     }
     if (button.button == SDL_BUTTON_LEFT) {
-        checkRaycast(button.x, button.y, variables->window->width(), variables->window->height());// variables->windowWidth, variables->windowHeight);//screenWidth, screenHeight);
+        sceneWindow.checkRaycast(button.x, button.y, variables->window->width(), variables->window->height());// variables->windowWidth, variables->windowHeight);//screenWidth, screenHeight);
     }
 }
 
@@ -118,58 +120,4 @@ void Camera::applyCameraTransformations() {
     glTranslatef(position.x, position.y, position.z);
     glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
     glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f);
-}
-
-Ray Camera::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight) {
-    console.addLog("Entra funcion getrayfrommouse");
-    console.addLog("X: " + mouseX); 
-    console.addLog("Y: " + mouseY);
-    // Convertir las coordenadas del mouse a coordenadas normalizadas (NDC)
-    float x = (2.0f * mouseX) / screenWidth - 1.0f;
-    float y = 1.0f - (2.0f * mouseY) / screenHeight;  // Invertimos el eje Y
-
-    // Obtener la matriz de proyección inversa y vista inversa
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
-    glm::mat4 view = glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    glm::mat4 inverseProjectionView = glm::inverse(projection * view);
-
-    // Proyectar el punto del ratón hacia un rayo en el espacio 3D
-    glm::vec4 clipSpacePos(x, y, -1.0f, 1.0f);
-    glm::vec4 worldPos = inverseProjectionView * clipSpacePos;
-
-    glm::vec3 rayDirection = glm::normalize(glm::vec3(worldPos) - position);
-    return Ray(position, rayDirection);
-}
-// Método que verifica si el rayo interseca con algún objeto en la escena
-void Camera::checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight) {
-    Ray ray = getRayFromMouse(mouseX, mouseY, screenWidth, screenHeight);
-
-    for (auto& obj : variables->window->gameObjects) {
-        MeshData* meshData = obj->getMeshData();
-        if (meshData) {
-            for (size_t i = 0; i < meshData->indices.size(); i += 3) {
-                glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
-                glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
-                glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
-                
-                glm::vec3 edge1 = vertex2 - vertex1;
-                glm::vec3 edge2 = vertex3 - vertex1;
-                glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
-
-               /* ImGui::Text("Triangle %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
-
-                std::string normalKey = std::to_string(faceNormal.x) + "," + std::to_string(faceNormal.y) + "," + std::to_string(faceNormal.z);
-*/
-
-                float t = 0.0f;
-                if (ray.intersectsTriangle(vertex1, vertex2, vertex3, t)) {
-                    console.addLog("Objeto seleccionado: " + obj->getName());
-                    console.addLog("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ");
-                    variables->window->selectedObjects.push_back(obj);
-                    break;
-                }
-            }
-        }
-    }
 }
