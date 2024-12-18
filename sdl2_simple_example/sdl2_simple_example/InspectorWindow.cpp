@@ -23,6 +23,8 @@ void InspectorWindow::render(GameObject* selectedObject) {
         if (selectedObject) {
             char nameBuffer[256];
             strncpy_s(nameBuffer, selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
+            
+            nameBuffer[sizeof(nameBuffer) - 1] = '\0';  // Asegura la terminación nula
 
             if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
                 selectedObject->name = std::string(nameBuffer);
