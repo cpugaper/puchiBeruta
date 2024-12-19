@@ -24,32 +24,20 @@ Importer::Importer() {
 
 Importer::~Importer() {}
 
-//void Importer::saveScene(const std::string& outputPath, const std::vector<MeshData>& meshes) {
-//    std::ofstream outFile(outputPath);
-//    if (!outFile) {
-//        std::cerr << "Error opening file for writing: " << outputPath << std::endl;
-//        return;
-//    }
-//
-//    cereal::JSONOutputArchive archive(outFile);
-//    archive(CEREAL_NVP(meshes));  
-//    std::cout << "Scene saved with success in: " << outputPath << std::endl;
-//}
-//
-//// Función para cargar la escena
-//std::vector<MeshData> Importer::loadScene(const std::string& inputPath) {
-//    std::ifstream inFile(inputPath);
-//    if (!inFile) {
-//        std::cerr << "Error opening file for reading: " << inputPath << std::endl;
-//        return {};
-//    }
-//
-//    cereal::JSONInputArchive archive(inFile);
-//    std::vector<MeshData> meshes;
-//    archive(CEREAL_NVP(meshes));  
-//    std::cout << "Scene loaded with success in: " << inputPath << std::endl;
-//    return meshes;
-//}
+void Importer::saveScene(const std::string& outputPath, const std::vector<GameObject*>& gameObjects) {
+    std::ofstream outFile(outputPath);
+    if (!outFile) {
+        console.addLog("Error opening file for writing: " + outputPath);
+        return;
+    }
+
+    cereal::JSONOutputArchive archive(outFile);
+    for (const auto& obj : gameObjects) {
+        archive(*obj);
+    }
+
+    console.addLog("Scene saved with success in: " + outputPath);
+}
 
 void Importer::initDevIL() {
     ilInit();

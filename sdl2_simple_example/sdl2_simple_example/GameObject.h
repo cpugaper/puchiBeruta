@@ -26,25 +26,26 @@ struct MeshData {
 };
 
 // To be able to serialize glm::vec3 & glm::mat4
-//namespace glm {
-//    template <class Archive>
-//    void serialize(Archive& archive, glm::vec3& vec) {
-//        archive(CEREAL_NVP(vec.x), CEREAL_NVP(vec.y), CEREAL_NVP(vec.z));
-//    }
-//
-//    template <class Archive>
-//    void serialize(Archive& archive, glm::mat4& mat) {
-//        for (int i = 0; i < 4; ++i) {
-//            for (int j = 0; j < 4; ++j) {
-//                archive(CEREAL_NVP(mat[i][j]));
-//            }
-//        }
-//    }
-//}
+namespace glm {
+    template <class Archive>
+    void serialize(Archive& archive, glm::vec3& vec) {
+        archive(CEREAL_NVP(vec.x), CEREAL_NVP(vec.y), CEREAL_NVP(vec.z));
+    }
+
+    template <class Archive>
+    void serialize(Archive& archive, glm::mat4& mat) {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                archive(CEREAL_NVP(mat[i][j]));
+            }
+        }
+    }
+}
 
 class GameObject {
 public:
     static std::vector<GameObject*> gameObjects;
+    std::vector<std::string> pendingChildUUIDs;
 
     std::string uuid;
     std::string name;
@@ -64,6 +65,9 @@ public:
     glm::mat4 globalTransform;
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
+
+    void SaveToJson(const std::string& filePath) const;
+    void LoadFromJson(const std::string& filePath);
 
     // PARENTING
     void addChild(GameObject* child);
@@ -100,6 +104,8 @@ public:
 
     MeshData* getMeshData() { return &meshData; }
     void setMeshData(const MeshData& data) { meshData = data; }
+    template<class Archive>
+    void serialize(Archive& archive);
 };
 
 #endif // GAMEOBJECT_H

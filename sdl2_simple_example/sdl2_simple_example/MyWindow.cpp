@@ -46,6 +46,9 @@ static bool showAboutWindow = false;
 static bool showGithubWindow = false;
 static bool showConfig = false;
 
+static bool showSaveScenePopup = false;
+static char sceneNameBuffer[256] = "";
+
 static bool darkTheme = true;
 static bool lightTheme = false;
 static bool winterTheme = false;
@@ -271,24 +274,10 @@ void MyWindow::createMainMenu() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Save Scene")) {
-                /* std::string filePath = "scene.json";
-                 std::vector<MeshData> meshes;
-
-                 for (GameObject* obj : gameObjects) {
-                     meshes.push_back(obj->toMeshData());
-                 }
-
-                 importer.saveScene(filePath, meshes); */
+                showSaveScenePopup = true;
             }
             if (ImGui::MenuItem("Load Scene")) {
-                //  std::string filePath = "scene.json";  
-                //  std::vector<MeshData> meshes = importer.loadScene(filePath);  
 
-                //  gameObjects.clear();
-                //  for (const MeshData& mesh : meshes) {
-                //      GameObject* obj = new GameObject(mesh.name, mesh, 0);
-                //      gameObjects.push_back(obj);
-                //  }
             }
             ImGui::EndMenu();
         }
@@ -477,6 +466,38 @@ void MyWindow::createMainMenu() {
                 showGithubWindow = false;
             }
             ImGui::End();
+        }
+
+        if (showSaveScenePopup) {
+            ImGui::OpenPopup("Save Scene");
+        }
+        if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::InputText("Scene Name", sceneNameBuffer, IM_ARRAYSIZE(sceneNameBuffer));
+
+            if (ImGui::Button("Save")) {
+                if (strlen(sceneNameBuffer) > 0) {
+                    std::string directory = "Assets/Scenes";
+                    if (!std::filesystem::exists(directory)) {
+                        std::filesystem::create_directories(directory);
+                    }
+                    std::string filePath = directory + "/" + sceneNameBuffer + ".json";
+                    importer.saveScene(filePath, gameObjects);
+                    showSaveScenePopup = false; 
+                    ImGui::CloseCurrentPopup();
+                }
+                else {
+                    ImGui::Text("Please enter a valid scene name.");
+                }
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                showSaveScenePopup = false; 
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
         }
     }
 }
