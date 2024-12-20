@@ -6,6 +6,7 @@
 #include "imgui_impl_opengl3.h"
 #include <SDL2/SDL_opengl.h>
 #include <vector>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -45,6 +46,12 @@ ImGuiIO* g_io = nullptr;
 static bool showAboutWindow = false;
 static bool showGithubWindow = false;
 static bool showConfig = false;
+
+bool showLoadScenePopup = false;
+std::vector<std::string> availableScenes;
+
+static bool showSaveScenePopup = false;
+static char sceneNameBuffer[256] = "";
 
 static bool darkTheme = true;
 static bool lightTheme = false;
@@ -266,29 +273,28 @@ void MyWindow::selectObject(GameObject* obj) {
     }
 }
 
+void MyWindow::listAvailableScenes() {
+    availableScenes.clear();
+    std::string directory = "Assets/Scenes";
+
+    if (std::filesystem::exists(directory)) {
+        for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                availableScenes.push_back(entry.path().filename().string());
+            }
+        }
+    }
+}
 
 void MyWindow::createMainMenu() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Save Scene")) {
-                /* std::string filePath = "scene.json";
-                 std::vector<MeshData> meshes;
-
-                 for (GameObject* obj : gameObjects) {
-                     meshes.push_back(obj->toMeshData());
-                 }
-
-                 importer.saveScene(filePath, meshes); */
+                showSaveScenePopup = true;
             }
             if (ImGui::MenuItem("Load Scene")) {
-                //  std::string filePath = "scene.json";  
-                //  std::vector<MeshData> meshes = importer.loadScene(filePath);  
-
-                //  gameObjects.clear();
-                //  for (const MeshData& mesh : meshes) {
-                //      GameObject* obj = new GameObject(mesh.name, mesh, 0);
-                //      gameObjects.push_back(obj);
-                //  }
+                listAvailableScenes();
+                showLoadScenePopup = true;
             }
             ImGui::EndMenu();
         }
@@ -383,7 +389,7 @@ void MyWindow::createMainMenu() {
                 ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
                 ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
             }*/
-            if (ImGui::CollapsingHeader("Object Settings")) {
+            /*if (ImGui::CollapsingHeader("Object Settings")) {
                 GameObject* selectedObject = variables->window->selectedObject;
                 if (selectedObject) {
                     char nameBuffer[256];
@@ -396,7 +402,7 @@ void MyWindow::createMainMenu() {
                 else {
                     ImGui::Text("No object selected");
                 }
-            }
+            }*/
 
             ImGui::Separator();
 
@@ -477,6 +483,64 @@ void MyWindow::createMainMenu() {
                 showGithubWindow = false;
             }
             ImGui::End();
+        }
+
+        if (showSaveScenePopup) {
+            ImGui::OpenPopup("Save Scene");
+        }
+        if (ImGui::BeginPopupModal("Save Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::InputText("Scene Name", sceneNameBuffer, IM_ARRAYSIZE(sceneNameBuffer));
+
+            if (ImGui::Button("Save")) {
+                if (strlen(sceneNameBuffer) > 0) {
+                    std::string directory = "Assets/Scenes";
+                    if (!std::filesystem::exists(directory)) {
+                        std::filesystem::create_directories(directory);
+                    }
+                    std::string filePath = directory + "/" + sceneNameBuffer + ".json";
+                    importer.saveScene(filePath, gameObjects);
+                    showSaveScenePopup = false; 
+                    ImGui::CloseCurrentPopup();
+                }
+                else {
+                    ImGui::Text("Please enter a valid scene name.");
+                }
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                showSaveScenePopup = false; 
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        if (showLoadScenePopup) {
+            ImGui::OpenPopup("Load Scene");
+        }
+        if (ImGui::BeginPopupModal("Load Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Select a scene to load:");
+            ImGui::Separator();
+
+            for (const auto& scene : availableScenes) {
+                if (ImGui::Selectable(scene.c_str())) {
+                    std::string filePath = "Assets/Scenes/" + scene;
+                    importer.loadScene(filePath, gameObjects);
+                    showLoadScenePopup = false; 
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Close")) {
+                showLoadScenePopup = false; 
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
         }
     }
 }

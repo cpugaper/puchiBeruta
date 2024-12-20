@@ -1,7 +1,7 @@
 #include "HierarchyWindow.h"
 #include <SDL2/SDL_events.h>
 
-void HierarchyWindow::deleteSelectedObjects(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects) {
+void HierarchyWindow::deleteSelectedObjects(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject) {
     std::vector<GameObject*> objectsToDelete = selectedObjects;
 
     for (auto it = objectsToDelete.begin(); it != objectsToDelete.end();) {
@@ -14,6 +14,10 @@ void HierarchyWindow::deleteSelectedObjects(std::vector<GameObject*>& gameObject
     }
 
     for (GameObject* obj : objectsToDelete) {
+        if (obj == selectedObject) {
+            selectedObject = nullptr; 
+        }
+
         if (obj->parent) {
             obj->parent->removeChild(obj);
         }
@@ -40,7 +44,7 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
         if (keyboardState[SDL_SCANCODE_DELETE]) {
-            deleteSelectedObjects(gameObjects, selectedObjects);
+            deleteSelectedObjects(gameObjects, selectedObjects, selectedObject);
         }
 
         std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {

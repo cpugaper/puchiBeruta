@@ -5,7 +5,6 @@
 #include <sstream>
 #include <random>
 #include <fstream>
-#include <cereal/archives/json.hpp>
 #include "Importer.h"
 #include "ConsoleWindow.h"
 
@@ -153,35 +152,4 @@ void GameObject::resetTransform() {
     position = initialPosition;
     rotation = initialRotation;
     scale = initialScale;
-}
-
-bool GameObject::intersectsRay(const Ray& ray, float& t) {
-    // AABB de este objeto
-    glm::vec3 min = position - (scale / 2.0f);
-    glm::vec3 max = position + (scale / 2.0f);
-
-    float tmin = (min.x - ray.origin.x) / ray.direction.x;
-    float tmax = (max.x - ray.origin.x) / ray.direction.x;
-
-    if (tmin > tmax) std::swap(tmin, tmax);
-
-    float tymin = (min.y - ray.origin.y) / ray.direction.y;
-    float tymax = (max.y - ray.origin.y) / ray.direction.y;
-
-    if (tymin > tymax) std::swap(tymin, tymax);
-
-    if ((tmin > tymax) || (tymin > tmax)) return false;
-
-    if (tymin > tmin) tmin = tymin;
-    if (tymax < tmax) tmax = tymax;
-
-    float tzmin = (min.z - ray.origin.z) / ray.direction.z;
-    float tzmax = (max.z - ray.origin.z) / ray.direction.z;
-
-    if (tzmin > tzmax) std::swap(tzmin, tzmax);
-
-    if ((tmin > tzmax) || (tzmin > tmax)) return false;
-
-    t = tmin; // El valor de t donde se produce la intersección
-    return true;
 }

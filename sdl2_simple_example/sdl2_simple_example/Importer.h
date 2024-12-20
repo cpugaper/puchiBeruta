@@ -12,7 +12,10 @@ public:
 
     Importer();
     ~Importer();
-    //void saveScene(const std::string& outputPath, const std::vector<GameObject*>& gameObjects);
+
+    void saveScene(const std::string& outputPath, const std::vector<GameObject*>& gameObjects);
+    void loadScene(const std::string& inputPath, std::vector<GameObject*>& gameObjects);
+
     std::vector<MeshData> loadModelFromCustomFormat(const std::string& relativeFilePath, GLuint& textureID);
     std::vector<MeshData> loadFBX(const std::string& relativefilePath, GLuint& textureID);
     GLuint loadTexture(const std::string& texturePath);
@@ -24,8 +27,6 @@ public:
     std::vector<MeshData> loadCustomFormat(const std::string& inputPath);
 
     void getTextureDimensions(GLuint textureID, int& width, int& height);
-    /*void saveScene(const std::string& outputPath, const std::vector<MeshData>& meshes);
-    std::vector<MeshData> loadScene(const std::string& inputPath);*/
 
 private:
     void initDevIL();
