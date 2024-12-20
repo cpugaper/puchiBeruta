@@ -6,6 +6,7 @@
 #include "imgui_impl_opengl3.h"
 #include <SDL2/SDL_opengl.h>
 #include <vector>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -45,6 +46,9 @@ ImGuiIO* g_io = nullptr;
 static bool showAboutWindow = false;
 static bool showGithubWindow = false;
 static bool showConfig = false;
+
+bool showLoadScenePopup = false;
+std::vector<std::string> availableScenes;
 
 static bool showSaveScenePopup = false;
 static char sceneNameBuffer[256] = "";
@@ -269,6 +273,18 @@ void MyWindow::selectObject(GameObject* obj) {
     }
 }
 
+void MyWindow::listAvailableScenes() {
+    availableScenes.clear();
+    std::string directory = "Assets/Scenes";
+
+    if (std::filesystem::exists(directory)) {
+        for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                availableScenes.push_back(entry.path().filename().string());
+            }
+        }
+    }
+}
 
 void MyWindow::createMainMenu() {
     if (ImGui::BeginMainMenuBar()) {
@@ -277,7 +293,8 @@ void MyWindow::createMainMenu() {
                 showSaveScenePopup = true;
             }
             if (ImGui::MenuItem("Load Scene")) {
-
+                listAvailableScenes();
+                showLoadScenePopup = true;
             }
             ImGui::EndMenu();
         }
@@ -494,6 +511,32 @@ void MyWindow::createMainMenu() {
 
             if (ImGui::Button("Cancel")) {
                 showSaveScenePopup = false; 
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        if (showLoadScenePopup) {
+            ImGui::OpenPopup("Load Scene");
+        }
+        if (ImGui::BeginPopupModal("Load Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Select a scene to load:");
+            ImGui::Separator();
+
+            for (const auto& scene : availableScenes) {
+                if (ImGui::Selectable(scene.c_str())) {
+                    std::string filePath = "Assets/Scenes/" + scene;
+                    importer.loadScene(filePath, gameObjects);
+                    showLoadScenePopup = false; 
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Close")) {
+                showLoadScenePopup = false; 
                 ImGui::CloseCurrentPopup();
             }
 

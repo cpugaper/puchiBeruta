@@ -19,10 +19,10 @@ struct MeshData {
     std::vector<GLfloat> normals;
     glm::mat4 transform;
 
-    /*  template <class Archive>
-      void serialize(Archive& archive) {
-          archive(CEREAL_NVP(name), CEREAL_NVP(vertices), CEREAL_NVP(indices), CEREAL_NVP(textCoords), CEREAL_NVP(transform));
-      }*/
+    template <class Archive>
+    void serialize(Archive& archive) {
+        archive(CEREAL_NVP(name), CEREAL_NVP(vertices), CEREAL_NVP(indices), CEREAL_NVP(textCoords), CEREAL_NVP(transform));
+    }
 };
 
 // To be able to serialize glm::vec3 & glm::mat4
@@ -44,30 +44,29 @@ namespace glm {
 
 class GameObject {
 public:
-    static std::vector<GameObject*> gameObjects;
-    std::vector<std::string> pendingChildUUIDs;
+   
 
     std::string uuid;
     std::string name;
-    std::vector<GameObject*> children;
-    GameObject* parent = nullptr;
-    MeshData meshData;
-    GLuint textureID;
-
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
+
+    MeshData meshData;
+    GLuint textureID;
 
     glm::vec3 initialPosition;
     glm::vec3 initialRotation;
     glm::vec3 initialScale;
 
+    static std::vector<GameObject*> gameObjects;
+    std::vector<std::string> pendingChildUUIDs;
+    std::vector<GameObject*> children;
+    GameObject* parent = nullptr;
+
     glm::mat4 globalTransform;
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
-
-    void SaveToJson(const std::string& filePath) const;
-    void LoadFromJson(const std::string& filePath);
 
     // PARENTING
     void addChild(GameObject* child);
@@ -90,22 +89,44 @@ public:
 
     void resetTransform();
 
-   /* MeshData toMeshData() const {
-        MeshData meshData;
-        meshData.name = this->name;
-        meshData.vertices = this->meshData.vertices;  
-        meshData.indices = this->meshData.indices;   
-        meshData.textCoords = this->meshData.textCoords;
-        meshData.transform = getTransformMatrix();    
-        return meshData;
-    }*/
-
     static std::string GenerateUUID();
 
     MeshData* getMeshData() { return &meshData; }
     void setMeshData(const MeshData& data) { meshData = data; }
-    template<class Archive>
-    void serialize(Archive& archive);
+
+    template <class Archive>
+    void serialize(Archive& archive) {
+        archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale), CEREAL_NVP(meshData), CEREAL_NVP(textureID));
+
+        std::vector<std::string> childUUIDs;
+        if constexpr (Archive::is_saving::value) {
+            childUUIDs.reserve(children.size());
+            for (const auto& child : children) {
+                childUUIDs.push_back(child->uuid);
+            }
+        }
+        archive(CEREAL_NVP(childUUIDs));
+
+        if constexpr (Archive::is_loading::value) {
+            pendingChildUUIDs = childUUIDs;
+        }
+    }
 };
+
+// To work with cereal 
+struct GameObjectWrapper {
+    GameObject* ptr;
+    GameObjectWrapper(GameObject* p = nullptr) : ptr(p) {}
+    template <class Archive>
+    void serialize(Archive& ar);
+};
+
+template <class Archive>
+void GameObjectWrapper::serialize(Archive& ar) {
+    if (ptr == nullptr) {
+        ptr = new GameObject("TempName", MeshData(), 0);
+    }
+    ar(*ptr);
+}
 
 #endif // GAMEOBJECT_H

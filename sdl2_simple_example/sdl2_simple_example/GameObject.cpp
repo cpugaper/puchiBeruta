@@ -29,55 +29,6 @@ std::string GameObject::GenerateUUID() {
     return ss.str();
 }
 
-template <class Archive>
-void GameObject::serialize(Archive& archive) {
-    archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale));
-
-    std::vector<std::string> childUUIDs;
-    if constexpr (Archive::is_saving::value) {
-        for (const auto& child : children) {
-            childUUIDs.push_back(child->uuid);
-        }
-    }
-
-    archive(CEREAL_NVP(childUUIDs));
-
-    if constexpr (Archive::is_loading::value) {
-        pendingChildUUIDs = childUUIDs;
-    }
-}
-
-// Saves GameObject & children in JSON file 
-void GameObject::SaveToJson(const std::string& filePath) const {
-    std::ofstream file(filePath);
-
-    if (file.is_open()) {
-        cereal::JSONOutputArchive archive(file);
-        archive(*this);
-        file.close();
-        console.addLog("GameObject saved to " + filePath);
-    }
-    else {
-        console.addLog("Failed to save GameObject to " + filePath);
-    }
-}
-
-//// Loads GameObject from JSON file
-//void GameObject::LoadFromJson(const std::string& filePath) {
-//    std::ifstream file(filePath);
-//
-//    if (!file.is_open()) {
-//        console.addLog("Failed to load GameObject from " + filePath);
-//        return;
-//    }
-//
-//    cereal::JSONInputArchive archive(file);
-//    archive(*this);
-//    file.close();
-//
-//    console.addLog("GameObject loaded from " + filePath);
-//}
-
 // Adds a child object to the list of children of this object
 void GameObject::addChild(GameObject* child) {
     child->parent = this;

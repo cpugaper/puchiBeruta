@@ -36,6 +36,8 @@ public:
 
 	void selectObject(GameObject* obj);
 
+	void listAvailableScenes();
+
 	void configMyWindow();
 
 	void createDockSpace();
