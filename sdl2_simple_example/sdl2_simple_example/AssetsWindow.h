@@ -1,11 +1,11 @@
-#ifndef PROJECTWINDOW_H
+#ifndef ASSETSWINDOW_H
 
 #include <string>
 #include <vector>
 #include <filesystem>
 #include "GameObject.h"
 
-class ProjectWindow {
+class AssetsWindow {
 public:
     void render();
 
@@ -13,4 +13,4 @@ private:
     std::string selectedFilePath;
 };
 
-#endif // PROJECTWINDOW_H
+#endif // ASSETSWINDOW_H

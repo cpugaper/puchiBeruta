@@ -25,7 +25,7 @@
     <ClCompile Include="SceneWindow.cpp">
       <Filter>Source Files\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectWindow.cpp">
+    <ClCompile Include="AssetsWindow.cpp">
       <Filter>Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="InspectorWindow.cpp">
@@ -69,7 +69,7 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectWindow.h">
+    <ClInclude Include="AssetsWindow.h">
       <Filter>Header Files\Windows</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleWindow.h">

@@ -15,7 +15,7 @@
 #include "Importer.h"
 #include "Renderer.h"
 #include "ConsoleWindow.h"
-#include "ProjectWindow.h"
+#include "AssetsWindow.h"
 #include "InspectorWindow.h"
 #include "HierarchyWindow.h"
 #include "SceneWindow.h"
@@ -38,7 +38,7 @@ extern MyWindow* window;
 InspectorWindow inspectorWindow;
 HierarchyWindow hierarchyWindow;
 ConsoleWindow consoleWindow;
-ProjectWindow projectWindow;
+AssetsWindow assetsWindow;
 SceneWindow sceneWindow;
 
 ImGuiIO* g_io = nullptr;
@@ -242,7 +242,7 @@ void MyWindow::createDockSpace() {
     createMainMenu();
     hierarchyWindow.render(gameObjects, selectedObjects, selectedObject);
     inspectorWindow.render(selectedObject);
-    projectWindow.render();
+    assetsWindow.render();
     sceneWindow.render();
     console.displayConsole();
 
@@ -513,7 +513,6 @@ void MyWindow::createMainMenu() {
                 showSaveScenePopup = false; 
                 ImGui::CloseCurrentPopup();
             }
-
             ImGui::EndPopup();
         }
 
@@ -532,14 +531,12 @@ void MyWindow::createMainMenu() {
                     ImGui::CloseCurrentPopup();
                 }
             }
-
             ImGui::Separator();
 
             if (ImGui::Button("Close")) {
                 showLoadScenePopup = false; 
                 ImGui::CloseCurrentPopup();
             }
-
             ImGui::EndPopup();
         }
     }

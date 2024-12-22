@@ -137,7 +137,7 @@
     <ClCompile Include="InspectorWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyWindow.cpp" />
-    <ClCompile Include="ProjectWindow.cpp" />
+    <ClCompile Include="AssetsWindow.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneWindow.cpp" />
     <ClCompile Include="Variables.cpp" />
@@ -150,7 +150,7 @@
     <ClInclude Include="Importer.h" />
     <ClInclude Include="InspectorWindow.h" />
     <ClInclude Include="MyWindow.h" />
-    <ClInclude Include="ProjectWindow.h" />
+    <ClInclude Include="AssetsWindow.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
