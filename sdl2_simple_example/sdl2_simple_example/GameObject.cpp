@@ -54,7 +54,7 @@ void GameObject::removeChild(GameObject* child) {
 void GameObject::createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects) {
     MeshData meshData;
     GLuint textureID = 0;
-    std::string filePath = "Assets\\Primitives\\";
+    std::string filePath = "sdl2_simple_example/Assets/Primitives/";
 
     if (primitiveType == "Sphere") {
         filePath += "sphere.fbx";

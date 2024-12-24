@@ -19,6 +19,7 @@
 #include "InspectorWindow.h"
 #include "HierarchyWindow.h"
 #include "SceneWindow.h"
+#include "SceneManager.h"
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -30,6 +31,7 @@
 #include <unistd.h>      // To obtain memory in Linux
 #endif
 
+extern SceneManager sceneManager;
 extern Renderer renderer;
 extern Importer importer;
 extern std::vector<GameObject*> gameObjects;
@@ -48,7 +50,8 @@ static bool showGithubWindow = false;
 static bool showConfig = false;
 
 bool showLoadScenePopup = false;
-std::vector<std::string> availableScenes;
+bool showConfirmationPopup = false; 
+std::string selectedSceneToLoad;
 
 static bool showSaveScenePopup = false;
 static char sceneNameBuffer[256] = "";
@@ -273,19 +276,6 @@ void MyWindow::selectObject(GameObject* obj) {
     }
 }
 
-void MyWindow::listAvailableScenes() {
-    availableScenes.clear();
-    std::string directory = "Assets/Scenes";
-
-    if (std::filesystem::exists(directory)) {
-        for (const auto& entry : std::filesystem::directory_iterator(directory)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".json") {
-                availableScenes.push_back(entry.path().filename().string());
-            }
-        }
-    }
-}
-
 void MyWindow::createMainMenu() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -293,14 +283,15 @@ void MyWindow::createMainMenu() {
                 showSaveScenePopup = true;
             }
             if (ImGui::MenuItem("Load Scene")) {
-                listAvailableScenes();
+                sceneManager.listAvailableScenes();
                 showLoadScenePopup = true;
             }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("GameObject")) {
             if (ImGui::MenuItem("Empty Object")) { GameObject::createEmptyObject("Empty", gameObjects); }
-            if (ImGui::MenuItem("Sphere")) { GameObject::createPrimitive("Sphere", gameObjects); }
+            if (ImGui::MenuItem("Sphere")) { 
+                GameObject::createPrimitive("Sphere", gameObjects); }
             if (ImGui::MenuItem("Cube")) { GameObject::createPrimitive("Cube", gameObjects); }
             if (ImGui::MenuItem("Cylinder")) { GameObject::createPrimitive("Cylinder", gameObjects); }
             if (ImGui::MenuItem("Cone")) { GameObject::createPrimitive("Cone", gameObjects); }
@@ -498,7 +489,7 @@ void MyWindow::createMainMenu() {
                         std::filesystem::create_directories(directory);
                     }
                     std::string filePath = directory + "/" + sceneNameBuffer + ".json";
-                    importer.saveScene(filePath, gameObjects);
+                    sceneManager.saveScene(filePath, gameObjects);
                     showSaveScenePopup = false; 
                     ImGui::CloseCurrentPopup();
                 }
@@ -519,25 +510,48 @@ void MyWindow::createMainMenu() {
         if (showLoadScenePopup) {
             ImGui::OpenPopup("Load Scene");
         }
-        if (ImGui::BeginPopupModal("Load Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        if (ImGui::BeginPopupModal("Load Scene", &showLoadScenePopup, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::Text("Select a scene to load:");
             ImGui::Separator();
 
-            for (const auto& scene : availableScenes) {
+            for (const auto& scene : sceneManager.availableScenes) {
                 if (ImGui::Selectable(scene.c_str())) {
-                    std::string filePath = "Assets/Scenes/" + scene;
-                    importer.loadScene(filePath, gameObjects);
-                    showLoadScenePopup = false; 
+                    selectedSceneToLoad = scene;
+                    showConfirmationPopup = true;
+                    console.addLog("Scene selected: " + selectedSceneToLoad);
                     ImGui::CloseCurrentPopup();
                 }
             }
-            ImGui::Separator();
+            ImGui::Separator();      
 
             if (ImGui::Button("Close")) {
                 showLoadScenePopup = false; 
                 ImGui::CloseCurrentPopup();
             }
-            ImGui::EndPopup();
+
+            if (showConfirmationPopup) {
+                ImGui::OpenPopup("Confirm Load");
+            }
+            if (ImGui::BeginPopupModal("Confirm Load", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+                console.addLog("Popup confirm scene opened");
+                ImGui::Text("Current scene will be deleted");
+                ImGui::Text("Are you sure you want to load a new scene?");
+                ImGui::Separator();
+
+                if (ImGui::Button("Yes")) {
+                    std::string filePath = "Assets/Scenes/" + selectedSceneToLoad;
+                    sceneManager.loadScene(filePath, gameObjects);
+                    showConfirmationPopup = false;
+                    showLoadScenePopup = false;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("No")) {
+                    showConfirmationPopup = false;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
         }
     }
 }

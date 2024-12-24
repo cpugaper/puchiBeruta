@@ -139,6 +139,7 @@
     <ClCompile Include="MyWindow.cpp" />
     <ClCompile Include="AssetsWindow.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneWindow.cpp" />
     <ClCompile Include="Variables.cpp" />
   </ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
     <ClInclude Include="resource2.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneWindow.h" />
     <ClInclude Include="Variables.h" />
   </ItemGroup>

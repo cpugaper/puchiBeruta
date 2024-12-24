@@ -13,9 +13,6 @@ public:
     Importer();
     ~Importer();
 
-    void saveScene(const std::string& outputPath, const std::vector<GameObject*>& gameObjects);
-    void loadScene(const std::string& inputPath, std::vector<GameObject*>& gameObjects);
-
     std::vector<MeshData> loadModelFromCustomFormat(const std::string& relativeFilePath, GLuint& textureID);
     std::vector<MeshData> loadFBX(const std::string& relativefilePath, GLuint& textureID);
     GLuint loadTexture(const std::string& texturePath);
