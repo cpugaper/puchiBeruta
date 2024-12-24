@@ -44,8 +44,6 @@ namespace glm {
 
 class GameObject {
 public:
-   
-
     std::string uuid;
     std::string name;
     glm::vec3 position;
@@ -54,6 +52,7 @@ public:
 
     MeshData meshData;
     GLuint textureID;
+    std::string texturePath;
 
     glm::vec3 initialPosition;
     glm::vec3 initialRotation;
@@ -66,7 +65,7 @@ public:
 
     glm::mat4 globalTransform;
 
-    GameObject(const std::string& name, const MeshData& mesh, GLuint texID);
+    GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath = "");
 
     // PARENTING
     void addChild(GameObject* child);
@@ -86,8 +85,10 @@ public:
     void setPosition(const glm::vec3& newPosition);
     void setRotation(const glm::vec3& newRotation);
     void setScale(const glm::vec3& newScale);
-
     void resetTransform();
+
+    void setTexture(const std::string& path, GLuint texID);
+    void loadTextureFromPath();
 
     static std::string GenerateUUID();
 
@@ -96,7 +97,7 @@ public:
 
     template <class Archive>
     void serialize(Archive& archive) {
-        archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale), CEREAL_NVP(meshData), CEREAL_NVP(textureID));
+        archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale), CEREAL_NVP(meshData), CEREAL_NVP(textureID), CEREAL_NVP(texturePath));
 
         std::vector<std::string> childUUIDs;
         if constexpr (Archive::is_saving::value) {

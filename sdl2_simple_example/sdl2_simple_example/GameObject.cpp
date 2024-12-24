@@ -11,8 +11,8 @@
 extern Importer importer;
 std::vector<GameObject> gameObjects;
 
-GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID)
-    : name(name), meshData(mesh), textureID(texID), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
+GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath)
+    : name(name), meshData(mesh), textureID(texID), texturePath(texPath), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
     initialPosition = position;
     initialRotation = rotation;
     initialScale = scale;
@@ -27,6 +27,17 @@ std::string GameObject::GenerateUUID() {
         ss << std::hex << std::setw(2) << std::setfill('0') << byte;
     }
     return ss.str();
+}
+
+void GameObject::setTexture(const std::string& path, GLuint texID) {
+    texturePath = path;
+    textureID = texID;
+}
+
+void GameObject::loadTextureFromPath() {
+    if (!texturePath.empty()) {
+        textureID = importer.loadTexture(texturePath); 
+    }
 }
 
 // Adds a child object to the list of children of this object

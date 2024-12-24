@@ -31,14 +31,6 @@ void SceneManager::saveScene(const std::string& outputPath, const std::vector<Ga
 void SceneManager::loadScene(const std::string& inputPath, std::vector<GameObject*>& gameObjects) {
     std::ifstream inFile(inputPath);
 
-    std::filesystem::path fullPath = std::filesystem::absolute(inputPath);
-    console.addLog("Full path: " + fullPath.string());
-
-    if (!std::filesystem::exists(inputPath)) {
-        console.addLog("File does not exist: " + inputPath);
-        return;
-    }
-
     if (!inFile) {
         console.addLog("Error opening file for reading: " + inputPath);
         return;
@@ -68,6 +60,8 @@ void SceneManager::loadScene(const std::string& inputPath, std::vector<GameObjec
             obj->initialScale = obj->scale;
 
             obj->globalTransform = obj->getTransformMatrix();
+
+            obj->loadTextureFromPath();
 
             console.addLog("Loaded GameObject: " + obj->name + " UUID: " + obj->uuid);
         }
