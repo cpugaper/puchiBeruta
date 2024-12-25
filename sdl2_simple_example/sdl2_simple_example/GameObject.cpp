@@ -19,6 +19,39 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
     console.addLog("GameObject created with UUID: " + uuid);
 }
 
+void GameObject::updateMovement(float deltaTime) {
+    if (movementState == MovementState::Running) {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float elapsedTime = std::chrono::duration<float>(currentTime - startTime).count();
+        float angle = startAngle + angularSpeed * elapsedTime;
+
+        position.x = radius * cos(angle);
+        position.z = radius * sin(angle);
+
+        startTime = currentTime;
+    }
+}
+
+void GameObject::startMovement() {
+    if (movementState == MovementState::Stopped || movementState == MovementState::Paused) {
+        movementState = MovementState::Running;
+        startTime = std::chrono::high_resolution_clock::now();  
+        startAngle = atan2(position.z, position.x);  
+    }
+}
+
+void GameObject::pauseMovement() {
+    if (movementState == MovementState::Running) {
+        movementState = MovementState::Paused;
+    }
+}
+
+void GameObject::stopMovement() {
+    movementState = MovementState::Stopped;
+    resetTransform();
+}
+
+
 // Generate a random UUID to identify each object uniquely
 std::string GameObject::GenerateUUID() {
     std::stringstream ss;
@@ -109,6 +142,22 @@ void GameObject::createEmptyObject(const std::string& name, std::vector<GameObje
     gameObjects.push_back(emptyObject);
     console.addLog("Empty object created");
 }
+
+void GameObject::createDynamicObject(const std::string& name, std::vector<GameObject*>& gameObjects) {
+    createPrimitive("Sphere", gameObjects);
+
+    GameObject* dynamicObject = gameObjects.back();
+    dynamicObject->name = name;
+
+    dynamicObject->movementState = MovementState::Stopped; 
+    dynamicObject->angularSpeed = 0.0f;  
+    dynamicObject->radius = 0.0f; 
+    dynamicObject->startAngle = 0.0f;  
+    dynamicObject->startTime = std::chrono::high_resolution_clock::now(); 
+
+    console.addLog("Dynamic object created: " + name);
+}
+
 
 glm::mat4 GameObject::getTransformMatrix() const {
     glm::mat4 transform = glm::mat4(1.0f);

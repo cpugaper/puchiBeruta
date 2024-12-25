@@ -1,6 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
+#include <chrono>
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
@@ -42,6 +43,12 @@ namespace glm {
     }
 }
 
+enum class MovementState {
+    Stopped,
+    Running,
+    Paused
+};
+
 class GameObject {
 public:
     std::string uuid;
@@ -65,7 +72,19 @@ public:
 
     glm::mat4 globalTransform;
 
+    // Simulation States
+    MovementState movementState;
+    float angularSpeed;
+    float radius;
+    float startAngle;
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath = "");
+
+    void updateMovement(float deltaTime);
+    void startMovement();
+    void pauseMovement();
+    void stopMovement();
 
     // PARENTING
     void addChild(GameObject* child);
@@ -75,6 +94,7 @@ public:
 
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
     static void createEmptyObject(const std::string& name, std::vector<GameObject*>& gameObjects);
+    static void createDynamicObject(const std::string& name, std::vector<GameObject*>& gameObjects);
     glm::mat4 getTransformMatrix() const;
 
     const std::string& getName() const { return name; }
@@ -128,6 +148,6 @@ void GameObjectWrapper::serialize(Archive& ar) {
         ptr = new GameObject("TempName", MeshData(), 0);
     }
     ar(*ptr);
-}
+};
 
 #endif // GAMEOBJECT_H

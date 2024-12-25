@@ -141,6 +141,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneWindow.cpp" />
+    <ClCompile Include="SimulationManager.cpp" />
     <ClCompile Include="Variables.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="resource2.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneWindow.h" />
+    <ClInclude Include="SimulationManager.h" />
     <ClInclude Include="Variables.h" />
   </ItemGroup>
   <ItemGroup>

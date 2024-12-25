@@ -36,7 +36,7 @@ public:
 
 	void selectObject(GameObject* obj);
 
-	void listAvailableScenes();
+	void createControlWindow();
 
 	void configMyWindow();
 

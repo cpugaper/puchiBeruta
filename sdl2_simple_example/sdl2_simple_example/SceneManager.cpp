@@ -106,3 +106,42 @@ void SceneManager::listAvailableScenes() {
     }
 }
 
+void SceneManager::saveSceneState(std::vector<GameObject*>& gameObjects) {
+    initialState.clear(); 
+
+    for (auto& gameObject : gameObjects) {
+        GameObjectState state;
+        state.uuid = gameObject->uuid;
+        state.position = gameObject->position;
+        state.rotation = gameObject->rotation;
+        state.scale = gameObject->scale;
+        state.parentUUID = gameObject->parent ? gameObject->parent->uuid : "";
+
+        initialState.push_back(state);
+    }
+
+    console.addLog("Scene state saved.");
+}
+
+void SceneManager::restoreSceneState(std::vector<GameObject*>& gameObjects) {
+    for (auto& gameObject : gameObjects) {
+        auto it = std::find_if(initialState.begin(), initialState.end(),[&gameObject](const GameObjectState& state) { return state.uuid == gameObject->uuid;});
+
+        if (it != initialState.end()) {
+            const GameObjectState& state = *it;
+
+            gameObject->setPosition(state.position);
+            gameObject->setRotation(state.rotation);
+            gameObject->setScale(state.scale);
+
+            if (!state.parentUUID.empty()) {
+                auto parentIt = std::find_if(gameObjects.begin(), gameObjects.end(),[&state](GameObject* obj) { return obj->uuid == state.parentUUID; });
+                if (parentIt != gameObjects.end()) {
+                    gameObject->parent = *parentIt;
+                }
+            }
+        }
+    }
+
+    console.addLog("Scene state restored.");
+}

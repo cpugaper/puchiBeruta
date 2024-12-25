@@ -3,8 +3,18 @@
 
 #include "GameObject.h"
 #include <filesystem>
+#include <unordered_map>
+#include <glm/vec3.hpp> 
 #include <string>
 #include <vector>
+
+struct GameObjectState {
+    std::string uuid;
+    glm::vec3 position;
+    glm::vec3 rotation;
+    glm::vec3 scale;
+    std::string parentUUID;
+};
 
 class SceneManager {
 public:
@@ -14,7 +24,12 @@ public:
     void loadScene(const std::string& inputPath, std::vector<GameObject*>& gameObjects);
     void listAvailableScenes();
 
+    void saveSceneState(std::vector<GameObject*>& gameObjects);
+    void restoreSceneState(std::vector<GameObject*>& gameObjects);
+
     std::vector<std::string> availableScenes;
+private:
+    std::vector<GameObjectState> initialState;
 };
 
 

@@ -20,6 +20,7 @@
 #include "HierarchyWindow.h"
 #include "SceneWindow.h"
 #include "SceneManager.h"
+#include "SimulationManager.h"
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -59,6 +60,11 @@ static char sceneNameBuffer[256] = "";
 static bool darkTheme = true;
 static bool lightTheme = false;
 static bool winterTheme = false;
+
+bool isGameRunning = false;
+bool isGamePaused = false;
+bool isGameStopped = false;
+bool showControlWindow = false; 
 
 void hideConsoleWindow() {
 #if defined(_WIN32)
@@ -243,6 +249,7 @@ void MyWindow::createDockSpace() {
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
     createMainMenu();
+    createControlWindow();
     hierarchyWindow.render(gameObjects, selectedObjects, selectedObject);
     inspectorWindow.render(selectedObject);
     assetsWindow.render();
@@ -250,6 +257,30 @@ void MyWindow::createDockSpace() {
     console.displayConsole();
 
     ImGui::End();
+}
+
+void MyWindow::createControlWindow() {
+    if (showControlWindow) {
+        ImGui::Begin("Control", &showControlWindow, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
+
+        if (ImGui::Button("Start")) {
+            SimulationManager::simulationManager.startSimulation();
+        }
+
+        ImGui::SameLine();  
+        if (ImGui::Button("Pause")) {
+            SimulationManager::simulationManager.pauseSimulation();
+        }
+
+        ImGui::SameLine();  
+        if (ImGui::Button("Stop")) {
+            SimulationManager::simulationManager.stopSimulation();
+        }
+
+        ImGui::Text("Simulation State: %s", SimulationManager::simulationManager.getStateName(SimulationManager::simulationManager.getState()).c_str());
+
+        ImGui::End();
+    }
 }
 
 // Selects an object in the scene
@@ -290,8 +321,8 @@ void MyWindow::createMainMenu() {
         }
         if (ImGui::BeginMenu("GameObject")) {
             if (ImGui::MenuItem("Empty Object")) { GameObject::createEmptyObject("Empty", gameObjects); }
-            if (ImGui::MenuItem("Sphere")) { 
-                GameObject::createPrimitive("Sphere", gameObjects); }
+            if (ImGui::MenuItem("Dynamic Object")) { GameObject::createDynamicObject("Dynamic", gameObjects);; }
+            if (ImGui::MenuItem("Sphere")) { GameObject::createPrimitive("Sphere", gameObjects); }
             if (ImGui::MenuItem("Cube")) { GameObject::createPrimitive("Cube", gameObjects); }
             if (ImGui::MenuItem("Cylinder")) { GameObject::createPrimitive("Cylinder", gameObjects); }
             if (ImGui::MenuItem("Cone")) { GameObject::createPrimitive("Cone", gameObjects); }
@@ -317,6 +348,12 @@ void MyWindow::createMainMenu() {
                 SDL_Event quit_event;
                 quit_event.type = SDL_QUIT;
                 SDL_PushEvent(&quit_event);
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Game Control")) {
+            if (ImGui::MenuItem("Open Control Popup")) {
+                showControlWindow = true;
             }
             ImGui::EndMenu();
         }
