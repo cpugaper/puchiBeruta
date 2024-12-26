@@ -79,6 +79,8 @@ public:
     float startAngle;
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
+    bool active = true;
+
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath = "");
 
     void updateMovement(float deltaTime);
@@ -114,6 +116,9 @@ public:
 
     MeshData* getMeshData() { return &meshData; }
     void setMeshData(const MeshData& data) { meshData = data; }
+
+    bool getActive() const { return active; }
+    void setActive(bool isActive) { active = isActive; }
 
     template <class Archive>
     void serialize(Archive& archive) {

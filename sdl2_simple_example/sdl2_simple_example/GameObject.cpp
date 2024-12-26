@@ -69,7 +69,13 @@ void GameObject::setTexture(const std::string& path, GLuint texID) {
 
 void GameObject::loadTextureFromPath() {
     if (!texturePath.empty()) {
-        textureID = importer.loadTexture(texturePath); 
+        textureID = importer.loadTexture(texturePath);
+        if (textureID == 0) {
+            console.addLog("Failed to load texture from: " + texturePath);
+        }
+    }
+    else {
+        console.addLog("Texture path is empty for GameObject: " + name);
     }
 }
 
@@ -181,12 +187,6 @@ glm::mat4 GameObject::getFinalTransformMatrix() const {
 }
 
 void GameObject::updateChildTransforms() {
-    glm::vec3 localPosition = position;
-    glm::vec3 localRotation = rotation;
-    glm::vec3 localScale = scale;
-
-    globalTransform = getFinalTransformMatrix();
-
     for (GameObject* child : children) {
         child->position = this->position + child->initialPosition;
         child->rotation = this->rotation + child->initialRotation;

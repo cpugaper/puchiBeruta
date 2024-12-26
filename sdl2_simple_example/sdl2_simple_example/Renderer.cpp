@@ -122,14 +122,16 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
                 (filePath.stem().string() + ".png");
 
             GLuint textureID = 0;
+            std::string texturePathString;
             if (std::filesystem::exists(texturePathPNG)) {
                 textureID = importer.loadTexture(texturePathPNG.string());
+                texturePathString = texturePathPNG.string();
             }
 
             // Crear objetos de juego para cada mesh
             for (size_t i = 0; i < meshes.size(); ++i) {
                 const std::string objectName = getFileName(filePath.string()) + "_" + std::to_string(i);
-                GameObject* newObject = new GameObject(objectName, meshes[i], textureID);
+                GameObject* newObject = new GameObject(objectName, meshes[i], textureID, texturePathString);
                 variables->window->gameObjects.push_back(newObject);
             }
 
@@ -160,11 +162,12 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
     else if (extension == ".png" || extension == ".dds") {
         // Importar textura
         GLuint newTextureID = importer.loadTexture(droppedFile);
-        variables->textureFilePath = filePath.string();
+        std::string textureFilePath = filePath.string();
 
         if (variables->window->selectedObject) {
             variables->window->selectedObject->textureID = newTextureID;
-            console.addLog("Texture applied to selected object.");
+            variables->window->selectedObject->texturePath = textureFilePath;
+            console.addLog("Texture applied to selected object: " + textureFilePath);
         }
         else {
             console.addLog("No object selected to apply the texture.");
@@ -222,6 +225,9 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
 
     // Render every object in the scene
     for (const auto& obj : gameObjects) {
+        if (!obj->getActive()) {
+            continue; 
+        }
         glPushMatrix();
 
         glm::mat4 transform = obj->getTransformMatrix();
