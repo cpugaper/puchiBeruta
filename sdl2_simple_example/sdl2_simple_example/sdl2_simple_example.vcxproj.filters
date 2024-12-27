@@ -88,13 +88,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files\resources</Filter>
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
     <ClInclude Include="resource1.h">
-      <Filter>Header Files\resources</Filter>
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
     <ClInclude Include="resource2.h">
-      <Filter>Header Files\resources</Filter>
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -113,7 +113,7 @@
     <Filter Include="Source Files\Windows">
       <UniqueIdentifier>{d44f9480-316a-4f18-8ae2-a708b7a06513}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\resources">
+    <Filter Include="Header Files\Resources">
       <UniqueIdentifier>{e34cf137-ee90-4c53-af56-32c0c3867fd8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
