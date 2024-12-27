@@ -9,12 +9,51 @@
 #include "Camera.h"
 #include "ConsoleWindow.h"
 #include "MyWindow.h"
+#include "SimulationManager.h"
 
 // Extern variables used in the main code
 extern Renderer renderer;
 extern Camera camera;
+
 void SceneWindow::render() {
-    ImGui::Begin("Scene", nullptr);
+    ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
+
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    ImVec2 windowSize = ImGui::GetWindowSize(); 
+
+    ImVec2 controlPanelSize = ImVec2(windowSize.x, 40); 
+    ImVec2 controlPanelPos = ImVec2(windowPos.x, windowPos.y + 20); 
+
+    ImGui::SetNextWindowPos(controlPanelPos, ImGuiCond_Always);
+    ImGui::SetNextWindowSize(controlPanelSize, ImGuiCond_Always);
+
+    ImGui::Begin("Control Panel", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
+
+    float windowWidth = ImGui::GetWindowWidth();
+    float buttonWidth = 50.0f;
+    float totalButtonWidth = 3 * buttonWidth + 2 * ImGui::GetStyle().ItemSpacing.x;
+    float spacing = (windowWidth - totalButtonWidth) / 2.0f;
+
+    ImGui::Dummy(ImVec2(spacing, 0));
+    ImGui::SameLine();
+
+    if (ImGui::Button("Start", ImVec2(buttonWidth, 0))) {
+        SimulationManager::simulationManager.startSimulation(variables->window->gameObjects);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Pause", ImVec2(buttonWidth, 0))) {
+        SimulationManager::simulationManager.pauseSimulation(variables->window->gameObjects);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Stop", ImVec2(buttonWidth, 0))) {
+        SimulationManager::simulationManager.stopSimulation(variables->window->gameObjects);
+    }
+
+    ImGui::End();
 
     updateSceneSize();
     int mouseX, mouseY;
@@ -24,7 +63,7 @@ void SceneWindow::render() {
         checkRaycast(mouseX, mouseY, framebufferWidth, framebufferHeight);
     }
 
-    // Mostrar la textura de la escena
+    // Show texture on screen
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(framebufferWidth, framebufferHeight));
 

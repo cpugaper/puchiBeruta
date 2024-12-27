@@ -74,9 +74,10 @@ public:
 
     // Simulation States
     MovementState movementState;
-    float angularSpeed;
-    float radius;
-    float startAngle;
+    int movementDirection;
+    float speed;
+    float elapsedPausedTime = 0.0f;
+    std::pair<float, float> movementRange;
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
     bool active = true;

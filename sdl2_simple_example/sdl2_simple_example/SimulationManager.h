@@ -17,18 +17,20 @@ public:
     SimulationManager(std::vector<GameObject*>& gameObjects);
     ~SimulationManager();
 
-    void startSimulation();
-    void pauseSimulation();
-    void stopSimulation();
-    void resetSimulation();
-
-    void update(float deltaTime);
+    void startSimulation(std::vector<GameObject*>& gameObjects);
+    void pauseSimulation(std::vector<GameObject*>& gameObjects);
+    void stopSimulation(std::vector<GameObject*>& gameObjects);
+    void resetSimulation(std::vector<GameObject*>& gameObjects);
+    void update(float deltaTime, std::vector<GameObject*>& gameObjects);
 
     SimulationState getState() const;
     std::string getStateName(SimulationManager::SimulationState state);
 
+    void trackObject(GameObject* obj);
+
 private:
     std::vector<GameObject*> gameObjects;
+    std::vector<GameObject*> temporaryObjects;
     SimulationState currentState;
     SceneManager sceneManager; 
 };

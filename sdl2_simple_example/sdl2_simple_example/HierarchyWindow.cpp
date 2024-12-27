@@ -1,7 +1,13 @@
 #include "HierarchyWindow.h"
+#include "SimulationManager.h"
 #include <SDL2/SDL_events.h>
 
 void HierarchyWindow::deleteSelectedObjects(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject) {
+    if (SimulationManager::simulationManager.getState() == SimulationManager::SimulationState::Running) {
+        ImGui::OpenPopup("Error");
+        return;
+    }
+    
     std::vector<GameObject*> objectsToDelete = selectedObjects;
 
     for (auto it = objectsToDelete.begin(); it != objectsToDelete.end();) {
@@ -37,6 +43,12 @@ void HierarchyWindow::deleteObjectAndChildren(GameObject* obj, std::vector<GameO
 }
 
 void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject) {
+    if (SimulationManager::simulationManager.getState() == SimulationManager::SimulationState::Running) {
+        if (deleteKeyPressed) {
+            ImGui::OpenPopup("Error");
+        }
+    }
+    
     ImGui::Begin("Hierarchy", nullptr);
 
     if (!gameObjects.empty()) {
@@ -44,7 +56,11 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
         if (keyboardState[SDL_SCANCODE_DELETE]) {
+            deleteKeyPressed = true;
             deleteSelectedObjects(gameObjects, selectedObjects, selectedObject);
+        }
+        else {
+            deleteKeyPressed = false; 
         }
 
         std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {
@@ -105,6 +121,14 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
 
     handleParenting(selectedObjects);
     applyTransforms(gameObjects, selectedObjects);
+
+    if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Object can't be deleted in running simulation. Stop the simulation to do so.");
+        if (ImGui::Button("Close")) {
+            ImGui::CloseCurrentPopup(); 
+        }
+        ImGui::EndPopup();
+    }
 }
 
 void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects) {

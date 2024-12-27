@@ -7,12 +7,13 @@
 #include <fstream>
 #include "Importer.h"
 #include "ConsoleWindow.h"
+#include "SimulationManager.h"
 
 extern Importer importer;
 std::vector<GameObject> gameObjects;
 
 GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath)
-    : name(name), meshData(mesh), textureID(texID), texturePath(texPath), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()) {
+    : name(name), meshData(mesh), textureID(texID), texturePath(texPath), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()), elapsedPausedTime(0.0f) {
     initialPosition = position;
     initialRotation = rotation;
     initialScale = scale;
@@ -21,34 +22,37 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
 
 void GameObject::updateMovement(float deltaTime) {
     if (movementState == MovementState::Running) {
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float elapsedTime = std::chrono::duration<float>(currentTime - startTime).count();
-        float angle = startAngle + angularSpeed * elapsedTime;
-
-        position.x = radius * cos(angle);
-        position.z = radius * sin(angle);
-
-        startTime = currentTime;
+        position.x += movementDirection * speed * deltaTime;
+        if (position.x >= movementRange.second || position.x <= movementRange.first) {
+            movementDirection *= -1; 
+        }
     }
 }
 
 void GameObject::startMovement() {
-    if (movementState == MovementState::Stopped || movementState == MovementState::Paused) {
+    if (movementState != MovementState::Running) {
         movementState = MovementState::Running;
-        startTime = std::chrono::high_resolution_clock::now();  
-        startAngle = atan2(position.z, position.x);  
+        startTime = std::chrono::high_resolution_clock::now() - std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::duration<float>(elapsedPausedTime));
+        console.addLog(name + " started moving.");
     }
 }
 
 void GameObject::pauseMovement() {
     if (movementState == MovementState::Running) {
         movementState = MovementState::Paused;
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        elapsedPausedTime = std::chrono::duration<float>(currentTime - startTime).count();
+        console.addLog(name + " paused movement.");
     }
 }
 
 void GameObject::stopMovement() {
-    movementState = MovementState::Stopped;
-    resetTransform();
+    if (movementState != MovementState::Stopped) {
+        movementState = MovementState::Stopped;
+        elapsedPausedTime = 0.0f; 
+        resetTransform(); 
+        console.addLog(name + " stopped and reset position.");
+    }
 }
 
 
@@ -132,6 +136,7 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
             meshData = meshes[0];
             GameObject* modelObject = new GameObject(primitiveType, meshData, textureID);
             gameObjects.push_back(modelObject);
+            SimulationManager::simulationManager.trackObject(modelObject);
             console.addLog("Model " + primitiveType + " loaded from " + filePath);
         }
     }
@@ -146,6 +151,9 @@ void GameObject::createEmptyObject(const std::string& name, std::vector<GameObje
     GameObject* emptyObject = new GameObject(name, emptyMeshData, emptyTextureID);
 
     gameObjects.push_back(emptyObject);
+
+    SimulationManager::simulationManager.trackObject(emptyObject);
+
     console.addLog("Empty object created");
 }
 
@@ -156,10 +164,12 @@ void GameObject::createDynamicObject(const std::string& name, std::vector<GameOb
     dynamicObject->name = name;
 
     dynamicObject->movementState = MovementState::Stopped; 
-    dynamicObject->angularSpeed = 0.0f;  
-    dynamicObject->radius = 0.0f; 
-    dynamicObject->startAngle = 0.0f;  
-    dynamicObject->startTime = std::chrono::high_resolution_clock::now(); 
+    dynamicObject->speed = 3.0f;  
+    dynamicObject->movementRange = std::make_pair(-5.0f, 5.0f);  
+    dynamicObject->movementDirection = 1.0f; 
+    dynamicObject->startTime = std::chrono::high_resolution_clock::now();
+
+    SimulationManager::simulationManager.trackObject(dynamicObject);
 
     console.addLog("Dynamic object created: " + name);
 }
@@ -212,4 +222,10 @@ void GameObject::resetTransform() {
     position = initialPosition;
     rotation = initialRotation;
     scale = initialScale;
+
+    movementDirection = 1.0f;
+
+    if (parent != nullptr) {
+        parent->updateChildTransforms();
+    }
 }

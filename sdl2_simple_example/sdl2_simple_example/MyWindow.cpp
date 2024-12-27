@@ -61,11 +61,6 @@ static bool darkTheme = true;
 static bool lightTheme = false;
 static bool winterTheme = false;
 
-bool isGameRunning = false;
-bool isGamePaused = false;
-bool isGameStopped = false;
-bool showControlWindow = false; 
-
 void hideConsoleWindow() {
 #if defined(_WIN32)
     HWND hwnd = GetConsoleWindow();
@@ -249,7 +244,6 @@ void MyWindow::createDockSpace() {
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
     createMainMenu();
-    createControlWindow();
     hierarchyWindow.render(gameObjects, selectedObjects, selectedObject);
     inspectorWindow.render(selectedObject);
     assetsWindow.render();
@@ -257,30 +251,6 @@ void MyWindow::createDockSpace() {
     console.displayConsole();
 
     ImGui::End();
-}
-
-void MyWindow::createControlWindow() {
-    if (showControlWindow) {
-        ImGui::Begin("Control", &showControlWindow, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
-
-        if (ImGui::Button("Start")) {
-            SimulationManager::simulationManager.startSimulation();
-        }
-
-        ImGui::SameLine();  
-        if (ImGui::Button("Pause")) {
-            SimulationManager::simulationManager.pauseSimulation();
-        }
-
-        ImGui::SameLine();  
-        if (ImGui::Button("Stop")) {
-            SimulationManager::simulationManager.stopSimulation();
-        }
-
-        ImGui::Text("Simulation State: %s", SimulationManager::simulationManager.getStateName(SimulationManager::simulationManager.getState()).c_str());
-
-        ImGui::End();
-    }
 }
 
 // Selects an object in the scene
@@ -351,13 +321,6 @@ void MyWindow::createMainMenu() {
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Game Control")) {
-            if (ImGui::MenuItem("Open Control Popup")) {
-                showControlWindow = true;
-            }
-            ImGui::EndMenu();
-        }
-
         ImGui::EndMainMenuBar();
 
         if (showConfig) {

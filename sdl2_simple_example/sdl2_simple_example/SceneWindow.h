@@ -9,6 +9,7 @@
 class SceneWindow {
 public:
     void render();
+    void loadIcons();
     void updateSceneSize();
 
     Ray getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight);

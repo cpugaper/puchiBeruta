@@ -23,6 +23,7 @@
 #include "Renderer.h"
 #include "Variables.h"
 #include "ConsoleWindow.h"
+#include "SimulationManager.h"
 
 #define CHECKERS_WIDTH 64
 #define CHECKERS_HEIGHT 64
@@ -79,16 +80,24 @@ int main(int argc, char** argv) {
 		auto casa = new GameObject(objectName, meshes[i], 0);
 		variables->window->gameObjects.push_back(casa);
 	}
+	auto previousTime = hrclock::now();
 
 	// Main loop: handling events, rendering and maintaining FPS
 	while (renderer.processEvents(camera, gameObjects, fbxFile)) {
-		const auto t0 = hrclock::now();
+		const auto currentTime = hrclock::now();
+		float deltaTime = std::chrono::duration<float>(currentTime - previousTime).count();
+		previousTime = currentTime;
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
 		variables->window->createDockSpace();
+
+		if (SimulationManager::simulationManager.getState() == SimulationManager::SimulationState::Running) {
+			SimulationManager::simulationManager.update(deltaTime, variables->window->gameObjects);
+		}
+
 		renderer.render(variables->window->gameObjects);
 
 		ImGui::Render();
@@ -97,8 +106,8 @@ int main(int argc, char** argv) {
 
 		variables->window->swapBuffers();
 
-		const auto t1 = hrclock::now();
-		const auto dt = t1 - t0;
+		const auto frameEnd = hrclock::now();
+		const auto dt = frameEnd - currentTime;
 		if (dt < FRAME_DT) std::this_thread::sleep_for(FRAME_DT - dt);
 	}
 
