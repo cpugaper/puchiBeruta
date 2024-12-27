@@ -69,12 +69,9 @@ namespace {
             bmi.bmiHeader.biCompression = BI_RGB;
 
             GetDIBits(memDC, iconInfo.hbmColor, 0, 16, pixels, &bmi, DIB_RGB_COLORS);
-
-            // Invert pixel array to prevent color corruption
             for (int i = 0; i < 16 * 16; i++) {
-                std::swap(pixels[i * 4], pixels[i * 4 + 2]);
+                std::swap(pixels[i * 4], pixels[i * 4 + 2]); // Intercambia R y B
             }
-
             GLuint textureID;
             glGenTextures(1, &textureID);
             glBindTexture(GL_TEXTURE_2D, textureID);
