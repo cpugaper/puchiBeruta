@@ -22,7 +22,7 @@ void InspectorWindow::render(GameObject* selectedObject) {
         //GameObject* selectedObject = variables->window->selectedObject;
         if (ImGui::CollapsingHeader("Object Info")) {
             bool isActive = selectedObject->getActive();
-            if (ImGui::Checkbox("", &isActive)) {
+            if (ImGui::Checkbox(" ", &isActive)) {
                 selectedObject->setActive(isActive);
             }
             ImGui::SameLine();
