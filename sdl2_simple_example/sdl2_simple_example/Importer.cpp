@@ -60,7 +60,6 @@ void Importer::processAssetsToLibrary() {
                     std::vector<MeshData> meshes = loadFBX(entry.path().string(), textureID);
                     saveCustomFormat(outputPath, meshes);
 
-                    // Procesar textura asociada si existe
                     std::filesystem::path texturePathPNG = entry.path().parent_path() /
                         (entry.path().stem().string() + ".png");
 
@@ -91,12 +90,10 @@ void Importer::saveTextureToCustomFormat(const std::string& inputPath, const std
     std::ofstream file(outputPath, std::ios::binary);
     if (!file) throw std::runtime_error("Cannot create texture file: " + outputPath);
 
-    // Escribir cabecera
     file.write(reinterpret_cast<const char*>(&texData.width), sizeof(int));
     file.write(reinterpret_cast<const char*>(&texData.height), sizeof(int));
     file.write(reinterpret_cast<const char*>(&texData.channels), sizeof(int));
 
-    // Escribir datos de píxeles
     size_t dataSize = texData.width * texData.height * texData.channels;
     file.write(reinterpret_cast<const char*>(texData.pixels), dataSize);
 
@@ -115,7 +112,7 @@ TextureData Importer::loadTextureData(const std::string& texturePath) {
     TextureData texData;
     texData.width = ilGetInteger(IL_IMAGE_WIDTH);
     texData.height = ilGetInteger(IL_IMAGE_HEIGHT);
-    texData.channels = 4; // Forzamos RGBA
+    texData.channels = 4;
 
     ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
@@ -134,24 +131,20 @@ GLuint Importer::loadTextureFromCustomFormat(const std::string& texturePath) {
         return 0;
     }
 
-    // Leer cabecera
     int width, height, channels;
     file.read(reinterpret_cast<char*>(&width), sizeof(int));
     file.read(reinterpret_cast<char*>(&height), sizeof(int));
     file.read(reinterpret_cast<char*>(&channels), sizeof(int));
 
-    // Leer datos de píxeles
     size_t dataSize = width * height * channels;
     unsigned char* pixels = new unsigned char[dataSize];
     file.read(reinterpret_cast<char*>(pixels), dataSize);
 
-    // Crear textura OpenGL
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-    // Configurar parámetros de textura
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -175,7 +168,6 @@ std::vector<MeshData> Importer::loadModelFromCustomFormat(const std::string& rel
         return {};
     }
 
-    // Buscar textura en formato personalizado
     std::filesystem::path modelPath(filePath);
     std::filesystem::path texturePath = "Library/Textures/" + modelPath.stem().string() + ".texdat";
 
@@ -292,7 +284,6 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
 void Importer::getTextureDimensions(GLuint textureID, int& width, int& height) {
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Obtener el ancho y alto de la textura
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
 }

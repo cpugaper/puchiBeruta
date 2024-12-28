@@ -159,18 +159,35 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
         
     }
 
-    else if (extension == ".png" || extension == ".dds") {
-        // Importar textura
-        GLuint newTextureID = importer.loadTexture(droppedFile);
+    else if (extension == ".png" || extension == ".dds" || extension == ".texdat") {
+        GLuint newTextureID;
+
+        // Determinar qué método de carga usar según la extensión
+        if (extension == ".texdat") {
+            newTextureID = importer.loadTextureFromCustomFormat(droppedFile);
+        }
+        else {
+            newTextureID = importer.loadTexture(droppedFile);
+        }
+
         std::string textureFilePath = filePath.string();
 
         if (variables->window->selectedObject) {
+            // Si había una textura previa, la liberamos
+            if (variables->window->selectedObject->textureID != 0) {
+                glDeleteTextures(1, &variables->window->selectedObject->textureID);
+            }
+
             variables->window->selectedObject->textureID = newTextureID;
             variables->window->selectedObject->texturePath = textureFilePath;
             console.addLog("Texture applied to selected object: " + textureFilePath);
         }
         else {
             console.addLog("No object selected to apply the texture.");
+            // Limpiamos la textura si no hay objeto seleccionado
+            if (newTextureID != 0) {
+                glDeleteTextures(1, &newTextureID);
+            }
         }
     }
     else {

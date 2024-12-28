@@ -148,7 +148,6 @@ namespace {
 
         ImGui::PushID(filePath.c_str());
 
-        // Renderizar el icono
         if (icon.textureID) {
             ImGui::Image(icon.textureID, ImVec2(20, 20));
             ImGui::SameLine();
@@ -173,7 +172,7 @@ void AssetsWindow::render() {
     static bool initialized = false;
     if (!initialized) {
         setCustomIconForExtension(".dat", "Icons\\object.ico");
-        setCustomIconForExtension(".png", "Icons\\image.ico");
+        setCustomIconForExtension(".texdat", "Icons\\image.ico");
         initialized = true;
     }
 
