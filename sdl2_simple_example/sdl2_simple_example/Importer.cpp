@@ -1,5 +1,5 @@
 #include "Importer.h"
-#include  <assimp/Importer.hpp>
+#include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <IL/ilu.h>
@@ -52,48 +52,120 @@ void Importer::processAssetsToLibrary() {
             std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
             if (extension == ".fbx") {
-                // Existing FBX processing logic
                 std::string fileName = entry.path().filename().string();
                 std::string outputPath = "Library/Models/" + entry.path().stem().string() + ".dat";
 
                 if (!std::filesystem::exists(outputPath)) {
                     GLuint textureID = 0;
                     std::vector<MeshData> meshes = loadFBX(entry.path().string(), textureID);
-
                     saveCustomFormat(outputPath, meshes);
 
+                    // Procesar textura asociada si existe
                     std::filesystem::path texturePathPNG = entry.path().parent_path() /
                         (entry.path().stem().string() + ".png");
 
                     if (std::filesystem::exists(texturePathPNG)) {
-                        std::filesystem::path destTexturePath = "Library/Textures/" +
-                            texturePathPNG.filename().string();
-                        std::filesystem::copy(texturePathPNG, destTexturePath,
-                            std::filesystem::copy_options::overwrite_existing);
+                        processTextureFile(texturePathPNG);
                     }
                 }
             }
-            else if (extension == ".dat" || extension == ".png") {
-                // Copy .dat and .png files to their respective Library directories
-                if (extension == ".dat") {
-                    std::filesystem::path destPath = "Library/Models/" + entry.path().filename().string();
-                    std::filesystem::copy(entry.path(), destPath,
-                        std::filesystem::copy_options::overwrite_existing);
-                }
-                else if (extension == ".png") {
-                    std::filesystem::path destPath = "Library/Textures/" + entry.path().filename().string();
-                    std::filesystem::copy(entry.path(), destPath,
-                        std::filesystem::copy_options::overwrite_existing);
-                }
+            else if (extension == ".png") {
+                processTextureFile(entry.path());
             }
         }
     }
 }
 
+void Importer::processTextureFile(const std::filesystem::path& texturePath) {
+    std::string outputPath = "Library/Textures/" + texturePath.stem().string() + ".texdat";
+
+    if (!std::filesystem::exists(outputPath)) {
+        saveTextureToCustomFormat(texturePath.string(), outputPath);
+        console.addLog("Texture processed: " + texturePath.string());
+    }
+}
+
+void Importer::saveTextureToCustomFormat(const std::string& inputPath, const std::string& outputPath) {
+    TextureData texData = loadTextureData(inputPath);
+
+    std::ofstream file(outputPath, std::ios::binary);
+    if (!file) throw std::runtime_error("Cannot create texture file: " + outputPath);
+
+    // Escribir cabecera
+    file.write(reinterpret_cast<const char*>(&texData.width), sizeof(int));
+    file.write(reinterpret_cast<const char*>(&texData.height), sizeof(int));
+    file.write(reinterpret_cast<const char*>(&texData.channels), sizeof(int));
+
+    // Escribir datos de píxeles
+    size_t dataSize = texData.width * texData.height * texData.channels;
+    file.write(reinterpret_cast<const char*>(texData.pixels), dataSize);
+
+    delete[] texData.pixels;
+}
+
+TextureData Importer::loadTextureData(const std::string& texturePath) {
+    ILuint imageID;
+    ilGenImages(1, &imageID);
+    ilBindImage(imageID);
+
+    if (!ilLoadImage((const wchar_t*)texturePath.c_str())) {
+        throw std::runtime_error("Failed to load texture: " + texturePath);
+    }
+
+    TextureData texData;
+    texData.width = ilGetInteger(IL_IMAGE_WIDTH);
+    texData.height = ilGetInteger(IL_IMAGE_HEIGHT);
+    texData.channels = 4; // Forzamos RGBA
+
+    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
+    size_t dataSize = texData.width * texData.height * texData.channels;
+    texData.pixels = new unsigned char[dataSize];
+    memcpy(texData.pixels, ilGetData(), dataSize);
+
+    ilDeleteImages(1, &imageID);
+    return texData;
+}
+
+GLuint Importer::loadTextureFromCustomFormat(const std::string& texturePath) {
+    std::ifstream file(texturePath, std::ios::binary);
+    if (!file) {
+        console.addLog("Error: Cannot open texture file: " + texturePath);
+        return 0;
+    }
+
+    // Leer cabecera
+    int width, height, channels;
+    file.read(reinterpret_cast<char*>(&width), sizeof(int));
+    file.read(reinterpret_cast<char*>(&height), sizeof(int));
+    file.read(reinterpret_cast<char*>(&channels), sizeof(int));
+
+    // Leer datos de píxeles
+    size_t dataSize = width * height * channels;
+    unsigned char* pixels = new unsigned char[dataSize];
+    file.read(reinterpret_cast<char*>(pixels), dataSize);
+
+    // Crear textura OpenGL
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    // Configurar parámetros de textura
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    delete[] pixels;
+    console.addLog("Custom format texture loaded: " + texturePath);
+    return textureID;
+}
+
 std::vector<MeshData> Importer::loadModelFromCustomFormat(const std::string& relativeFilePath, GLuint& textureID) {
     console.addLog("Loading model from custom format: " + relativeFilePath);
 
-    // Construct full path
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
     std::string filePath = (projectPath / relativeFilePath).string();
@@ -103,20 +175,19 @@ std::vector<MeshData> Importer::loadModelFromCustomFormat(const std::string& rel
         return {};
     }
 
-    // Try to load corresponding texture
+    // Buscar textura en formato personalizado
     std::filesystem::path modelPath(filePath);
-    std::filesystem::path texturePath = "Library/Textures/" + modelPath.stem().string() + ".png";
+    std::filesystem::path texturePath = "Library/Textures/" + modelPath.stem().string() + ".texdat";
 
     if (std::filesystem::exists(texturePath)) {
-        textureID = loadTexture(texturePath.string());
-        console.addLog("Texture found & loaded: " + texturePath.string());
+        textureID = loadTextureFromCustomFormat(texturePath.string());
+        console.addLog("Custom format texture found & loaded: " + texturePath.string());
     }
     else {
         console.addLog("Texture not found for " + filePath);
         textureID = 0;
     }
 
-    // Load meshes from .dat file
     return loadCustomFormat(filePath);
 }
 
@@ -124,7 +195,6 @@ std::vector<MeshData> Importer::loadModelFromCustomFormat(const std::string& rel
 std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLuint& textureID) {
     console.addLog("Loading model FBX: " + relativeFilePath);
 
-    // Gets the absolute path to the FBX file
     std::string currentPath = std::filesystem::current_path().string();
     std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
     std::string filePath = (projectPath / relativeFilePath).string();
@@ -144,7 +214,7 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
         return {};
     }
 
-    console.addLog("Model loaded with success, number of meshes: " + scene->mNumMeshes);
+    console.addLog("Model loaded with success, number of meshes: " + std::to_string(scene->mNumMeshes));
     std::vector<MeshData> meshes;
 
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
@@ -180,11 +250,11 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
     }
     else {
         console.addLog("Texture not found for " + filePath);
+        textureID = 0;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
-
     console.addLog("Loading time for FBX: " + std::to_string(elapsed.count()) + " seconds");
 
     return meshes;
@@ -196,17 +266,8 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     ilBindImage(imageID);
 
     if (!ilLoadImage((const wchar_t*)texturePath.c_str())) {
-        ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-        glGenTextures(1, &imageID);
-        glBindTexture(GL_TEXTURE_2D, imageID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    }
-    else {
         console.addLog("Error loading texture: " + texturePath);
-        imageID = 0;
+        return 0;
     }
 
     ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
@@ -214,21 +275,20 @@ GLuint Importer::loadTexture(const std::string& texturePath) {
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
+        ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     glGenerateMipmap(GL_TEXTURE_2D);
 
     ilDeleteImages(1, &imageID);
-
     console.addLog("Texture loaded: " + texturePath);
-
     return textureID;
 }
+
 void Importer::getTextureDimensions(GLuint textureID, int& width, int& height) {
     glBindTexture(GL_TEXTURE_2D, textureID);
 
