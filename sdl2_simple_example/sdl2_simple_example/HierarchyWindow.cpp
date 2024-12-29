@@ -119,6 +119,12 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
     }
     ImGui::End();
 
+    std::vector<GameObject*> newObjects = getNewObjects(gameObjects);
+    if (!newObjects.empty()) {
+        setupInitialHierarchy(newObjects);
+    }
+    lastKnownObjects = gameObjects;
+
     handleParenting(selectedObjects);
     applyTransforms(gameObjects, selectedObjects);
 
@@ -184,4 +190,45 @@ void HierarchyWindow::applyTransforms(std::vector<GameObject*>& gameObjects, std
     }
 }
 
+std::vector<GameObject*> HierarchyWindow::getNewObjects(const std::vector<GameObject*>& currentObjects) {
+    std::vector<GameObject*> newObjects;
 
+    for (GameObject* obj : currentObjects) {
+        bool isNew = std::find(lastKnownObjects.begin(), lastKnownObjects.end(), obj) == lastKnownObjects.end();
+        if (isNew && obj->parent == nullptr) {
+            std::vector<GameObject*> modelObjects;
+            modelObjects.push_back(obj);
+
+            for (GameObject* potentialChild : currentObjects) {
+                if (potentialChild != obj &&
+                    std::find(lastKnownObjects.begin(), lastKnownObjects.end(), potentialChild) == lastKnownObjects.end() &&
+                    potentialChild->parent == nullptr) {
+                    modelObjects.push_back(potentialChild);
+                }
+            }
+
+            if (!modelObjects.empty()) {
+                newObjects.insert(newObjects.end(), modelObjects.begin(), modelObjects.end());
+            }
+        }
+    }
+
+    return newObjects;
+}
+
+void HierarchyWindow::setupInitialHierarchy(std::vector<GameObject*>& gameObjects) {
+    if (gameObjects.empty()) return;
+
+    GameObject* parent = gameObjects[0];
+
+    if (parent->parent != nullptr) return;
+
+    for (size_t i = 1; i < gameObjects.size(); ++i) {
+        GameObject* child = gameObjects[i];
+
+        if (child->parent == nullptr && child != parent) {
+            parent->addChild(child);
+        }
+    }
+    parent->updateChildTransforms();
+}
