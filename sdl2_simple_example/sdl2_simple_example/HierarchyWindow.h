@@ -10,29 +10,23 @@ class HierarchyWindow {
 public:
     void render(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject);
 
-    void deleteSelectedObjects(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject);
-
-    void setupInitialHierarchy(std::vector<GameObject*>& gameObjects);
-
-    bool pKeyPressed = false;
+private:
     bool deleteKeyPressed = false;
+    bool pKeyPressed = false;
     std::vector<GameObject*> lastKnownObjects;
 
-private:
-    void deleteObjectAndChildren(GameObject* obj, std::vector<GameObject*>& gameObjects);
-
-    void renderHierarchyTree(const std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject, const Uint8* keyboardState);
-    void renderErrorPopup();
-
     void handleKeyboardInput(const Uint8* keyboardState, std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject);
-    void handleObjectSelection(GameObject* obj, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject, const Uint8* keyboardState);
-
+    void renderHierarchyTree(const std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject, const Uint8* keyboardState);
+    void handleObjectSelection(GameObject* obj, const std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject, const Uint8* keyboardState);
+    void deleteSelectedObjects(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject);
+    void deleteObjectAndChildren(GameObject* obj, std::vector<GameObject*>& gameObjects);
+    void processNewObjects(std::vector<GameObject*>& gameObjects);
+    std::vector<GameObject*> getNewObjects(const std::vector<GameObject*>& currentObjects);
+    void setupInitialHierarchy(std::vector<GameObject*>& gameObjects);
     void handleParenting(std::vector<GameObject*>& selectedObjects);
     void processParenting(std::vector<GameObject*>& selectedObjects);
     void applyTransforms(std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects);
-
-    void processNewObjects(std::vector<GameObject*>& gameObjects);
-    std::vector<GameObject*> getNewObjects(const std::vector<GameObject*>& currentObjects);
+    void renderErrorPopup();
 };
 
 #endif // HIERARCHY_WINDOW_H

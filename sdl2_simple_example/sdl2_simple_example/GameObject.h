@@ -84,6 +84,8 @@ public:
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath = "");
 
+    const std::string& getUUID() const { return uuid; };
+
     void updateMovement(float deltaTime);
     void startMovement();
     void pauseMovement();

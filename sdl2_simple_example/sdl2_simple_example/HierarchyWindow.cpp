@@ -82,16 +82,22 @@ void HierarchyWindow::handleKeyboardInput(const Uint8* keyboardState, std::vecto
     }
 }
 
-void HierarchyWindow::renderHierarchyTree(const std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject, const Uint8* keyboardState) {
+void HierarchyWindow::renderHierarchyTree(const std::vector<GameObject*>& gameObjects,
+    std::vector<GameObject*>& selectedObjects,
+    GameObject*& selectedObject,
+    const Uint8* keyboardState) {
     std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {
+        // Usar el UUID como identificador único
+        std::string uniqueLabel = obj->getName() + "##" + obj->getUUID();
+
         bool isSelected = std::find(selectedObjects.begin(), selectedObjects.end(), obj) != selectedObjects.end();
 
         ImGui::PushStyleColor(ImGuiCol_Header,
             isSelected && selectedObject == obj ? SELECTED_PRIMARY_COLOR :
             isSelected ? SELECTED_SECONDARY_COLOR : DEFAULT_COLOR);
 
-        if (ImGui::Selectable(obj->getName().c_str(), isSelected)) {
-            handleObjectSelection(obj, selectedObjects, selectedObject, keyboardState);
+        if (ImGui::Selectable(uniqueLabel.c_str(), isSelected)) {
+            handleObjectSelection(obj, gameObjects, selectedObjects, selectedObject, keyboardState);
         }
 
         ImGui::PopStyleColor();
@@ -105,6 +111,7 @@ void HierarchyWindow::renderHierarchyTree(const std::vector<GameObject*>& gameOb
         }
         };
 
+    // Renderizar solo objetos raíz (sin padre)
     for (GameObject* obj : gameObjects) {
         if (!obj->parent) {
             renderGameObject(obj);
@@ -112,23 +119,68 @@ void HierarchyWindow::renderHierarchyTree(const std::vector<GameObject*>& gameOb
     }
 }
 
-void HierarchyWindow::handleObjectSelection(GameObject* obj,std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject, const Uint8* keyboardState) {
+void HierarchyWindow::handleObjectSelection(GameObject* obj,
+    const std::vector<GameObject*>& gameObjects,
+    std::vector<GameObject*>& selectedObjects,
+    GameObject*& selectedObject,
+    const Uint8* keyboardState) {
     bool ctrlPressed = keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL];
+    bool shiftPressed = keyboardState[SDL_SCANCODE_LSHIFT] || keyboardState[SDL_SCANCODE_RSHIFT];
 
     if (ctrlPressed) {
+        // Multi-selección con Ctrl
         auto it = std::find(selectedObjects.begin(), selectedObjects.end(), obj);
         if (it != selectedObjects.end()) {
             selectedObjects.erase(it);
+            if (selectedObject == obj) {
+                selectedObject = selectedObjects.empty() ? nullptr : selectedObjects.back();
+            }
         }
         else {
             selectedObjects.push_back(obj);
+            selectedObject = obj;
+        }
+    }
+    else if (shiftPressed && !selectedObjects.empty()) {
+        // Encontrar todos los objetos del mismo nivel jerárquico
+        std::vector<GameObject*> siblingObjects;
+        GameObject* parent = obj->parent;
+
+        if (parent) {
+            siblingObjects = parent->children;
+        }
+        else {
+            // Si no tiene padre, usar objetos raíz
+            std::copy_if(gameObjects.begin(), gameObjects.end(), std::back_inserter(siblingObjects),
+                [](GameObject* go) { return go->parent == nullptr; });
+        }
+
+        // Encontrar índices del último objeto seleccionado y el objeto actual
+        auto getIndex = [&siblingObjects](GameObject* target) {
+            return std::distance(siblingObjects.begin(),
+                std::find(siblingObjects.begin(), siblingObjects.end(), target));
+            };
+
+        auto lastSelected = selectedObjects.back();
+        size_t startIdx = getIndex(lastSelected);
+        size_t endIdx = getIndex(obj);
+
+        if (startIdx != siblingObjects.size() && endIdx != siblingObjects.size()) {
+            if (startIdx > endIdx) std::swap(startIdx, endIdx);
+
+            selectedObjects.clear();
+            for (size_t i = startIdx; i <= endIdx; ++i) {
+                selectedObjects.push_back(siblingObjects[i]);
+            }
+            selectedObject = obj;
         }
     }
     else {
+        // Selección simple
         selectedObjects.clear();
         selectedObjects.push_back(obj);
+        selectedObject = obj;
     }
-    selectedObject = obj;
 }
 
 void HierarchyWindow::handleParenting(std::vector<GameObject*>& selectedObjects) {

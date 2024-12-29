@@ -13,7 +13,18 @@ extern Importer importer;
 std::vector<GameObject> gameObjects;
 
 GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath)
-    : name(name), meshData(mesh), textureID(texID), texturePath(texPath), position(0.0f), rotation(0.0f), scale(1.0f), uuid(GenerateUUID()), elapsedPausedTime(0.0f) {
+    : name(name)
+    , meshData(mesh)
+    , textureID(texID)
+    , texturePath(texPath)
+    , position(0.0f)
+    , rotation(0.0f)
+    , scale(1.0f)
+    , uuid(GenerateUUID())
+    , elapsedPausedTime(0.0f)
+    , parent(nullptr)
+    , movementState(MovementState::Stopped)
+    , active(true) {
     initialPosition = position;
     initialRotation = rotation;
     initialScale = scale;
@@ -58,10 +69,33 @@ void GameObject::stopMovement() {
 
 // Generate a random UUID to identify each object uniquely
 std::string GameObject::GenerateUUID() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 15);
+    std::uniform_int_distribution<> dis2(8, 11);
+
     std::stringstream ss;
-    for (int i = 0; i < 16; i++) {
-        int byte = rand() % 256;
-        ss << std::hex << std::setw(2) << std::setfill('0') << byte;
+    ss << std::hex;
+
+    for (int i = 0; i < 8; i++) {
+        ss << dis(gen);
+    }
+    ss << "-";
+    for (int i = 0; i < 4; i++) {
+        ss << dis(gen);
+    }
+    ss << "-4"; // Version 4 UUID
+    for (int i = 0; i < 3; i++) {
+        ss << dis(gen);
+    }
+    ss << "-";
+    ss << dis2(gen);
+    for (int i = 0; i < 3; i++) {
+        ss << dis(gen);
+    }
+    ss << "-";
+    for (int i = 0; i < 12; i++) {
+        ss << dis(gen);
     }
     return ss.str();
 }
@@ -129,7 +163,6 @@ void GameObject::createPrimitive(const std::string& primitiveType, std::vector<G
         filePath += "plane.fbx";
     }
 
-    // Load model with Assimp, using importer
     try {
         std::vector<MeshData> meshes = importer.loadFBX(filePath, textureID);
         if (!meshes.empty()) {
@@ -151,9 +184,7 @@ void GameObject::createEmptyObject(const std::string& name, std::vector<GameObje
     GameObject* emptyObject = new GameObject(name, emptyMeshData, emptyTextureID);
 
     gameObjects.push_back(emptyObject);
-
     SimulationManager::simulationManager.trackObject(emptyObject);
-
     console.addLog("Empty object created");
 }
 
