@@ -9,9 +9,11 @@
 #include "GameObject.h"
 #include "Variables.h"
 #include "ConsoleWindow.h"
+#include "SceneWindow.h"
 
 extern Camera camera;
 extern Importer importer;
+extern SceneWindow sceneWindow;
 extern std::vector<MeshData> meshes;
 extern GLuint textureID;
 GLuint framebuffer = 0;
@@ -70,6 +72,10 @@ bool Renderer::processEvents(Camera& camera, std::vector<GameObject>& gameObject
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
+
+        if (!sceneWindow.isActive) {
+            continue; 
+        }
 
         switch (event.type) {
         case SDL_KEYDOWN: camera.processKeyDown(event.key.keysym); break;

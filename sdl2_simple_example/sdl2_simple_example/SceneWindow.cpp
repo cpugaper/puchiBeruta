@@ -18,6 +18,12 @@ extern Camera camera;
 void SceneWindow::render() {
     ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
 
+    bool active = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    isActive = active;
+    if (active) {
+        console.addLog("SceneWindow active");
+    }
+
     ImVec2 windowPos = ImGui::GetWindowPos();
     ImVec2 windowSize = ImGui::GetWindowSize(); 
 
