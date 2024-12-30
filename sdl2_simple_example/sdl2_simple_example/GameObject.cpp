@@ -32,7 +32,7 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
 }
 
 void GameObject::updateMovement(float deltaTime) {
-    if (movementState == MovementState::Running) {
+    if (dynamic && movementState == MovementState::Running) {
         position.x += movementDirection * speed * deltaTime;
         if (position.x >= movementRange.second || position.x <= movementRange.first) {
             movementDirection *= -1; 
@@ -187,24 +187,6 @@ void GameObject::createEmptyObject(const std::string& name, std::vector<GameObje
     SimulationManager::simulationManager.trackObject(emptyObject);
     console.addLog("Empty object created");
 }
-
-void GameObject::createDynamicObject(const std::string& name, std::vector<GameObject*>& gameObjects) {
-    createPrimitive("Sphere", gameObjects);
-
-    GameObject* dynamicObject = gameObjects.back();
-    dynamicObject->name = name;
-
-    dynamicObject->movementState = MovementState::Stopped; 
-    dynamicObject->speed = 3.0f;  
-    dynamicObject->movementRange = std::make_pair(-5.0f, 5.0f);  
-    dynamicObject->movementDirection = 1.0f; 
-    dynamicObject->startTime = std::chrono::high_resolution_clock::now();
-
-    SimulationManager::simulationManager.trackObject(dynamicObject);
-
-    console.addLog("Dynamic object created: " + name);
-}
-
 
 glm::mat4 GameObject::getTransformMatrix() const {
     glm::mat4 transform = glm::mat4(1.0f);

@@ -81,6 +81,7 @@ public:
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
     bool active = true;
+    bool dynamic = false;
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath = "");
 

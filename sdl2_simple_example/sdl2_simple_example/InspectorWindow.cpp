@@ -21,6 +21,15 @@ void InspectorWindow::render(GameObject* selectedObject) {
     if (selectedObject) {
         //GameObject* selectedObject = variables->window->selectedObject;
         if (ImGui::CollapsingHeader("Object Info")) {
+            if (ImGui::Checkbox("Is Dynamic", &selectedObject->dynamic)) {
+                if (selectedObject->dynamic) {
+                    selectedObject->movementState = MovementState::Stopped;
+                    selectedObject->speed = 3.0f;
+                    selectedObject->movementRange = std::make_pair(-5.0f, 5.0f);
+                    selectedObject->movementDirection = 1.0f;
+                }
+            }
+
             bool isActive = selectedObject->getActive();
             if (ImGui::Checkbox(" ", &isActive)) {
                 selectedObject->setActive(isActive);
