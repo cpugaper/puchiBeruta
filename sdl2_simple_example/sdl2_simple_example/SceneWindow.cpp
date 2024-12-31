@@ -272,8 +272,6 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
 
     rayoexists = true;
 
-    //selectedVertices.clear();
-
     for (auto& obj : variables->window->gameObjects) {
         MeshData* meshData = obj->getMeshData();
         if (meshData) {
@@ -303,11 +301,6 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                      if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
                          variables->window->selectedObject->name = std::string(nameBuffer);
                      }*/
-
-                    // // Almacenar los vértices de los triángulos seleccionados
-                    //selectedVertices.push_back(vertex1);
-                    //selectedVertices.push_back(vertex2);
-                    //selectedVertices.push_back(vertex3);
 
                     variables->window->selectedObjects.push_back(obj);
                     

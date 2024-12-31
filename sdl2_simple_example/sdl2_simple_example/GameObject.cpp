@@ -328,19 +328,21 @@ void GameObject::BoundingBoxGeneration() {
 }
 void GameObject::DrawVertex() {
     console.addLog("Entra en la funcion de dibujar los vertices");
-    if (!selectedVertices.empty()) {
-        console.addLog("vertices seleccionados no esta vacio");
-        glPointSize(5.0f);  // Tamaño del punto
-        glBegin(GL_POINTS);  // Empezamos a dibujar puntos
 
-        glColor3f(82.0f, 183.0f, 136.0f);  // Color verde
-        for (const glm::vec3& vertex : selectedVertices) {
-            glVertex3f(vertex.x, vertex.y, vertex.z);  // Dibujar cada vértice
+    MeshData* meshData = getMeshData();
+    if (meshData) {
+        glPointSize(10.0f);  // Tamaño del punto 
+        glBegin(GL_POINTS);  // Empezamos a dibujar puntos 
+        glBindTexture(GL_TEXTURE_2D, 0); 
+        glColor3f(82.0f, 183.0f, 136.0f);  // Color verde 
+
+        for (size_t i = 0; i < meshData->vertices.size(); i += 3) {
+            glm::vec3 vertex(meshData->vertices[i], meshData->vertices[i + 1], meshData->vertices[i + 2]);
+
+            glVertex3f(vertex.x, vertex.y, vertex.z);
         }
-
-        glEnd();  // Terminamos de dibujar los puntos
+        glEnd();  
     }
-    else { console.addLog("vertices seleccionados esta vacio"); }
 }
 
 void GameObject::RegenerateCorners()

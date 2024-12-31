@@ -285,7 +285,10 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
         }
 
         //obj->RegenerateCorners();
-        obj->DrawVertex(); 
+        if (variables->window->selectedObject == obj) {
+            obj->RegenerateCorners();  
+            obj->DrawVertex(); 
+        }
         glPopMatrix();
 
     }
