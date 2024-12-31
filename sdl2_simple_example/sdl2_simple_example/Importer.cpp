@@ -47,13 +47,15 @@ void Importer::checkAndCreateDirectories() {
 
 void Importer::processAssetsToLibrary() {
     for (const auto& entry : std::filesystem::directory_iterator("Assets")) {
+ 
         if (entry.is_regular_file()) {
+
             std::string extension = entry.path().extension().string();
             std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
             if (extension == ".fbx") {
                 std::string fileName = entry.path().filename().string();
-                std::string outputPath = "Library/Models/" + entry.path().stem().string() + ".dat";
+                std::string outputPath = "Library\\Models\\" + entry.path().stem().string() + ".dat";
 
                 if (!std::filesystem::exists(outputPath)) {
                     GLuint textureID = 0;
@@ -188,7 +190,7 @@ std::vector<MeshData> Importer::loadFBX(const std::string& relativeFilePath, GLu
     console.addLog("Loading model FBX: " + relativeFilePath);
 
     std::string currentPath = std::filesystem::current_path().string();
-    std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
+    std::filesystem::path projectPath = std::filesystem::path(currentPath);
     std::string filePath = (projectPath / relativeFilePath).string();
 
     if (!std::filesystem::exists(filePath)) {
