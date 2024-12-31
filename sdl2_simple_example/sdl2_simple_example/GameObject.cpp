@@ -334,11 +334,11 @@ void GameObject::DrawVertex() {
         glPointSize(10.0f);  // Tamaño del punto 
         glBegin(GL_POINTS);  // Empezamos a dibujar puntos 
         glBindTexture(GL_TEXTURE_2D, 0); 
-        glColor3f(82.0f, 183.0f, 136.0f);  // Color verde 
+        
 
         for (size_t i = 0; i < meshData->vertices.size(); i += 3) {
             glm::vec3 vertex(meshData->vertices[i], meshData->vertices[i + 1], meshData->vertices[i + 2]);
-
+            glColor3f(0.0f, 1.0f, 0.0f);  // Color verde   
             glVertex3f(vertex.x, vertex.y, vertex.z);
         }
         glEnd();  

@@ -283,7 +283,8 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
         if (!obj->meshData.textCoords.empty()) {
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
-
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D); 
         //obj->RegenerateCorners();
         if (variables->window->selectedObject == obj) {
             obj->RegenerateCorners();  
