@@ -366,7 +366,7 @@ void GameObject::RegenerateCorners()
     //return transMatrix * rotMatrix * scaleMatrix; 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glMultMatrixf(glm::value_ptr(transMatrix * rotMatrix * scaleMatrix));
+    //glMultMatrixf(glm::value_ptr(transMatrix * rotMatrix * scaleMatrix));
 
     glm::vec3 temp[8] = {
          glm::vec3(boundingBoxMinLocal.x, boundingBoxMinLocal.y, boundingBoxMinLocal.z),  // V0
