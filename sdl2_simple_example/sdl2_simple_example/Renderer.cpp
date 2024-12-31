@@ -284,9 +284,9 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
         glPopMatrix();
 
     }
-    if (sceneWindow.rayoexists) {
+    /*if (sceneWindow.rayoexists) {
         sceneWindow.DrawRay(*sceneWindow.rayo, 1000);
-    }
+    }*/
     
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

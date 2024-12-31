@@ -64,14 +64,9 @@ void SceneWindow::render() {
     ImGui::End();
 
     updateSceneSize();
-   /* int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-
-    if (SDL_MOUSEBUTTONDOWN == SDL_BUTTON_LEFT) {
-        checkRaycast(mouseX, mouseY, framebufferWidth, framebufferHeight);
-    }*/
+  
     if (rayoexists) {
-        DrawRay(*rayo, 1000);
+        //DrawRay(*rayo, 1000);
     }
    
     // Show texture on screen
@@ -110,11 +105,10 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
     // 1. La posición de la ventana
     // 2. El espacio del header de ImGui
     // 3. El panel de control superior
-    float headerOffset = 25.0f;  // Height of the ImGui window header
-    float controlPanelHeight = 0.0f;  // Height of your control panel
+    float headerOffset = 0.0f;  // Height of the ImGui window header
 
     mouseX -= static_cast<int>(windowPos.x);
-    mouseY -= static_cast<int>(windowPos.y + headerOffset + controlPanelHeight);
+    mouseY -= static_cast<int>(windowPos.y + headerOffset);
 
     // Usar el tamaño del framebuffer para los cálculos
     float windowWidth = framebufferWidth;
@@ -132,7 +126,7 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
 
     // Crear la matriz de proyección usando el aspect ratio del framebuffer
     float aspectRatio = static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.001f, 100.0f);
 
     // Calcular la dirección de la cámara
     /*glm::vec3 forward = glm::normalize(glm::vec3(
