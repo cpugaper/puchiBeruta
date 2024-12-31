@@ -133,7 +133,7 @@ void InspectorWindow::render(GameObject* selectedObject) {
         }
 
         if (ImGui::CollapsingHeader("Texture Information")) {
-            ImGui::TextWrapped("Object Path: %s", variables->textureFilePath.c_str());
+            ImGui::TextWrapped("Object Path: %s", selectedObject->texturePath.c_str());
 
             importer.getTextureDimensions(selectedObject->textureID, variables->texturewidth, variables->textureheight);
             ImGui::Text("Texture Dimensions: %d x %d", variables->texturewidth, variables->textureheight);
