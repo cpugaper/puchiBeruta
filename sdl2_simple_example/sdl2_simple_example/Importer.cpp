@@ -162,8 +162,9 @@ std::vector<MeshData> Importer::loadModelFromCustomFormat(const std::string& rel
     console.addLog("Loading model from custom format: " + relativeFilePath);
 
     std::string currentPath = std::filesystem::current_path().string();
-    std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
-    std::string filePath = (projectPath / relativeFilePath).string();
+    //std::filesystem::path projectPath = std::filesystem::path(currentPath).parent_path();
+    //std::string filePath = (projectPath / relativeFilePath).string();
+    std::string filePath =  relativeFilePath;
 
     if (!std::filesystem::exists(filePath)) {
         console.addLog("Custom format model does not exist: " + filePath);

@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	iluInit();
 	console.addLog("DevIL initialized with success");
 
-	std::string texturePath = "sdl2_simple_example\\Library\\Textures\\streetEnv.texdat";
+	std::string texturePath = "Library\\Textures\\streetEnv.texdat";
 
 	if (std::filesystem::exists(texturePath)) {
 		textureID = importer.loadTextureFromCustomFormat(texturePath); 
@@ -72,10 +72,10 @@ int main(int argc, char** argv) {
 	}
 
 
-	meshes = importer.loadModelFromCustomFormat("sdl2_simple_example\\Library\\Models\\streetEnv.dat", textureID);
+	meshes = importer.loadModelFromCustomFormat("Library\\Models\\streetEnv.dat", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
-		std::string objectName = renderer.getFileName("sdl2_simple_example\\Library\\Models\\streetEnv.dat") + "_" + std::to_string(i);
+		std::string objectName = renderer.getFileName("Library\\Models\\streetEnv.dat") + "_" + std::to_string(i);
 		auto casa = new GameObject(objectName, meshes[i], textureID, texturePath);
 		casa->BoundingBoxGeneration();
 		variables->window->gameObjects.push_back(casa);
