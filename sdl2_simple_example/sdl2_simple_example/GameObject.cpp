@@ -331,17 +331,24 @@ void GameObject::DrawVertex() {
 
     MeshData* meshData = getMeshData();
     if (meshData) {
-        glPointSize(10.0f);  // Tamaño del punto 
-        glBegin(GL_POINTS);  // Empezamos a dibujar puntos 
-        glBindTexture(GL_TEXTURE_2D, 0); 
-        
+        glLineWidth(2.0f);  // Establecer el grosor de la línea
+        glBegin(GL_LINES);  // Empezamos a dibujar líneas
+        glBindTexture(GL_TEXTURE_2D, 0);  // No usar textura
 
         for (size_t i = 0; i < meshData->vertices.size(); i += 3) {
-            glm::vec3 vertex(meshData->vertices[i], meshData->vertices[i + 1], meshData->vertices[i + 2]);
-            glColor3f(0.0f, 1.0f, 0.0f);  // Color verde   
-            glVertex3f(vertex.x, vertex.y, vertex.z);
+            glm::vec3 vertex1(meshData->vertices[i], meshData->vertices[i + 1], meshData->vertices[i + 2]);
+
+            // Dibujamos una línea entre cada par de vértices consecutivos
+            if (i + 3 < meshData->vertices.size()) {  // Asegúrate de que haya un siguiente vértice
+                glm::vec3 vertex2(meshData->vertices[i + 3], meshData->vertices[i + 4], meshData->vertices[i + 5]);
+
+                glColor3f(0.0f, 1.0f, 0.0f);  // Color verde
+                glVertex3f(vertex1.x, vertex1.y, vertex1.z);  // Primer vértice
+                glVertex3f(vertex2.x, vertex2.y, vertex2.z);  // Segundo vértice
+            }
         }
-        glEnd();  
+
+        glEnd();  // Terminamos de dibujar las líneas
     }
 }
 
