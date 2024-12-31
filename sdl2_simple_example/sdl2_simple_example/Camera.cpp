@@ -11,7 +11,7 @@ Camera camera;
 extern SceneWindow sceneWindow;
 
 // Initializes variables related to the position and movement of the camera
-Camera::Camera() : position(0.0f, -0.0f, -0.0f), angleX(0.0f), angleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
+Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
 
 // Resets the camera's position and orientation based on the selected object
 void Camera::reset() {
@@ -160,27 +160,6 @@ glm::vec3 Camera::getRightVector() {
     // El vector right es perpendicular al forward y al up (0,1,0)
     glm::vec3 forward = getForwardVector();
     return glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
-}
-
-void Camera::CameraFrustum()
-{
-    glm::mat4 viewProjectionMatrix = sceneWindow.ProjectionMatrix() * sceneWindow.ViewMatrix();  
-
-    // Extraer los planos de la matriz de proyección
-    leftPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] + viewProjectionMatrix[0]);
-    rightPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] - viewProjectionMatrix[0]);
-    bottomPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] + viewProjectionMatrix[1]);
-    topPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] - viewProjectionMatrix[1]);
-    nearPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] + viewProjectionMatrix[2]);
-    farPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] - viewProjectionMatrix[2]);
-
-    // Normalizar los planos
-    leftPlaneFrustrum = glm::normalize(leftPlaneFrustrum);
-    rightPlaneFrustrum = glm::normalize(rightPlaneFrustrum);
-    topPlaneFrustrum = glm::normalize(topPlaneFrustrum);
-    bottomPlaneFrustrum = glm::normalize(bottomPlaneFrustrum);
-    nearPlaneFrustrum = glm::normalize(nearPlaneFrustrum);
-    farPlaneFrustrum = glm::normalize(farPlaneFrustrum);
 }
 
 bool Camera::isInFrustum(glm::vec3 corners[8]) {

@@ -28,8 +28,6 @@ public:
 	glm::vec3 getForwardVector();
 	glm::vec3 getRightVector();
 
-	void CameraFrustum();
-
 	bool isInFrustum(glm::vec3 corners[8]);
 
 	glm::vec3 position; 

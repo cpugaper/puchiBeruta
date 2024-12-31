@@ -243,7 +243,6 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                      if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
                          variables->window->selectedObject->name = std::string(nameBuffer);
                      }*/
-                    console.addLog("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ");
                     variables->window->selectedObjects.push_back(obj);
                     
                     break;
