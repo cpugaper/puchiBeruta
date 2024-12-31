@@ -11,7 +11,7 @@ Camera camera;
 extern SceneWindow sceneWindow;
 
 // Initializes variables related to the position and movement of the camera
-Camera::Camera() : position(0.0f, -1.0f, -10.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
+Camera::Camera() : position(0.0f, -0.0f, -0.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
 
 // Resets the camera's position and orientation based on the selected object
 void Camera::reset() {
@@ -111,6 +111,8 @@ void Camera::move(const Uint8* keyboardState) {
         if (keyboardState[SDL_SCANCODE_S]) position.z -= speed;
         if (keyboardState[SDL_SCANCODE_A]) position.x += speed;
         if (keyboardState[SDL_SCANCODE_D]) position.x -= speed;
+        if (keyboardState[SDL_SCANCODE_Q]) position.y -= speed;
+        if (keyboardState[SDL_SCANCODE_E]) position.y += speed;
     }
 }
 

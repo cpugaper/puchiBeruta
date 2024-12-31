@@ -10,7 +10,7 @@ ConsoleWindow::ConsoleWindow() : autoScroll(true) {}
 ConsoleWindow::~ConsoleWindow() {}
 
 void ConsoleWindow::addLog(const std::string& log) {
-    if (std::find(logs.begin(), logs.end(), log) == logs.end()) {
+    /*if (std::find(logs.begin(), logs.end(), log) == logs.end()) {
         if (logs.size() >= maxLogs) {
             logs.erase(logs.begin());
         }
@@ -19,6 +19,11 @@ void ConsoleWindow::addLog(const std::string& log) {
         if (autoScroll) {
             scrollToBottom = true;
         }
+    }*/
+    logs.push_back(log);
+
+    if (autoScroll) {
+        scrollToBottom = true;
     }
 }
 

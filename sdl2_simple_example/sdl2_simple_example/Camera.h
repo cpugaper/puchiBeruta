@@ -27,10 +27,10 @@ public:
 	void applyCameraTransformations();
 
 	glm::vec3 position; 
-private:
-	
 	float angleX, angleY;
 	float objectAngleX, objectAngleY;
+private:
+
 	float speed;
 	bool shiftPressed, altPressed, isLeftMouseDragging, isRightMouseDragging;
 	int lastMouseX, lastMouseY;

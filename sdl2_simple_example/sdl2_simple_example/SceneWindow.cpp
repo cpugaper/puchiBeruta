@@ -21,11 +21,13 @@ void SceneWindow::render() {
     bool active = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     isActive = active;
     if (active) {
-        console.addLog("SceneWindow active");
+        //console.addLog("SceneWindow active");
     }
 
-    ImVec2 windowPos = ImGui::GetWindowPos();
-    ImVec2 windowSize = ImGui::GetWindowSize(); 
+    windowPos = ImGui::GetWindowPos();
+    windowSize = ImGui::GetWindowSize(); 
+    contentPos = ImGui::GetCursorScreenPos();
+    contentRegionAvail = ImGui::GetContentRegionAvail();
 
     ImVec2 controlPanelSize = ImVec2(windowSize.x, 40); 
     ImVec2 controlPanelPos = ImVec2(windowPos.x, windowPos.y + 20); 
@@ -62,13 +64,16 @@ void SceneWindow::render() {
     ImGui::End();
 
     updateSceneSize();
-    int mouseX, mouseY;
+   /* int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
     if (SDL_MOUSEBUTTONDOWN == SDL_BUTTON_LEFT) {
         checkRaycast(mouseX, mouseY, framebufferWidth, framebufferHeight);
+    }*/
+    if (rayoexists) {
+        DrawRay(*rayo, 1000);
     }
-
+   
     // Show texture on screen
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     ImGui::Image((void*)(intptr_t)textureColorbuffer, ImVec2(framebufferWidth, framebufferHeight));
@@ -98,43 +103,114 @@ void SceneWindow::updateSceneSize() {
         renderer.createFrameBuffer(framebufferWidth, framebufferHeight);
     }
 }
-
 Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight) {
-    console.addLog("Entra funcion getrayfrommouse");
-    console.addLog("...");
+    console.addLog("Entra funcion getRayFromMouse");
 
-    // Convertir las coordenadas del mouse a coordenadas normalizadas (NDC)
-    float x = (2.0f * mouseX) / screenWidth - 1.0f;
-    float y = 1.0f - (2.0f * mouseY) / screenHeight;  // Invertimos el eje Y
+    // Ajustar las coordenadas del mouse considerando:
+    // 1. La posición de la ventana
+    // 2. El espacio del header de ImGui
+    // 3. El panel de control superior
+    float headerOffset = 25.0f;  // Height of the ImGui window header
+    float controlPanelHeight = 0.0f;  // Height of your control panel
 
-    // Crear la matriz de proyecci�n y vista
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+    mouseX -= static_cast<int>(windowPos.x);
+    mouseY -= static_cast<int>(windowPos.y + headerOffset + controlPanelHeight);
 
-    // La c�mara debe mirar en la direcci�n de su "frente" (puedes ajustar esto)
-    glm::vec3 cameraFront = camera.position + glm::vec3(0.0f, 0.0f, 1.0f);  // Direcci�n hacia donde mira la c�mara
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);  // Vector "arriba" de la c�mara
+    // Usar el tamaño del framebuffer para los cálculos
+    float windowWidth = framebufferWidth;
+    float windowHeight = framebufferHeight;
 
-    // Generamos la matriz de vista usando lookAt
-    glm::mat4 view = glm::lookAt(camera.position, cameraFront, up);
+    // Verificar que el mouse está dentro de los límites
+    if (mouseX < 0 || mouseX > windowWidth || mouseY < 0 || mouseY > windowHeight) {
+        console.addLog("Mouse fuera de límites");
+        return Ray(glm::vec3(0), glm::vec3(0));
+    }
 
-    // Multiplicamos la matriz de proyecci�n por la de vista, y luego la invertimos
+    // Convertir a NDC usando el tamaño del framebuffer
+    float x = (2.0f * mouseX) / windowWidth - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / windowHeight;
+
+    // Crear la matriz de proyección usando el aspect ratio del framebuffer
+    float aspectRatio = static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+
+    // Calcular la dirección de la cámara
+    glm::vec3 forward = glm::normalize(glm::vec3(
+        -cos(glm::radians(camera.objectAngleY)) * sin(glm::radians(camera.objectAngleX)),
+        -sin(glm::radians(camera.objectAngleY)),
+        -cos(glm::radians(camera.objectAngleY)) * cos(glm::radians(camera.objectAngleX))
+    ));
+
+    glm::mat4 view = glm::lookAt(
+        -camera.position,
+        -camera.position + forward,
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+
     glm::mat4 inverseProjectionView = glm::inverse(projection * view);
 
-    // Proyectar el punto del rat�n hacia un rayo en el espacio 3D
-    glm::vec4 clipSpacePos(x, y, -1.0f, 1.0f);
-    glm::vec4 worldPos = inverseProjectionView * clipSpacePos;
+    glm::vec4 clipSpaceNear(x, y, -1.0f, 1.0f);
+    glm::vec4 clipSpaceFar(x, y, 1.0f, 1.0f);
 
-    // Calcular la direcci�n del rayo
-    glm::vec3 rayDirection = glm::normalize(glm::vec3(worldPos) - camera.position);
+    glm::vec4 worldSpaceNear = inverseProjectionView * clipSpaceNear;
+    glm::vec4 worldSpaceFar = inverseProjectionView * clipSpaceFar;
 
-    // Devolver el rayo calculado
-    return Ray(camera.position, rayDirection);
+    worldSpaceNear /= worldSpaceNear.w;
+    worldSpaceFar /= worldSpaceFar.w;
+
+    glm::vec3 rayDirection = glm::normalize(
+        glm::vec3(worldSpaceFar) - glm::vec3(worldSpaceNear)
+    );
+
+    console.addLog("Mouse pos (adjusted): " +
+        std::to_string(mouseX) + ", " +
+        std::to_string(mouseY));
+
+    console.addLog("NDC coords: " +
+        std::to_string(x) + ", " +
+        std::to_string(y));
+
+    console.addLog("Ray origin: " +
+        std::to_string(-camera.position.x) + ", " +
+        std::to_string(-camera.position.y) + ", " +
+        std::to_string(-camera.position.z));
+
+    console.addLog("Ray direction: " +
+        std::to_string(rayDirection.x) + ", " +
+        std::to_string(rayDirection.y) + ", " +
+        std::to_string(rayDirection.z));
+
+    return Ray(-camera.position, rayDirection);
 }
+void SceneWindow::DrawRay(const Ray& ray, float length) {
+    glm::vec3 endPoint = ray.origin + ray.direction * length;
 
+    glPushMatrix();
+    glColor3f(1.0f, 0.0f, 0.0f); // Rojo para el rayo
+
+    // Dibuja el rayo
+    glBegin(GL_LINES);
+    glVertex3f(ray.origin.x, ray.origin.y, ray.origin.z);
+    glVertex3f(endPoint.x, endPoint.y, endPoint.z);
+    glEnd();
+
+    // Dibuja el punto de origen
+    glPointSize(5.0f);
+    glBegin(GL_POINTS);
+    glVertex3f(ray.origin.x, ray.origin.y, ray.origin.z);
+    glVertex3f(endPoint.x, endPoint.y, endPoint.z);
+    glEnd();
+
+    glPopMatrix();
+}
 // M�todo que verifica si el rayo interseca con alg�n objeto en la escena
 void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight) {
     Ray ray = getRayFromMouse(mouseX, mouseY, screenWidth, screenHeight);
+    rayo = new Ray(ray);
+    rayo->origin = ray.origin;
+    rayo->direction = ray.direction;
 
+    rayoexists = true;
     for (auto& obj : variables->window->gameObjects) {
         console.addLog("HAY ESTOS OBJETOS EN LA ESCENA: " + obj->getName()); 
         MeshData* meshData = obj->getMeshData();
@@ -156,7 +232,7 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                 float t = 0.0f;
                 if (ray.intersectsTriangle(vertex1, vertex2, vertex3, t)) {
                     variables->window->selectObject(obj);
-                    console.addLog("Objeto seleccionado: " + variables->window->selectedObject->name);
+                    //console.addLog("Objeto seleccionado: " + variables->window->selectedObject->name);
                     /* char nameBuffer[256];
                      strncpy_s(nameBuffer, variables->window->selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
                      if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
