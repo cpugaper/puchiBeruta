@@ -80,13 +80,13 @@ void SceneWindow::render() {
     if (activeButton == ActiveButton::Pause) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.5f, 1.0f, 1.0f)); 
     }
+     if (activeButton == ActiveButton::Pause) {
+        ImGui::PopStyleColor();
+    }
     if (ImGui::Button("Pause", ImVec2(buttonWidth, 0))) {
         activeButton = ActiveButton::Pause;
         SimulationManager::simulationManager.pauseSimulation(variables->window->gameObjects);
-    }
-    if (activeButton == ActiveButton::Pause) {
-        ImGui::PopStyleColor();
-    }
+    }   
 
     ImGui::SameLine();
 
