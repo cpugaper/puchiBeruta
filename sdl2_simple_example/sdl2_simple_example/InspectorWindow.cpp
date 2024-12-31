@@ -37,7 +37,7 @@ void InspectorWindow::render(GameObject* selectedObject) {
 
             char nameBuffer[256];
             strncpy_s(nameBuffer, selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
-            nameBuffer[sizeof(nameBuffer) - 1] = '\0';  // Asegura la terminación nula
+            nameBuffer[sizeof(nameBuffer) - 1] = '\0';
 
             if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
                 selectedObject->name = std::string(nameBuffer);
@@ -81,7 +81,6 @@ void InspectorWindow::render(GameObject* selectedObject) {
             }
         }
         if (!selectedObject->isCamera) {
-            //GameObject* selectedObject = variables->window->selectedObject;
             MeshData* meshData = selectedObject->getMeshData();
             if (meshData) {
                 if (ImGui::CollapsingHeader("Mesh Information")) {

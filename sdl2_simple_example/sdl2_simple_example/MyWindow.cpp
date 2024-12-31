@@ -378,27 +378,6 @@ void MyWindow::createMainMenu() {
 
             ImGui::Separator();
 
-            /*if (ImGui::CollapsingHeader("Texture Settings")) {
-                ImGui::SliderFloat("Texture Filter Quality", &variables->textureFilterQuality, 0.0f, 2.0f);
-                ImGui::SliderFloat("Anisotropic Filter", &variables->textureAnisotropicLevel, 1.0f, 16.0f);
-            }*/
-            /*if (ImGui::CollapsingHeader("Object Settings")) {
-                GameObject* selectedObject = variables->window->selectedObject;
-                if (selectedObject) {
-                    char nameBuffer[256];
-                    strncpy_s(nameBuffer, selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
-
-                    if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
-                        selectedObject->name = std::string(nameBuffer);
-                    }
-                }
-                else {
-                    ImGui::Text("No object selected");
-                }
-            }*/
-
-            ImGui::Separator();
-
             if (ImGui::CollapsingHeader("Info")) {
 
                 MEMORYSTATUSEX statex;

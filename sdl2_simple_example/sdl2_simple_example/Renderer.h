@@ -6,7 +6,6 @@
 #include "GameObject.h"
 #include "Camera.h"
 
-
 extern GLuint framebuffer;
 extern GLuint textureColorbuffer;
 extern GLuint rbo;
@@ -27,7 +26,6 @@ public:
 	std::string getFileName(const std::string& path);
 	void createFrameBuffer(int width, int height);
 	void cleanupFrameBuffer();
-
 };
 
 #endif // RENDERER_H

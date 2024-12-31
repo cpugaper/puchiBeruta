@@ -60,19 +60,6 @@ int main(int argc, char** argv) {
 	iluInit();
 	console.addLog("DevIL initialized with success");
 
-	//std::string sceneFile = "scene.json";
-	//if (std::filesystem::exists(sceneFile)) {
-	//	std::cout << "Loading scene from file: " << sceneFile << std::endl;
-	//	meshes = importer.loadScene(sceneFile); 
-	//}
-	//else {
-	//	std::cout << "Loading model FBX..." << std::endl;
-	//	meshes = importer.loadFBX("Assets/BakerHouse.fbx", textureID);
-
-	//	std::cout << "Savign scene in file: " << sceneFile << std::endl;
-	//	importer.saveScene(sceneFile, meshes);
-	//}
-
 	std::string texturePath = "sdl2_simple_example\\Library\\Textures\\streetEnv.texdat";
 
 	if (std::filesystem::exists(texturePath)) {

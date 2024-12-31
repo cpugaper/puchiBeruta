@@ -120,10 +120,8 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
 
     if (extension == ".dat") {
         try {
-            // Cargar meshes desde el archivo .dat
             meshes = importer.loadCustomFormat(filePath.string());
 
-            // Buscar textura asociada en Library/Textures
             std::filesystem::path texturePathPNG = std::filesystem::path("Library/Textures") /
                 (filePath.stem().string() + ".png");
 
@@ -134,7 +132,6 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
                 texturePathString = texturePathPNG.string();
             }
 
-            // Crear objetos de juego para cada mesh
             for (size_t i = 0; i < meshes.size(); ++i) {
                 const std::string objectName = getFileName(filePath.string()) + "_" + std::to_string(i);
                 GameObject* newObject = new GameObject(objectName, meshes[i], textureID, texturePathString);
@@ -148,7 +145,6 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
         }
     }
 
-    // Si es un FBX, usa el método de importación de FBX
     else if (extension == ".fbx") {
         meshes = importer.loadFBX(droppedFile, textureID);
 
@@ -168,7 +164,6 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
     else if (extension == ".png" || extension == ".dds" || extension == ".texdat") {
         GLuint newTextureID;
 
-        // Determinar qué método de carga usar según la extensión
         if (extension == ".texdat") {
             newTextureID = importer.loadTextureFromCustomFormat(droppedFile);
         }
@@ -179,7 +174,6 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
         std::string textureFilePath = filePath.string();
 
         if (variables->window->selectedObject) {
-            // Si había una textura previa, la liberamos
             if (variables->window->selectedObject->textureID != 0) {
                 glDeleteTextures(1, &variables->window->selectedObject->textureID);
             }
@@ -190,7 +184,6 @@ void Renderer::HandleDroppedFile(const char* droppedFile) {
         }
         else {
             console.addLog("No object selected to apply the texture.");
-            // Limpiamos la textura si no hay objeto seleccionado
             if (newTextureID != 0) {
                 glDeleteTextures(1, &newTextureID);
             }
@@ -285,17 +278,13 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D); 
-        //obj->RegenerateCorners();
+
         if (variables->window->selectedObject == obj) {
             obj->RegenerateCorners();  
             obj->DrawVertex(); 
         }
         glPopMatrix();
-
     }
-    /*if (sceneWindow.rayoexists) {
-        sceneWindow.DrawRay(*sceneWindow.rayo, 1000);
-    }*/
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);

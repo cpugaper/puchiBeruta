@@ -69,7 +69,6 @@ void GameObject::stopMovement() {
     }
 }
 
-
 // Generate a random UUID to identify each object uniquely
 std::string GameObject::GenerateUUID() {
     std::random_device rd;
@@ -87,7 +86,7 @@ std::string GameObject::GenerateUUID() {
     for (int i = 0; i < 4; i++) {
         ss << dis(gen);
     }
-    ss << "-4"; // Version 4 UUID
+    ss << "-4";
     for (int i = 0; i < 3; i++) {
         ss << dis(gen);
     }
@@ -202,25 +201,20 @@ void GameObject::createCameraObject(const std::string& name, std::vector<GameObj
     SimulationManager::simulationManager.trackObject(emptyObject);
     console.addLog("Camera object created");
 
-    //emptyObject->RegenerateCorners();
-
-    // Llamamos al método para dibujar la bounding box en el origen (0, 0, 0)
+    // Call the method for drawing the bounding box at the origin (0, 0, 0)
     emptyObject->DrawBoundingBox();
 }
 void GameObject::DrawBoundingBox() {
-    glPushMatrix();  // Guardamos el estado actual de la matriz de transformación
+    glPushMatrix();
 
-    // Posicionamos el cubo en el origen (0, 0, 0)
-    glTranslatef(0.0f, 0.0f, 0.0f);  // Esto no mueve el cubo porque ya está en (0, 0, 0)
+    glTranslatef(0.0f, 0.0f, 0.0f);
 
-    glColor3f(1.0f, 0.0f, 0.0f);  // Color rojo para el cubo
+	glColor3f(1.0f, 0.0f, 0.0f);  // Red colour for the bounding box
 
-    glBegin(GL_LINES);  // Empezamos a dibujar líneas
+    glBegin(GL_LINES);
 
-    // Definimos los vértices del cubo (tamaño 1)
-    float size = 1.0f;  // Tamaño del cubo
+    float size = 1.0f;
 
-    // Vértices del cubo
     glm::vec3 v0(-size / 2, -size / 2, -size / 2);
     glm::vec3 v1(size / 2, -size / 2, -size / 2);
     glm::vec3 v2(size / 2, size / 2, -size / 2);
@@ -230,25 +224,25 @@ void GameObject::DrawBoundingBox() {
     glm::vec3 v6(size / 2, size / 2, size / 2);
     glm::vec3 v7(-size / 2, size / 2, size / 2);
 
-    // Dibujamos las 12 líneas del cubo (conectando los vértices)
-    glVertex3f(v0.x, v0.y, v0.z); glVertex3f(v1.x, v1.y, v1.z);  // Línea 1
-    glVertex3f(v1.x, v1.y, v1.z); glVertex3f(v2.x, v2.y, v2.z);  // Línea 2
-    glVertex3f(v2.x, v2.y, v2.z); glVertex3f(v3.x, v3.y, v3.z);  // Línea 3
-    glVertex3f(v3.x, v3.y, v3.z); glVertex3f(v0.x, v0.y, v0.z);  // Línea 4
+    // Draw the 12 lines of the cube(connecting the vertices).
+    glVertex3f(v0.x, v0.y, v0.z); glVertex3f(v1.x, v1.y, v1.z);  // Line 1
+    glVertex3f(v1.x, v1.y, v1.z); glVertex3f(v2.x, v2.y, v2.z);  // Line 2
+    glVertex3f(v2.x, v2.y, v2.z); glVertex3f(v3.x, v3.y, v3.z);  // Line 3
+    glVertex3f(v3.x, v3.y, v3.z); glVertex3f(v0.x, v0.y, v0.z);  // Line 4
 
-    glVertex3f(v4.x, v4.y, v4.z); glVertex3f(v5.x, v5.y, v5.z);  // Línea 5
-    glVertex3f(v5.x, v5.y, v5.z); glVertex3f(v6.x, v6.y, v6.z);  // Línea 6
-    glVertex3f(v6.x, v6.y, v6.z); glVertex3f(v7.x, v7.y, v7.z);  // Línea 7
-    glVertex3f(v7.x, v7.y, v7.z); glVertex3f(v4.x, v4.y, v4.z);  // Línea 8
+    glVertex3f(v4.x, v4.y, v4.z); glVertex3f(v5.x, v5.y, v5.z);  // Line 5
+    glVertex3f(v5.x, v5.y, v5.z); glVertex3f(v6.x, v6.y, v6.z);  // Line 6
+    glVertex3f(v6.x, v6.y, v6.z); glVertex3f(v7.x, v7.y, v7.z);  // Line 7
+    glVertex3f(v7.x, v7.y, v7.z); glVertex3f(v4.x, v4.y, v4.z);  // Line 8
 
-    glVertex3f(v0.x, v0.y, v0.z); glVertex3f(v4.x, v4.y, v4.z);  // Línea 9
-    glVertex3f(v1.x, v1.y, v1.z); glVertex3f(v5.x, v5.y, v5.z);  // Línea 10
-    glVertex3f(v2.x, v2.y, v2.z); glVertex3f(v6.x, v6.y, v6.z);  // Línea 11
-    glVertex3f(v3.x, v3.y, v3.z); glVertex3f(v7.x, v7.y, v7.z);  // Línea 12
+    glVertex3f(v0.x, v0.y, v0.z); glVertex3f(v4.x, v4.y, v4.z);  // Line 9
+    glVertex3f(v1.x, v1.y, v1.z); glVertex3f(v5.x, v5.y, v5.z);  // Line 10
+    glVertex3f(v2.x, v2.y, v2.z); glVertex3f(v6.x, v6.y, v6.z);  // Line 11
+    glVertex3f(v3.x, v3.y, v3.z); glVertex3f(v7.x, v7.y, v7.z);  // Line 12
 
-    glEnd();  // Terminamos de dibujar las líneas
+    glEnd();
 
-    glPopMatrix();  // Restauramos el estado de la matriz de transformación
+    glPopMatrix();   // Restores the state of the transformation matrix
 }
 glm::mat4 GameObject::getTransformMatrix() const {
     glm::mat4 transform = glm::mat4(1.0f);
@@ -261,7 +255,6 @@ glm::mat4 GameObject::getTransformMatrix() const {
 }
 
 // Transforms for parenting logic
-
 glm::mat4 GameObject::getFinalTransformMatrix() const {
     glm::mat4 localTransform = getTransformMatrix();
 
@@ -288,7 +281,6 @@ void GameObject::setPosition(const glm::vec3& newPosition) {
 
 void GameObject::setRotation(const glm::vec3& newRotation) {
     rotation = newRotation;
-    //RegenerateCorners();
 }
 
 void GameObject::setScale(const glm::vec3& newScale) {
@@ -331,42 +323,36 @@ void GameObject::DrawVertex() {
 
     MeshData* meshData = getMeshData();
     if (meshData) {
-        glLineWidth(2.0f);  // Establecer el grosor de la línea
-        glBegin(GL_LINES);  // Empezamos a dibujar líneas
-        glBindTexture(GL_TEXTURE_2D, 0);  // No usar textura
+        glLineWidth(2.0f);
+        glBegin(GL_LINES);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         for (size_t i = 0; i < meshData->vertices.size(); i += 3) {
             glm::vec3 vertex1(meshData->vertices[i], meshData->vertices[i + 1], meshData->vertices[i + 2]);
 
-            // Dibujamos una línea entre cada par de vértices consecutivos
-            if (i + 3 < meshData->vertices.size()) {  // Asegúrate de que haya un siguiente vértice
+            if (i + 3 < meshData->vertices.size()) {
                 glm::vec3 vertex2(meshData->vertices[i + 3], meshData->vertices[i + 4], meshData->vertices[i + 5]);
 
-                glColor3f(0.0f, 1.0f, 0.0f);  // Color verde
-                glVertex3f(vertex1.x, vertex1.y, vertex1.z);  // Primer vértice
-                glVertex3f(vertex2.x, vertex2.y, vertex2.z);  // Segundo vértice
+                glColor3f(0.0f, 1.0f, 0.0f);  // Green colour
+				glVertex3f(vertex1.x, vertex1.y, vertex1.z);  // First vertex
+				glVertex3f(vertex2.x, vertex2.y, vertex2.z);  // Second vertex
             }
         }
-
-        glEnd();  // Terminamos de dibujar las líneas
+        glEnd();
     }
 }
 
 void GameObject::RegenerateCorners()
 {
-    //rotation = glm::radians(rotation); 
-
     glm::mat4 transMatrix = glm::translate(glm::mat4(1.0f), position);
     glm::mat4 rotMatrix = glm::mat4(1.0f);
-    rotMatrix = glm::rotate(rotMatrix, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)); // Rotación en X
-    rotMatrix = glm::rotate(rotMatrix, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)); // Rotación en Y
-    rotMatrix = glm::rotate(rotMatrix, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)); // Rotación en Z
+    rotMatrix = glm::rotate(rotMatrix, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+    rotMatrix = glm::rotate(rotMatrix, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+    rotMatrix = glm::rotate(rotMatrix, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
 
-    //return transMatrix * rotMatrix * scaleMatrix; 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    //glMultMatrixf(glm::value_ptr(transMatrix * rotMatrix * scaleMatrix));
 
     glm::vec3 temp[8] = {
          glm::vec3(boundingBoxMinLocal.x, boundingBoxMinLocal.y, boundingBoxMinLocal.z),  // V0
@@ -381,32 +367,30 @@ void GameObject::RegenerateCorners()
 
     std::copy(std::begin(temp), std::end(temp), corners);
     
-    // Establecer el color de la bounding box (amarillo)
-    glColor3f(1.0f, 1.0f, 0.0f);
+	glColor3f(1.0f, 1.0f, 0.0f);    //Yellow colour
 
-    // Dibujar las 12 aristas de la bounding box usando líneas
+    // Draw the 12 edges of the bounding box using lines
     glBegin(GL_LINES);
 
-    // Parte inferior (aristas del plano minWorld.z)
+    // Bottom part (edges of the minWorld.z plane)
     glVertex3fv(glm::value_ptr(corners[0])); glVertex3fv(glm::value_ptr(corners[1])); // V0 ↔ V1
     glVertex3fv(glm::value_ptr(corners[1])); glVertex3fv(glm::value_ptr(corners[3])); // V1 ↔ V3
     glVertex3fv(glm::value_ptr(corners[3])); glVertex3fv(glm::value_ptr(corners[2])); // V3 ↔ V2
     glVertex3fv(glm::value_ptr(corners[2])); glVertex3fv(glm::value_ptr(corners[0])); // V2 ↔ V0
 
-    // Parte superior (aristas del plano maxWorld.z)
+    // Upper part (edges of the maxWorld.z plane)
     glVertex3fv(glm::value_ptr(corners[4])); glVertex3fv(glm::value_ptr(corners[5])); // V4 ↔ V5
     glVertex3fv(glm::value_ptr(corners[5])); glVertex3fv(glm::value_ptr(corners[7])); // V5 ↔ V7
     glVertex3fv(glm::value_ptr(corners[7])); glVertex3fv(glm::value_ptr(corners[6])); // V7 ↔ V6
     glVertex3fv(glm::value_ptr(corners[6])); glVertex3fv(glm::value_ptr(corners[4])); // V6 ↔ V4
 
-    // Conexiones verticales (vértices inferiores a los superiores)
+    // Vertical connections (lower vertices to upper vertices)
     glVertex3fv(glm::value_ptr(corners[0])); glVertex3fv(glm::value_ptr(corners[4])); // V0 ↔ V4
     glVertex3fv(glm::value_ptr(corners[1])); glVertex3fv(glm::value_ptr(corners[5])); // V1 ↔ V5
     glVertex3fv(glm::value_ptr(corners[2])); glVertex3fv(glm::value_ptr(corners[6])); // V2 ↔ V6
     glVertex3fv(glm::value_ptr(corners[3])); glVertex3fv(glm::value_ptr(corners[7])); // V3 ↔ V7
 
-    glEnd(); // Terminar de dibujar las líneas
+    glEnd();
 
-    // Restaurar la matriz después de dibujar
     glPopMatrix();
 }

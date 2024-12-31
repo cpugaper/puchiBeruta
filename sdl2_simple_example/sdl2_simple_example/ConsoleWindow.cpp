@@ -50,5 +50,3 @@ void ConsoleWindow::displayConsole() {
     ImGui::EndChild();
     ImGui::End();
 }
-
-

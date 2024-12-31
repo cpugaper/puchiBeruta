@@ -36,19 +36,12 @@ public:
 	glm::vec3 initPosition;
 	float initAngleX;
 	float initAngleY;
-	//float objectAngleX, objectAngleY;
+
 private:
 
 	float speed;
 	bool shiftPressed, altPressed, isLeftMouseDragging, isRightMouseDragging;
 	int lastMouseX, lastMouseY;
-
-	/*template <class Archive>
-	void serialize(Archive& archive) {
-		archive(CEREAL_NVP(position), CEREAL_NVP(angleX), CEREAL_NVP(angleY), CEREAL_NVP(objectAngleX), CEREAL_NVP(objectAngleY), CEREAL_NVP(speed),
-			CEREAL_NVP(shiftPressed), CEREAL_NVP(altPressed), CEREAL_NVP(isLeftMouseDragging), CEREAL_NVP(isRightMouseDragging),
-			CEREAL_NVP(lastMouseX), CEREAL_NVP(lastMouseY));
-	}*/
 
 	glm::vec4 leftPlaneFrustrum;
 	glm::vec4 rightPlaneFrustrum;

@@ -21,7 +21,6 @@ void Camera::reset() {
         position.y -= 1;
         position.z -= 10;
         angleX = angleY = 0.0f;
-        //objectAngleX = objectAngleY = 0.0f;
         speed = 0.1f;
         console.addLog(("Camera reset to object: " + obj->getName()).c_str());
     }
@@ -87,7 +86,7 @@ void Camera::processMouseButtonDown(const SDL_MouseButtonEvent& button) {
         isRightMouseDragging = true;
     }
     if (button.button == SDL_BUTTON_LEFT) {
-        sceneWindow.checkRaycast(button.x, button.y, variables->window->width(), variables->window->height());// variables->windowWidth, variables->windowHeight);//screenWidth, screenHeight);
+        sceneWindow.checkRaycast(button.x, button.y, variables->window->width(), variables->window->height());
     }
 }
 
@@ -106,20 +105,12 @@ void Camera::processMouseWheel(const SDL_MouseWheelEvent& wheel) {
 
 // Moves the camera based on the keys pressed
 void Camera::move(const Uint8* keyboardState) {
-    /*if (isRightMouseDragging) {
-        if (keyboardState[SDL_SCANCODE_W]) position.z += speed;
-        if (keyboardState[SDL_SCANCODE_S]) position.z -= speed;
-        if (keyboardState[SDL_SCANCODE_A]) position.x += speed;
-        if (keyboardState[SDL_SCANCODE_D]) position.x -= speed;
-        if (keyboardState[SDL_SCANCODE_Q]) position.y -= speed;
-        if (keyboardState[SDL_SCANCODE_E]) position.y += speed;
-    }*/
     if (isRightMouseDragging) {
         glm::vec3 forward = getForwardVector();
         glm::vec3 right = getRightVector();
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        // Calcular el movimiento basado en la dirección de la cámara
+        // Calculate movement based on camera direction
         if (keyboardState[SDL_SCANCODE_W])
             position -= forward * speed;
         if (keyboardState[SDL_SCANCODE_S])
@@ -144,11 +135,9 @@ void Camera::applyCameraTransformations() {
 }
 
 glm::vec3 Camera::getForwardVector() {
-    // Convertir ángulos a radianes
     float angleXRad = glm::radians(angleX);
     float angleYRad = glm::radians(angleY);
 
-    // Calcular el vector forward basado en los ángulos de rotación
     return glm::vec3(
         sin(angleXRad) * cos(angleYRad),
         -sin(angleYRad),
@@ -157,7 +146,6 @@ glm::vec3 Camera::getForwardVector() {
 }
 
 glm::vec3 Camera::getRightVector() {
-    // El vector right es perpendicular al forward y al up (0,1,0)
     glm::vec3 forward = getForwardVector();
     return glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
 }

@@ -94,7 +94,6 @@ void HierarchyWindow::renderHierarchyTree(const std::vector<GameObject*>& gameOb
     GameObject*& selectedObject,
     const Uint8* keyboardState) {
     std::function<void(GameObject*)> renderGameObject = [&](GameObject* obj) {
-        // Usar el UUID como identificador único
         std::string uniqueLabel = obj->getName() + "##" + obj->getUUID();
 
         bool isSelected = std::find(selectedObjects.begin(), selectedObjects.end(), obj) != selectedObjects.end();
@@ -118,7 +117,6 @@ void HierarchyWindow::renderHierarchyTree(const std::vector<GameObject*>& gameOb
         }
         };
 
-    // Renderizar solo objetos raíz (sin padre)
     for (GameObject* obj : gameObjects) {
         if (!obj->parent) {
             renderGameObject(obj);
@@ -135,7 +133,7 @@ void HierarchyWindow::handleObjectSelection(GameObject* obj,
     bool shiftPressed = keyboardState[SDL_SCANCODE_LSHIFT] || keyboardState[SDL_SCANCODE_RSHIFT];
 
     if (ctrlPressed) {
-        // Multi-selección con Ctrl
+        // Multi-selección with Ctrl
         auto it = std::find(selectedObjects.begin(), selectedObjects.end(), obj);
         if (it != selectedObjects.end()) {
             selectedObjects.erase(it);
@@ -149,7 +147,7 @@ void HierarchyWindow::handleObjectSelection(GameObject* obj,
         }
     }
     else if (shiftPressed && !selectedObjects.empty()) {
-        // Encontrar todos los objetos del mismo nivel jerárquico
+        // Find all objects of the same hierarchical level
         std::vector<GameObject*> siblingObjects;
         GameObject* parent = obj->parent;
 
@@ -157,12 +155,12 @@ void HierarchyWindow::handleObjectSelection(GameObject* obj,
             siblingObjects = parent->children;
         }
         else {
-            // Si no tiene padre, usar objetos raíz
+            // If no parent, use root objects
             std::copy_if(gameObjects.begin(), gameObjects.end(), std::back_inserter(siblingObjects),
                 [](GameObject* go) { return go->parent == nullptr; });
         }
 
-        // Encontrar índices del último objeto seleccionado y el objeto actual
+        // Find indexes of the last selected object and the current object
         auto getIndex = [&siblingObjects](GameObject* target) {
             return std::distance(siblingObjects.begin(),
                 std::find(siblingObjects.begin(), siblingObjects.end(), target));
@@ -183,7 +181,6 @@ void HierarchyWindow::handleObjectSelection(GameObject* obj,
         }
     }
     else {
-        // Selección simple
         selectedObjects.clear();
         selectedObjects.push_back(obj);
         selectedObject = obj;

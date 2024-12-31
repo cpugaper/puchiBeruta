@@ -41,13 +41,6 @@ public:
 	void createDockSpace();
 	void createMainMenu();
 
-	/*template <class Archive>
-	void serialize(Archive& archive) {
-		archive(CEREAL_NVP(_width), CEREAL_NVP(_height), CEREAL_NVP(_fps), CEREAL_NVP(_frameCount));
-		archive(CEREAL_NVP(gameObjects));
-		archive(CEREAL_NVP(selectedObject), CEREAL_NVP(objectSelected));
-	}*/
-
 private:
 	unsigned int _lastTime = 0;
 	unsigned int _currentTime = 0;
@@ -55,10 +48,9 @@ private:
 	unsigned int _frameCount = 0;
 	std::vector<float> _fpsHistory;
 
-	bool showFiles = false;        // Para saber si mostrar los archivos
-	std::string selectedFile;      // Para almacenar el archivo seleccionado
+	bool showFiles = false; 
+	std::string selectedFile;
 	std::string folderPath = "Assets";
-
 };
 
 #endif // MYWINDOW_H	

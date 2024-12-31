@@ -23,9 +23,6 @@ void SceneWindow::render() {
 
     bool active = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     isActive = active;
-    if (active) {
-        //console.addLog("SceneWindow active");
-    }
 
     windowPos = ImGui::GetWindowPos();
     windowSize = ImGui::GetWindowSize(); 
@@ -75,10 +72,8 @@ void SceneWindow::render() {
                 camera.position = -obj->getPosition();
                 camera.angleX = -obj->getRotation().x;
                 camera.angleY = -obj->getRotation().y;
-                //camera.scale = obj->getScale(); 
             }
         }
-
     }
     ImGui::SameLine();
 
@@ -111,19 +106,12 @@ void SceneWindow::render() {
                 camera.position = camera.initPosition;
                 camera.angleX = camera.initAngleX;
                 camera.angleY = camera.initAngleY;
-
-                /*camera.angleX = obj->getRotation();
-                camera.scale = obj->getScale(); */
             }
         }
     }
     ImGui::End();
 
     updateSceneSize();
-  
-    if (rayoexists) {
-        //DrawRay(*rayo, 1000);
-    }
    
     // Show texture on screen
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
@@ -183,26 +171,18 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
     mouseX -= static_cast<int>(windowPos.x);
     mouseY -= static_cast<int>(windowPos.y + headerOffset);
 
-    // Usar el tamaño del framebuffer para los cálculos
     float windowWidth = framebufferWidth;
     float windowHeight = framebufferHeight;
 
-    // Verificar que el mouse está dentro de los límites
+    // Verify that the mouse is within limits
     if (mouseX < 0 || mouseX > windowWidth || mouseY < 0 || mouseY > windowHeight) {
         console.addLog("Mouse fuera de límites");
         return Ray(glm::vec3(0), glm::vec3(0));
     }
 
-    // Convertir a NDC usando el tamaño del framebuffer
+    // Convert to NDC using framebuffer size
     float x = (2.0f * mouseX) / windowWidth - 1.0f;
     float y = 1.0f - (2.0f * mouseY) / windowHeight;
-
-    // Calcular la dirección de la cámara
-    /*glm::vec3 forward = glm::normalize(glm::vec3(
-        -cos(glm::radians(camera.angleY)) * sin(glm::radians(camera.angleX)),
-        -sin(glm::radians(camera.angleY)),
-        -cos(glm::radians(camera.angleY)) * cos(glm::radians(camera.angleX))
-    ));*/
 
     glm::mat4 inverseProjectionView = glm::inverse(ProjectionMatrix() * ViewMatrix());
 
@@ -241,19 +221,20 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
 
     return Ray(-camera.position, rayDirection);
 }
+
 void SceneWindow::DrawRay(const Ray& ray, float length) {
     glm::vec3 endPoint = ray.origin + ray.direction * length;
 
     glPushMatrix();
-    glColor3f(1.0f, 0.0f, 0.0f); // Rojo para el rayo
+    glColor3f(1.0f, 0.0f, 0.0f);
 
-    // Dibuja el rayo
+    // Draw the lightning
     glBegin(GL_LINES);
     glVertex3f(ray.origin.x, ray.origin.y, ray.origin.z);
     glVertex3f(endPoint.x, endPoint.y, endPoint.z);
     glEnd();
 
-    // Dibuja el punto de origen
+    // Draw the point of origin
     glPointSize(5.0f);
     glBegin(GL_POINTS);
     glVertex3f(ray.origin.x, ray.origin.y, ray.origin.z);
@@ -263,7 +244,7 @@ void SceneWindow::DrawRay(const Ray& ray, float length) {
     glPopMatrix();
 }
 
-// M�todo que verifica si el rayo interseca con alg�n objeto en la escena
+// Check if the beam intersects with any object in the scene.
 void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight) {
     Ray ray = getRayFromMouse(mouseX, mouseY, screenWidth, screenHeight);
     rayo = new Ray(ray);
@@ -284,24 +265,12 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                 glm::vec3 edge2 = vertex3 - vertex1;
                 glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
 
-                /* ImGui::Text("Triangle %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
-
-                 std::string normalKey = std::to_string(faceNormal.x) + "," + std::to_string(faceNormal.y) + "," + std::to_string(faceNormal.z);
- */
-
                 float t = 0.0f;
                 if (ray.intersectsTriangle(vertex1, vertex2, vertex3, t)) {
                     variables->window->selectObject(obj);
                     if (variables->window->selectedObject != nullptr) {
                         console.addLog("Objeto seleccionado: " + variables->window->selectedObject->name);
                     }
-                    
-                    /* char nameBuffer[256];
-                     strncpy_s(nameBuffer, variables->window->selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
-                     if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
-                         variables->window->selectedObject->name = std::string(nameBuffer);
-                     }*/
-
                     variables->window->selectedObjects.push_back(obj);
                     
                     break;
