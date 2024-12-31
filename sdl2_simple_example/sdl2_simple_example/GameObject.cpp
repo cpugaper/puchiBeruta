@@ -222,14 +222,17 @@ void GameObject::updateChildTransforms() {
 
 void GameObject::setPosition(const glm::vec3& newPosition) {
     position = newPosition;
+    RegenerateCorners();
 }
 
 void GameObject::setRotation(const glm::vec3& newRotation) {
     rotation = newRotation;
+    RegenerateCorners();
 }
 
 void GameObject::setScale(const glm::vec3& newScale) {
     scale = newScale;
+    RegenerateCorners();
 }
 
 void GameObject::resetTransform() {
@@ -259,6 +262,8 @@ void GameObject::BoundingBoxGeneration() {
         boundingBoxMinLocal = minLocal;
         boundingBoxMaxLocal = maxLocal; 
     }
+
+    RegenerateCorners();
 }
 
 void GameObject::RegenerateCorners()

@@ -251,9 +251,9 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
         if (!obj->getActive()) {
             continue; 
         }
-        //if (!camera.isInFrustum(obj)) {
-        //    continue;  // Skip objects outside the frustum
-        //}
+        if (!camera.isInFrustum(obj->corners)) {
+            continue;  // Skip objects outside the frustum
+        }
         glPushMatrix();
 
         glm::mat4 transform = obj->getTransformMatrix();
@@ -284,7 +284,7 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
 
-        obj->RegenerateCorners();
+       /* obj->RegenerateCorners();*/
         glPopMatrix();
 
     }

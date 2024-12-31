@@ -182,35 +182,22 @@ void Camera::CameraFrustum()
     nearPlaneFrustrum = glm::normalize(nearPlaneFrustrum);
     farPlaneFrustrum = glm::normalize(farPlaneFrustrum);
 }
-//
-//bool Camera::isInFrustum(const MeshData* mesh) { 
-//    // Primero hacemos una prueba rápida con la esfera envolvente
-//    //if (!checkBoundingSphere(obj)) {
-//    //    return false;
-//    //}
-//
-//    //// Si pasa la prueba de la esfera, hacemos una comprobación más precisa con los triángulos
-//    //const auto& vertices = obj->meshData.vertices;
-//    //const auto& indices = obj->meshData.indices;
-//    //const glm::mat4& transform = obj->getTransformMatrix();
-//
-//    //for (size_t i = 0; i < indices.size(); i += 3) {
-//    //    // Obtener los vértices del triángulo y transformarlos al espacio mundial
-//    //    glm::vec3 v0 = transformPoint(glm::vec3(vertices[indices[i] * 3],
-//    //        vertices[indices[i] * 3 + 1],
-//    //        vertices[indices[i] * 3 + 2]), transform);
-//    //    glm::vec3 v1 = transformPoint(glm::vec3(vertices[indices[i + 1] * 3],
-//    //        vertices[indices[i + 1] * 3 + 1],
-//    //        vertices[indices[i + 1] * 3 + 2]), transform);
-//    //    glm::vec3 v2 = transformPoint(glm::vec3(vertices[indices[i + 2] * 3],
-//    //        vertices[indices[i + 2] * 3 + 1],
-//    //        vertices[indices[i + 2] * 3 + 2]), transform);
-//
-//    //    // Si al menos un triángulo está dentro del frustum, el objeto es visible
-//    //    if (isTriangleInFrustum(v0, v1, v2)) {
-//    //        return true;
-//    //    }
-//    //}
-//
-//    return true;
-//}
+
+bool Camera::isInFrustum(glm::vec3 corners[8]) {
+    for (int i = 0; i < 8; ++i) {
+        const glm::vec3& vertex = corners[i];
+        glm::vec4 clipSpaceVertex = sceneWindow.ProjectionMatrix() * sceneWindow.ViewMatrix() * glm::vec4(vertex, 1.0f);
+
+        glm::vec3 ndcVertex = glm::vec3(clipSpaceVertex) / clipSpaceVertex.w;
+
+        bool inFrustum = ndcVertex.x >= -1.0f && ndcVertex.x <= 1.0f &&
+            ndcVertex.y >= -1.0f && ndcVertex.y <= 1.0f &&
+            ndcVertex.z >= -1.0f && ndcVertex.z <= 1.0f;
+
+        if (inFrustum) {
+            return true;  
+        }
+    }
+
+    return false;
+}

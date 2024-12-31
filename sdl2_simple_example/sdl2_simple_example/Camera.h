@@ -30,7 +30,7 @@ public:
 
 	void CameraFrustum();
 
-	//bool isInFrustum(const MeshData* mesh);
+	bool isInFrustum(glm::vec3 corners[8]);
 
 	glm::vec3 position; 
 	float angleX, angleY;
