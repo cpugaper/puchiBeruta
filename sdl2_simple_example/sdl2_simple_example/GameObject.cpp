@@ -38,6 +38,8 @@ void GameObject::updateMovement(float deltaTime) {
         if (position.x >= movementRange.second || position.x <= movementRange.first) {
             movementDirection *= -1; 
         }
+        console.addLog("Dynamic: " + std::to_string(dynamic));
+
     }
 }
 
@@ -62,7 +64,7 @@ void GameObject::stopMovement() {
     if (movementState != MovementState::Stopped) {
         movementState = MovementState::Stopped;
         elapsedPausedTime = 0.0f; 
-        resetTransform(); 
+        movementDirection = 1.0f;
         console.addLog(name + " stopped and reset position.");
     }
 }
@@ -227,7 +229,7 @@ void GameObject::setPosition(const glm::vec3& newPosition) {
 
 void GameObject::setRotation(const glm::vec3& newRotation) {
     rotation = newRotation;
-    RegenerateCorners();
+    //RegenerateCorners();
 }
 
 void GameObject::setScale(const glm::vec3& newScale) {

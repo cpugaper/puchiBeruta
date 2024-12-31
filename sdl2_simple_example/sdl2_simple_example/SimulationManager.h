@@ -20,7 +20,6 @@ public:
     void startSimulation(std::vector<GameObject*>& gameObjects);
     void pauseSimulation(std::vector<GameObject*>& gameObjects);
     void stopSimulation(std::vector<GameObject*>& gameObjects);
-    void resetSimulation(std::vector<GameObject*>& gameObjects);
     void update(float deltaTime, std::vector<GameObject*>& gameObjects);
 
     SimulationState getState() const;

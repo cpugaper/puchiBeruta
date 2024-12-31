@@ -15,6 +15,9 @@
 extern Renderer renderer;
 extern Camera camera;
 
+enum class ActiveButton { None, Start, Pause, Stop };
+ActiveButton activeButton = ActiveButton::None;
+
 void SceneWindow::render() {
     ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
 
@@ -30,35 +33,65 @@ void SceneWindow::render() {
     contentRegionAvail = ImGui::GetContentRegionAvail();
 
     ImVec2 controlPanelSize = ImVec2(windowSize.x, 40); 
-    ImVec2 controlPanelPos = ImVec2(windowPos.x, windowPos.y + 20); 
+    ImVec2 controlPanelPos = ImVec2(windowPos.x, windowPos.y + 30); 
 
     ImGui::SetNextWindowPos(controlPanelPos, ImGuiCond_Always);
     ImGui::SetNextWindowSize(controlPanelSize, ImGuiCond_Always);
 
     ImGui::Begin("Control Panel", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
 
-    float windowWidth = ImGui::GetWindowWidth();
     float buttonWidth = 50.0f;
-    float totalButtonWidth = 3 * buttonWidth + 2 * ImGui::GetStyle().ItemSpacing.x;
-    float spacing = (windowWidth - totalButtonWidth) / 2.0f;
+    float buttonHeight = ImGui::GetFrameHeight();
+    float spacingX = ImGui::GetStyle().ItemSpacing.x;
+    float totalButtonWidth = 3 * buttonWidth + 2 * spacingX;
 
-    ImGui::Dummy(ImVec2(spacing, 0));
+    float windowWidth = ImGui::GetWindowWidth();
+    float panelSpacing = (windowWidth - totalButtonWidth) / 2.0f; 
+
+    ImVec2 rectMin = ImVec2(windowPos.x + panelSpacing, controlPanelPos.y);
+    ImVec2 rectMax = ImVec2(rectMin.x + totalButtonWidth + 15, controlPanelPos.y + buttonHeight);
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    drawList->AddRectFilled(rectMin, rectMax, IM_COL32(50, 50, 50, 150));
+
+    ImGui::Dummy(ImVec2(panelSpacing, 0));
     ImGui::SameLine();
 
+    if (activeButton == ActiveButton::Start) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.5f, 1.0f, 1.0f)); 
+    }
     if (ImGui::Button("Start", ImVec2(buttonWidth, 0))) {
+        activeButton = ActiveButton::Start;
         SimulationManager::simulationManager.startSimulation(variables->window->gameObjects);
     }
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Pause", ImVec2(buttonWidth, 0))) {
-        SimulationManager::simulationManager.pauseSimulation(variables->window->gameObjects);
+    if (activeButton == ActiveButton::Start) {
+        ImGui::PopStyleColor();
     }
 
     ImGui::SameLine();
 
+    if (activeButton == ActiveButton::Pause) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.5f, 1.0f, 1.0f)); 
+    }
+    if (ImGui::Button("Pause", ImVec2(buttonWidth, 0))) {
+        activeButton = ActiveButton::Pause;
+        SimulationManager::simulationManager.pauseSimulation(variables->window->gameObjects);
+    }
+    if (activeButton == ActiveButton::Pause) {
+        ImGui::PopStyleColor();
+    }
+
+    ImGui::SameLine();
+
+    if (activeButton == ActiveButton::Stop) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.5f, 1.0f, 1.0f)); 
+    }
     if (ImGui::Button("Stop", ImVec2(buttonWidth, 0))) {
+        activeButton = ActiveButton::Stop;
         SimulationManager::simulationManager.stopSimulation(variables->window->gameObjects);
+    }
+    if (activeButton == ActiveButton::Stop) {
+        ImGui::PopStyleColor();
     }
 
     ImGui::End();

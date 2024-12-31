@@ -15,6 +15,7 @@ SimulationManager::~SimulationManager() {}
 
 void SimulationManager::startSimulation(std::vector<GameObject*>& gameObjects) {
     if (currentState == SimulationState::Stopped || currentState == SimulationState::Paused) {
+        if (currentState == SimulationState::Stopped) sceneManager.saveSceneState(gameObjects);
         currentState = SimulationState::Running;
         for (auto& obj : gameObjects) {
             if (obj && obj->movementState != MovementState::Running) {
@@ -57,14 +58,7 @@ void SimulationManager::stopSimulation(std::vector<GameObject*>& gameObjects) {
         temporaryObjects.clear(); 
 
         console.addLog("Simulation stopped.");
-        resetSimulation(gameObjects);
-    }
-}
-
-void SimulationManager::resetSimulation(std::vector<GameObject*>& gameObjects) {
-    if (currentState == SimulationState::Stopped) {
-        sceneManager.restoreSceneState(gameObjects); 
-        console.addLog("Simulation reset.");
+        sceneManager.restoreSceneState(gameObjects);
     }
 }
 

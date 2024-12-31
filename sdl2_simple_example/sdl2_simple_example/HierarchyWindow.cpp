@@ -64,12 +64,19 @@ void HierarchyWindow::render(std::vector<GameObject*>& gameObjects, std::vector<
         ImGui::Text("No objects in the scene.");
     }
 
+    if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Object can't be deleted in running simulation. Stop the simulation to do so.");
+        if (ImGui::Button("Close")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
     ImGui::End();
 
     processNewObjects(gameObjects);
     handleParenting(selectedObjects);
     applyTransforms(gameObjects, selectedObjects);
-    renderErrorPopup();
 }
 
 void HierarchyWindow::handleKeyboardInput(const Uint8* keyboardState, std::vector<GameObject*>& gameObjects, std::vector<GameObject*>& selectedObjects, GameObject*& selectedObject) {
@@ -275,14 +282,4 @@ void HierarchyWindow::setupInitialHierarchy(std::vector<GameObject*>& gameObject
         }
     }
     parent->updateChildTransforms();
-}
-
-void HierarchyWindow::renderErrorPopup() {
-    if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Object can't be deleted in running simulation. Stop the simulation to do so.");
-        if (ImGui::Button("Close")) {
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
 }

@@ -1,8 +1,10 @@
 #include "SceneManager.h"
 #include "ConsoleWindow.h"
+#include "Importer.h"
 #include <fstream>
 
 SceneManager sceneManager;
+extern Importer importer;
 
 void SceneManager::saveScene(const std::string& outputPath, const std::vector<GameObject*>& gameObjects) {
     std::ofstream outFile(outputPath);
@@ -61,7 +63,13 @@ void SceneManager::loadScene(const std::string& inputPath, std::vector<GameObjec
 
             obj->globalTransform = obj->getTransformMatrix();
 
-            obj->loadTextureFromPath();
+            if (!obj->texturePath.empty()) {
+                obj->textureID = importer.loadTextureFromCustomFormat(obj->texturePath);
+                console.addLog("Loaded texture for GameObject: " + obj->name + " with texture ID: " + std::to_string(obj->textureID));
+            }
+            else {
+                obj->textureID = 0;
+            }
 
             console.addLog("Loaded GameObject: " + obj->name + " UUID: " + obj->uuid);
         }
@@ -117,6 +125,9 @@ void SceneManager::saveSceneState(std::vector<GameObject*>& gameObjects) {
         state.rotation = gameObject->rotation;
         state.scale = gameObject->scale;
         state.parentUUID = gameObject->parent ? gameObject->parent->uuid : "";
+        state.textureID = gameObject->textureID; 
+        state.active = gameObject->active;
+        state.dynamic = gameObject->dynamic;
 
         initialState.push_back(state);
     }
@@ -141,6 +152,10 @@ void SceneManager::restoreSceneState(std::vector<GameObject*>& gameObjects) {
                     gameObject->parent = *parentIt;
                 }
             }
+
+            gameObject->textureID = state.textureID;
+            gameObject->active = state.active;
+            gameObject->dynamic = state.dynamic;
         }
     }
 

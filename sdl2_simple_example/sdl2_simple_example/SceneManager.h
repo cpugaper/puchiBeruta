@@ -14,6 +14,9 @@ struct GameObjectState {
     glm::vec3 rotation;
     glm::vec3 scale;
     std::string parentUUID;
+    GLuint textureID;  
+    bool active;  
+    bool dynamic;
 };
 
 class SceneManager {

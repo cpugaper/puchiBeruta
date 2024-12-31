@@ -101,7 +101,6 @@ public:
 
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
     static void createEmptyObject(const std::string& name, std::vector<GameObject*>& gameObjects);
-    static void createDynamicObject(const std::string& name, std::vector<GameObject*>& gameObjects);
     glm::mat4 getTransformMatrix() const;
 
     const std::string& getName() const { return name; }
@@ -133,7 +132,9 @@ public:
 
     template <class Archive>
     void serialize(Archive& archive) {
-        archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(position), CEREAL_NVP(rotation), CEREAL_NVP(scale), CEREAL_NVP(meshData), CEREAL_NVP(textureID), CEREAL_NVP(texturePath));
+        archive(CEREAL_NVP(uuid), CEREAL_NVP(name), CEREAL_NVP(position), CEREAL_NVP(rotation),
+            CEREAL_NVP(scale), CEREAL_NVP(meshData), CEREAL_NVP(textureID), CEREAL_NVP(texturePath),
+            CEREAL_NVP(active), CEREAL_NVP(dynamic));
 
         std::vector<std::string> childUUIDs;
         if constexpr (Archive::is_saving::value) {
