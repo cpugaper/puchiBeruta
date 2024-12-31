@@ -29,6 +29,8 @@
 #### Select scene to allow control of the camera
 
 - Move around the scene: Hold right click + "WASD".
+- Move upwards on the Y-axis: Hold right click + Press Q.
+- Move down the Y-axis: Hold right click + Press E.
 - Zoom in & zoom out: Scroll mouse wheel.
 - Orbit the object: Alt + right click.
 - Centre camera on the game object: Select desired object + Press F.
