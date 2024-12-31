@@ -12,6 +12,10 @@ public:
     void render();
     void updateSceneSize();
 
+    glm::mat4 ProjectionMatrix();
+
+    glm::mat4 ViewMatrix();
+
     Ray getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight);
     void checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight);
     void DrawRay(const Ray& ray, float length);

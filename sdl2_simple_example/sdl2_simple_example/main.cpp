@@ -90,6 +90,7 @@ int main(int argc, char** argv) {
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = renderer.getFileName("sdl2_simple_example\\Library\\Models\\streetEnv.dat") + "_" + std::to_string(i);
 		auto casa = new GameObject(objectName, meshes[i], textureID, texturePath);
+		casa->BoundingBoxGeneration();
 		variables->window->gameObjects.push_back(casa);
 	}
 	auto previousTime = hrclock::now();

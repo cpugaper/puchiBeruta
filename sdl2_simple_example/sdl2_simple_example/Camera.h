@@ -28,6 +28,10 @@ public:
 	glm::vec3 getForwardVector();
 	glm::vec3 getRightVector();
 
+	void CameraFrustum();
+
+	//bool isInFrustum(const MeshData* mesh);
+
 	glm::vec3 position; 
 	float angleX, angleY;
 	//float objectAngleX, objectAngleY;
@@ -43,6 +47,13 @@ private:
 			CEREAL_NVP(shiftPressed), CEREAL_NVP(altPressed), CEREAL_NVP(isLeftMouseDragging), CEREAL_NVP(isRightMouseDragging),
 			CEREAL_NVP(lastMouseX), CEREAL_NVP(lastMouseY));
 	}*/
+
+	glm::vec4 leftPlaneFrustrum;
+	glm::vec4  rightPlaneFrustrum;
+	glm::vec4 bottomPlaneFrustrum;
+	glm::vec4 topPlaneFrustrum;
+	glm::vec4 nearPlaneFrustrum;
+	glm::vec4 farPlaneFrustrum;
 };
 
 #endif // CAMERA_H

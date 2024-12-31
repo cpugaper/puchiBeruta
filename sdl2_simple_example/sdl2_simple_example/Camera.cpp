@@ -161,3 +161,56 @@ glm::vec3 Camera::getRightVector() {
     glm::vec3 forward = getForwardVector();
     return glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
 }
+
+void Camera::CameraFrustum()
+{
+    glm::mat4 viewProjectionMatrix = sceneWindow.ProjectionMatrix() * sceneWindow.ViewMatrix();  
+
+    // Extraer los planos de la matriz de proyección
+    leftPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] + viewProjectionMatrix[0]);
+    rightPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] - viewProjectionMatrix[0]);
+    bottomPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] + viewProjectionMatrix[1]);
+    topPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] - viewProjectionMatrix[1]);
+    nearPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] + viewProjectionMatrix[2]);
+    farPlaneFrustrum = glm::vec4(viewProjectionMatrix[3] - viewProjectionMatrix[2]);
+
+    // Normalizar los planos
+    leftPlaneFrustrum = glm::normalize(leftPlaneFrustrum);
+    rightPlaneFrustrum = glm::normalize(rightPlaneFrustrum);
+    topPlaneFrustrum = glm::normalize(topPlaneFrustrum);
+    bottomPlaneFrustrum = glm::normalize(bottomPlaneFrustrum);
+    nearPlaneFrustrum = glm::normalize(nearPlaneFrustrum);
+    farPlaneFrustrum = glm::normalize(farPlaneFrustrum);
+}
+//
+//bool Camera::isInFrustum(const MeshData* mesh) { 
+//    // Primero hacemos una prueba rápida con la esfera envolvente
+//    //if (!checkBoundingSphere(obj)) {
+//    //    return false;
+//    //}
+//
+//    //// Si pasa la prueba de la esfera, hacemos una comprobación más precisa con los triángulos
+//    //const auto& vertices = obj->meshData.vertices;
+//    //const auto& indices = obj->meshData.indices;
+//    //const glm::mat4& transform = obj->getTransformMatrix();
+//
+//    //for (size_t i = 0; i < indices.size(); i += 3) {
+//    //    // Obtener los vértices del triángulo y transformarlos al espacio mundial
+//    //    glm::vec3 v0 = transformPoint(glm::vec3(vertices[indices[i] * 3],
+//    //        vertices[indices[i] * 3 + 1],
+//    //        vertices[indices[i] * 3 + 2]), transform);
+//    //    glm::vec3 v1 = transformPoint(glm::vec3(vertices[indices[i + 1] * 3],
+//    //        vertices[indices[i + 1] * 3 + 1],
+//    //        vertices[indices[i + 1] * 3 + 2]), transform);
+//    //    glm::vec3 v2 = transformPoint(glm::vec3(vertices[indices[i + 2] * 3],
+//    //        vertices[indices[i + 2] * 3 + 1],
+//    //        vertices[indices[i + 2] * 3 + 2]), transform);
+//
+//    //    // Si al menos un triángulo está dentro del frustum, el objeto es visible
+//    //    if (isTriangleInFrustum(v0, v1, v2)) {
+//    //        return true;
+//    //    }
+//    //}
+//
+//    return true;
+//}

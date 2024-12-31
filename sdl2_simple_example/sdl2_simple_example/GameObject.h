@@ -114,6 +114,12 @@ public:
     void setScale(const glm::vec3& newScale);
     void resetTransform();
 
+    void BoundingBoxGeneration();
+    void RegenerateCorners();
+    glm::vec3 boundingBoxMinLocal;
+    glm::vec3 boundingBoxMaxLocal;
+    glm::vec3 corners[8];
+
     void setTexture(const std::string& path, GLuint texID);
     void loadTextureFromPath();
 

@@ -1,4 +1,4 @@
-#include "GameObject.h"
+﻿#include "GameObject.h"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -242,4 +242,80 @@ void GameObject::resetTransform() {
     if (parent != nullptr) {
         parent->updateChildTransforms();
     }
+}
+
+void GameObject::BoundingBoxGeneration() {
+    console.addLog("Doing bounding box !!!");
+    MeshData* meshData = getMeshData();
+    if (meshData) {
+        glm::vec3 minLocal(FLT_MAX, FLT_MAX, FLT_MAX);
+        glm::vec3 maxLocal(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+        for (size_t i = 0; i < meshData->vertices.size(); i += 3) {
+            glm::vec3 vertex(meshData->vertices[i], meshData->vertices[i + 1], meshData->vertices[i + 2]);
+            minLocal = glm::min(minLocal, vertex);
+            maxLocal = glm::max(maxLocal, vertex);
+        }
+        boundingBoxMinLocal = minLocal;
+        boundingBoxMaxLocal = maxLocal; 
+    }
+}
+
+void GameObject::RegenerateCorners()
+{
+    rotation = glm::radians(rotation);
+
+    glm::mat4 transMatrix = glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 rotMatrix = glm::mat4(1.0f);
+    rotMatrix = glm::rotate(rotMatrix, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)); // Rotación en X
+    rotMatrix = glm::rotate(rotMatrix, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)); // Rotación en Y
+    rotMatrix = glm::rotate(rotMatrix, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)); // Rotación en Z
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+
+    //return transMatrix * rotMatrix * scaleMatrix; 
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glMultMatrixf(glm::value_ptr(transMatrix * rotMatrix * scaleMatrix));
+
+    glm::vec3 temp[8] = {
+         glm::vec3(boundingBoxMinLocal.x, boundingBoxMinLocal.y, boundingBoxMinLocal.z),  // V0
+         glm::vec3(boundingBoxMaxLocal.x, boundingBoxMinLocal.y, boundingBoxMinLocal.z),  // V1
+         glm::vec3(boundingBoxMinLocal.x, boundingBoxMaxLocal.y, boundingBoxMinLocal.z),  // V2
+         glm::vec3(boundingBoxMaxLocal.x, boundingBoxMaxLocal.y, boundingBoxMinLocal.z),  // V3
+         glm::vec3(boundingBoxMinLocal.x, boundingBoxMinLocal.y, boundingBoxMaxLocal.z),  // V4
+         glm::vec3(boundingBoxMaxLocal.x, boundingBoxMinLocal.y, boundingBoxMaxLocal.z),  // V5
+         glm::vec3(boundingBoxMinLocal.x, boundingBoxMaxLocal.y, boundingBoxMaxLocal.z),  // V6
+         glm::vec3(boundingBoxMaxLocal.x, boundingBoxMaxLocal.y, boundingBoxMaxLocal.z)   // V7
+    };
+
+    std::copy(std::begin(temp), std::end(temp), corners);
+    
+    // Establecer el color de la bounding box (amarillo)
+    glColor3f(1.0f, 1.0f, 0.0f);
+
+    // Dibujar las 12 aristas de la bounding box usando líneas
+    glBegin(GL_LINES);
+
+    // Parte inferior (aristas del plano minWorld.z)
+    glVertex3fv(glm::value_ptr(corners[0])); glVertex3fv(glm::value_ptr(corners[1])); // V0 ↔ V1
+    glVertex3fv(glm::value_ptr(corners[1])); glVertex3fv(glm::value_ptr(corners[3])); // V1 ↔ V3
+    glVertex3fv(glm::value_ptr(corners[3])); glVertex3fv(glm::value_ptr(corners[2])); // V3 ↔ V2
+    glVertex3fv(glm::value_ptr(corners[2])); glVertex3fv(glm::value_ptr(corners[0])); // V2 ↔ V0
+
+    // Parte superior (aristas del plano maxWorld.z)
+    glVertex3fv(glm::value_ptr(corners[4])); glVertex3fv(glm::value_ptr(corners[5])); // V4 ↔ V5
+    glVertex3fv(glm::value_ptr(corners[5])); glVertex3fv(glm::value_ptr(corners[7])); // V5 ↔ V7
+    glVertex3fv(glm::value_ptr(corners[7])); glVertex3fv(glm::value_ptr(corners[6])); // V7 ↔ V6
+    glVertex3fv(glm::value_ptr(corners[6])); glVertex3fv(glm::value_ptr(corners[4])); // V6 ↔ V4
+
+    // Conexiones verticales (vértices inferiores a los superiores)
+    glVertex3fv(glm::value_ptr(corners[0])); glVertex3fv(glm::value_ptr(corners[4])); // V0 ↔ V4
+    glVertex3fv(glm::value_ptr(corners[1])); glVertex3fv(glm::value_ptr(corners[5])); // V1 ↔ V5
+    glVertex3fv(glm::value_ptr(corners[2])); glVertex3fv(glm::value_ptr(corners[6])); // V2 ↔ V6
+    glVertex3fv(glm::value_ptr(corners[3])); glVertex3fv(glm::value_ptr(corners[7])); // V3 ↔ V7
+
+    glEnd(); // Terminar de dibujar las líneas
+
+    // Restaurar la matriz después de dibujar
+    glPopMatrix();
 }

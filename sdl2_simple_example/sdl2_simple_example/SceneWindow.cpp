@@ -98,6 +98,23 @@ void SceneWindow::updateSceneSize() {
         renderer.createFrameBuffer(framebufferWidth, framebufferHeight);
     }
 }
+glm::mat4 SceneWindow::ProjectionMatrix() { 
+    float aspectRatio = static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.001f, 100.0f); 
+
+    return projection;
+}
+glm::mat4 SceneWindow::ViewMatrix() {
+    glm::vec3 forward = camera.getForwardVector();
+
+    glm::mat4 view = glm::lookAt(
+        -camera.position,
+        -camera.position + forward,
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+
+    return view;
+}
 Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight) {
     console.addLog("Entra funcion getRayFromMouse");
 
@@ -124,25 +141,14 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
     float x = (2.0f * mouseX) / windowWidth - 1.0f;
     float y = 1.0f - (2.0f * mouseY) / windowHeight;
 
-    // Crear la matriz de proyección usando el aspect ratio del framebuffer
-    float aspectRatio = static_cast<float>(framebufferWidth) / static_cast<float>(framebufferHeight);
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.001f, 100.0f);
-
     // Calcular la dirección de la cámara
     /*glm::vec3 forward = glm::normalize(glm::vec3(
         -cos(glm::radians(camera.angleY)) * sin(glm::radians(camera.angleX)),
         -sin(glm::radians(camera.angleY)),
         -cos(glm::radians(camera.angleY)) * cos(glm::radians(camera.angleX))
     ));*/
-    glm::vec3 forward = camera.getForwardVector(); 
 
-    glm::mat4 view = glm::lookAt(
-        -camera.position,
-        -camera.position + forward,
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-
-    glm::mat4 inverseProjectionView = glm::inverse(projection * view);
+    glm::mat4 inverseProjectionView = glm::inverse(ProjectionMatrix() * ViewMatrix());
 
     glm::vec4 clipSpaceNear(x, y, -1.0f, 1.0f);
     glm::vec4 clipSpaceFar(x, y, 1.0f, 1.0f);
