@@ -551,6 +551,7 @@ void MyWindow::createMainMenu() {
                 }
                 ImGui::EndPopup();
             }
+            ImGui::EndPopup();
         }
     }
 }
