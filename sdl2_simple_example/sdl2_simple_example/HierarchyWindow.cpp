@@ -263,7 +263,7 @@ std::vector<GameObject*> HierarchyWindow::getNewObjects(const std::vector<GameOb
 }
 
 void HierarchyWindow::setupInitialHierarchy(std::vector<GameObject*>& gameObjects) {
-    if (gameObjects.empty()) return;
+    if (gameObjects.empty() || gameObjects[0]->fromScene) return;
 
     GameObject* parent = gameObjects[0];
     if (parent->parent) return;

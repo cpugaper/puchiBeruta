@@ -82,6 +82,7 @@ public:
 
     bool active = true;
     bool dynamic = false;
+    bool fromScene = false;
 
     GameObject(const std::string& name, const MeshData& mesh, GLuint texID, const std::string& texPath = "");
 

@@ -79,6 +79,7 @@ void SceneManager::loadScene(const std::string& inputPath, std::vector<GameObjec
             obj->pendingChildUUIDs.clear();
         }
         for (auto obj : gameObjects) {
+			obj->fromScene = true; // Tell HierarchyWindow to don't apply child-parent transforms in scene objects.
             if (obj->parent == nullptr) {
                 obj->updateChildTransforms();
             }
