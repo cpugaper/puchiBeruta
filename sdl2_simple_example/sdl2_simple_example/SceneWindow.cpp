@@ -135,11 +135,12 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
 
     // Calcular la dirección de la cámara
-    glm::vec3 forward = glm::normalize(glm::vec3(
+    /*glm::vec3 forward = glm::normalize(glm::vec3(
         -cos(glm::radians(camera.angleY)) * sin(glm::radians(camera.angleX)),
         -sin(glm::radians(camera.angleY)),
         -cos(glm::radians(camera.angleY)) * cos(glm::radians(camera.angleX))
-    ));
+    ));*/
+    glm::vec3 forward = camera.getForwardVector(); 
 
     glm::mat4 view = glm::lookAt(
         -camera.position,
@@ -166,10 +167,6 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
         std::to_string(mouseX) + ", " +
         std::to_string(mouseY));
 
-    console.addLog("NDC coords: " +
-        std::to_string(x) + ", " +
-        std::to_string(y));
-
     console.addLog("Ray origin: " +
         std::to_string(-camera.position.x) + ", " +
         std::to_string(-camera.position.y) + ", " +
@@ -179,6 +176,12 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
         std::to_string(rayDirection.x) + ", " +
         std::to_string(rayDirection.y) + ", " +
         std::to_string(rayDirection.z));
+
+    console.addLog("Camera rotation: " +
+        std::to_string(camera.angleX) + ", " + 
+        std::to_string(camera.angleY) + ", "); 
+
+    console.addLog("...................");
 
     return Ray(-camera.position, rayDirection);
 }

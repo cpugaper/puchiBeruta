@@ -25,6 +25,8 @@ public:
 	void move(const Uint8* keyboardState);
 
 	void applyCameraTransformations();
+	glm::vec3 getForwardVector();
+	glm::vec3 getRightVector();
 
 	glm::vec3 position; 
 	float angleX, angleY;
