@@ -55,7 +55,7 @@ void Importer::processAssetsToLibrary() {
 
             if (extension == ".fbx") {
                 std::string fileName = entry.path().filename().string();
-                std::string outputPath = "Library\\Models\\" + entry.path().stem().string() + ".dat";
+                std::string outputPath = "Library/Models/" + entry.path().stem().string() + ".dat";
 
                 if (!std::filesystem::exists(outputPath)) {
                     GLuint textureID = 0;
