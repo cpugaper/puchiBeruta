@@ -272,8 +272,9 @@ void MyWindow::selectObject(GameObject* obj) {
     }
 
     console.addLog("Selected objects:");
-    for (GameObject* o : selectedObjects) {
-        console.addLog(("  - " + o->getName()).c_str());
+    for (GameObject* newselectedObject : selectedObjects) {  
+        console.addLog(("  - " + newselectedObject->getName()).c_str()); 
+        selectedObject = newselectedObject;  
     }
 }
 

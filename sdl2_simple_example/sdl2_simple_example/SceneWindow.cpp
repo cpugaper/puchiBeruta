@@ -212,7 +212,6 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
 
     rayoexists = true;
     for (auto& obj : variables->window->gameObjects) {
-        console.addLog("HAY ESTOS OBJETOS EN LA ESCENA: " + obj->getName()); 
         MeshData* meshData = obj->getMeshData();
         if (meshData) {
             for (size_t i = 0; i < meshData->indices.size(); i += 3) {
@@ -232,7 +231,10 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                 float t = 0.0f;
                 if (ray.intersectsTriangle(vertex1, vertex2, vertex3, t)) {
                     variables->window->selectObject(obj);
-                    //console.addLog("Objeto seleccionado: " + variables->window->selectedObject->name);
+                    if (variables->window->selectedObject != nullptr) {
+                        console.addLog("Objeto seleccionado: " + variables->window->selectedObject->name);
+                    }
+                    
                     /* char nameBuffer[256];
                      strncpy_s(nameBuffer, variables->window->selectedObject->name.c_str(), sizeof(nameBuffer) - 1);
                      if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
@@ -240,6 +242,7 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                      }*/
                     console.addLog("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ");
                     variables->window->selectedObjects.push_back(obj);
+                    
                     break;
                 }
             }
