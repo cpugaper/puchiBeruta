@@ -292,12 +292,14 @@ void MyWindow::createMainMenu() {
         }
         if (ImGui::BeginMenu("GameObject")) {
             if (ImGui::MenuItem("Empty Object")) { GameObject::createEmptyObject("Empty", gameObjects); }
+            if (ImGui::MenuItem("Camera Object")) { GameObject::createCameraObject("Camera", gameObjects); }  
             if (ImGui::MenuItem("Sphere")) { GameObject::createPrimitive("Sphere", gameObjects); }
             if (ImGui::MenuItem("Cube")) { GameObject::createPrimitive("Cube", gameObjects); }
             if (ImGui::MenuItem("Cylinder")) { GameObject::createPrimitive("Cylinder", gameObjects); }
             if (ImGui::MenuItem("Cone")) { GameObject::createPrimitive("Cone", gameObjects); }
             if (ImGui::MenuItem("Torus")) { GameObject::createPrimitive("Torus", gameObjects); }
             if (ImGui::MenuItem("Plane")) { GameObject::createPrimitive("Plane", gameObjects); }
+            
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Configuration")) {

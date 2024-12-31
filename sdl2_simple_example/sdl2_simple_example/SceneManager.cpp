@@ -117,7 +117,7 @@ void SceneManager::listAvailableScenes() {
 
 void SceneManager::saveSceneState(std::vector<GameObject*>& gameObjects) {
     initialState.clear(); 
-
+    
     for (auto& gameObject : gameObjects) {
         GameObjectState state;
         state.uuid = gameObject->uuid;

@@ -284,14 +284,14 @@ void Renderer::render(const std::vector<GameObject*>& gameObjects) {
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
 
-       /* obj->RegenerateCorners();*/
+        //obj->RegenerateCorners();
+        obj->DrawVertex(); 
         glPopMatrix();
 
     }
     /*if (sceneWindow.rayoexists) {
         sceneWindow.DrawRay(*sceneWindow.rayo, 1000);
     }*/
-    
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Variables::WINDOW_SIZE.x, Variables::WINDOW_SIZE.y);

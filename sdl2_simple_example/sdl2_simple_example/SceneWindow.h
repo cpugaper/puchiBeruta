@@ -19,6 +19,7 @@ public:
     Ray getRayFromMouse(int mouseX, int mouseY, int screenWidth, int screenHeight);
     void checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight);
     void DrawRay(const Ray& ray, float length);
+   
 
     ImVec2 windowSize;
     ImVec2 windowPos;

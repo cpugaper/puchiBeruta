@@ -60,14 +60,26 @@ void SceneWindow::render() {
     if (activeButton == ActiveButton::Start) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.5f, 1.0f, 1.0f)); 
     }
-    if (ImGui::Button("Start", ImVec2(buttonWidth, 0))) {
-        activeButton = ActiveButton::Start;
-        SimulationManager::simulationManager.startSimulation(variables->window->gameObjects);
-    }
+    
     if (activeButton == ActiveButton::Start) {
         ImGui::PopStyleColor();
     }
+    if (ImGui::Button("Start", ImVec2(buttonWidth, 0)) && activeButton != ActiveButton::Start) { 
+        activeButton = ActiveButton::Start;
+        SimulationManager::simulationManager.startSimulation(variables->window->gameObjects);
+        for (GameObject* obj : variables->window->gameObjects) {
+            if (obj->isCamera) {
+                camera.initPosition = camera.position;
+                camera.initAngleX = camera.angleX;
+                camera.initAngleY = camera.angleY;
+                camera.position = -obj->getPosition();
+                camera.angleX = -obj->getRotation().x;
+                camera.angleY = -obj->getRotation().y;
+                //camera.scale = obj->getScale(); 
+            }
+        }
 
+    }
     ImGui::SameLine();
 
     if (activeButton == ActiveButton::Pause) {
@@ -86,14 +98,25 @@ void SceneWindow::render() {
     if (activeButton == ActiveButton::Stop) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.5f, 1.0f, 1.0f)); 
     }
-    if (ImGui::Button("Stop", ImVec2(buttonWidth, 0))) {
-        activeButton = ActiveButton::Stop;
-        SimulationManager::simulationManager.stopSimulation(variables->window->gameObjects);
-    }
+    
     if (activeButton == ActiveButton::Stop) {
         ImGui::PopStyleColor();
     }
 
+    if (ImGui::Button("Stop", ImVec2(buttonWidth, 0))) {
+        activeButton = ActiveButton::Stop;
+        SimulationManager::simulationManager.stopSimulation(variables->window->gameObjects);
+        for (GameObject* obj : variables->window->gameObjects) {
+            if (obj->isCamera) {
+                camera.position = camera.initPosition;
+                camera.angleX = camera.initAngleX;
+                camera.angleY = camera.initAngleY;
+
+                /*camera.angleX = obj->getRotation();
+                camera.scale = obj->getScale(); */
+            }
+        }
+    }
     ImGui::End();
 
     updateSceneSize();
@@ -239,6 +262,7 @@ void SceneWindow::DrawRay(const Ray& ray, float length) {
 
     glPopMatrix();
 }
+
 // M�todo que verifica si el rayo interseca con alg�n objeto en la escena
 void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int screenHeight) {
     Ray ray = getRayFromMouse(mouseX, mouseY, screenWidth, screenHeight);
@@ -247,6 +271,9 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
     rayo->direction = ray.direction;
 
     rayoexists = true;
+
+    //selectedVertices.clear();
+
     for (auto& obj : variables->window->gameObjects) {
         MeshData* meshData = obj->getMeshData();
         if (meshData) {
@@ -276,6 +303,12 @@ void SceneWindow::checkRaycast(int mouseX, int mouseY, int screenWidth, int scre
                      if (ImGui::InputText("Object Name", nameBuffer, sizeof(nameBuffer))) {
                          variables->window->selectedObject->name = std::string(nameBuffer);
                      }*/
+
+                    // // Almacenar los vértices de los triángulos seleccionados
+                    //selectedVertices.push_back(vertex1);
+                    //selectedVertices.push_back(vertex2);
+                    //selectedVertices.push_back(vertex3);
+
                     variables->window->selectedObjects.push_back(obj);
                     
                     break;

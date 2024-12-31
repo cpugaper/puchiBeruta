@@ -32,6 +32,10 @@ public:
 
 	glm::vec3 position; 
 	float angleX, angleY;
+
+	glm::vec3 initPosition;
+	float initAngleX;
+	float initAngleY;
 	//float objectAngleX, objectAngleY;
 private:
 
@@ -47,7 +51,7 @@ private:
 	}*/
 
 	glm::vec4 leftPlaneFrustrum;
-	glm::vec4  rightPlaneFrustrum;
+	glm::vec4 rightPlaneFrustrum;
 	glm::vec4 bottomPlaneFrustrum;
 	glm::vec4 topPlaneFrustrum;
 	glm::vec4 nearPlaneFrustrum;

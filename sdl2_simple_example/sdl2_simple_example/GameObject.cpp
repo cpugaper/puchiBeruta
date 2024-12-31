@@ -191,6 +191,65 @@ void GameObject::createEmptyObject(const std::string& name, std::vector<GameObje
     console.addLog("Empty object created");
 }
 
+void GameObject::createCameraObject(const std::string& name, std::vector<GameObject*>& gameObjects) {
+    MeshData emptyMeshData;
+    GLuint emptyTextureID = 0;
+    GameObject* emptyObject = new GameObject(name, emptyMeshData, emptyTextureID);
+
+    emptyObject->isCamera = true;
+
+    gameObjects.push_back(emptyObject);
+    SimulationManager::simulationManager.trackObject(emptyObject);
+    console.addLog("Camera object created");
+
+    //emptyObject->RegenerateCorners();
+
+    // Llamamos al método para dibujar la bounding box en el origen (0, 0, 0)
+    emptyObject->DrawBoundingBox();
+}
+void GameObject::DrawBoundingBox() {
+    glPushMatrix();  // Guardamos el estado actual de la matriz de transformación
+
+    // Posicionamos el cubo en el origen (0, 0, 0)
+    glTranslatef(0.0f, 0.0f, 0.0f);  // Esto no mueve el cubo porque ya está en (0, 0, 0)
+
+    glColor3f(1.0f, 0.0f, 0.0f);  // Color rojo para el cubo
+
+    glBegin(GL_LINES);  // Empezamos a dibujar líneas
+
+    // Definimos los vértices del cubo (tamaño 1)
+    float size = 1.0f;  // Tamaño del cubo
+
+    // Vértices del cubo
+    glm::vec3 v0(-size / 2, -size / 2, -size / 2);
+    glm::vec3 v1(size / 2, -size / 2, -size / 2);
+    glm::vec3 v2(size / 2, size / 2, -size / 2);
+    glm::vec3 v3(-size / 2, size / 2, -size / 2);
+    glm::vec3 v4(-size / 2, -size / 2, size / 2);
+    glm::vec3 v5(size / 2, -size / 2, size / 2);
+    glm::vec3 v6(size / 2, size / 2, size / 2);
+    glm::vec3 v7(-size / 2, size / 2, size / 2);
+
+    // Dibujamos las 12 líneas del cubo (conectando los vértices)
+    glVertex3f(v0.x, v0.y, v0.z); glVertex3f(v1.x, v1.y, v1.z);  // Línea 1
+    glVertex3f(v1.x, v1.y, v1.z); glVertex3f(v2.x, v2.y, v2.z);  // Línea 2
+    glVertex3f(v2.x, v2.y, v2.z); glVertex3f(v3.x, v3.y, v3.z);  // Línea 3
+    glVertex3f(v3.x, v3.y, v3.z); glVertex3f(v0.x, v0.y, v0.z);  // Línea 4
+
+    glVertex3f(v4.x, v4.y, v4.z); glVertex3f(v5.x, v5.y, v5.z);  // Línea 5
+    glVertex3f(v5.x, v5.y, v5.z); glVertex3f(v6.x, v6.y, v6.z);  // Línea 6
+    glVertex3f(v6.x, v6.y, v6.z); glVertex3f(v7.x, v7.y, v7.z);  // Línea 7
+    glVertex3f(v7.x, v7.y, v7.z); glVertex3f(v4.x, v4.y, v4.z);  // Línea 8
+
+    glVertex3f(v0.x, v0.y, v0.z); glVertex3f(v4.x, v4.y, v4.z);  // Línea 9
+    glVertex3f(v1.x, v1.y, v1.z); glVertex3f(v5.x, v5.y, v5.z);  // Línea 10
+    glVertex3f(v2.x, v2.y, v2.z); glVertex3f(v6.x, v6.y, v6.z);  // Línea 11
+    glVertex3f(v3.x, v3.y, v3.z); glVertex3f(v7.x, v7.y, v7.z);  // Línea 12
+
+    glEnd();  // Terminamos de dibujar las líneas
+
+    glPopMatrix();  // Restauramos el estado de la matriz de transformación
+}
 glm::mat4 GameObject::getTransformMatrix() const {
     glm::mat4 transform = glm::mat4(1.0f);
     transform = glm::translate(transform, position);
@@ -267,10 +326,26 @@ void GameObject::BoundingBoxGeneration() {
 
     RegenerateCorners();
 }
+void GameObject::DrawVertex() {
+    console.addLog("Entra en la funcion de dibujar los vertices");
+    if (!selectedVertices.empty()) {
+        console.addLog("vertices seleccionados no esta vacio");
+        glPointSize(5.0f);  // Tamaño del punto
+        glBegin(GL_POINTS);  // Empezamos a dibujar puntos
+
+        glColor3f(82.0f, 183.0f, 136.0f);  // Color verde
+        for (const glm::vec3& vertex : selectedVertices) {
+            glVertex3f(vertex.x, vertex.y, vertex.z);  // Dibujar cada vértice
+        }
+
+        glEnd();  // Terminamos de dibujar los puntos
+    }
+    else { console.addLog("vertices seleccionados esta vacio"); }
+}
 
 void GameObject::RegenerateCorners()
 {
-    rotation = glm::radians(rotation);
+    //rotation = glm::radians(rotation); 
 
     glm::mat4 transMatrix = glm::translate(glm::mat4(1.0f), position);
     glm::mat4 rotMatrix = glm::mat4(1.0f);

@@ -19,7 +19,6 @@ bool areNormalsEqual(const glm::vec3& n1, const glm::vec3& n2, float epsilon = 0
 void InspectorWindow::render(GameObject* selectedObject) {
     ImGui::Begin("Inspector", nullptr);
     if (selectedObject) {
-        //GameObject* selectedObject = variables->window->selectedObject;
         if (ImGui::CollapsingHeader("Object Info")) {
             if (ImGui::Checkbox("Is Dynamic", &selectedObject->dynamic)) {
                 if (selectedObject->dynamic) {
@@ -81,80 +80,82 @@ void InspectorWindow::render(GameObject* selectedObject) {
                 ImGui::Text("Object is deactivated and cannot be modified");
             }
         }
+        if (!selectedObject->isCamera) {
+            //GameObject* selectedObject = variables->window->selectedObject;
+            MeshData* meshData = selectedObject->getMeshData();
+            if (meshData) {
+                if (ImGui::CollapsingHeader("Mesh Information")) {
+                    ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);
+                    ImGui::Text("Indices: %d", meshData->indices.size() / 3);
 
-        MeshData* meshData = selectedObject->getMeshData();
-        if (meshData) {
-            if (ImGui::CollapsingHeader("Mesh Information")) {
-                ImGui::Text("Vertices: %d", meshData->vertices.size() / 3);
-                ImGui::Text("Indices: %d", meshData->indices.size() / 3);
+                    if (ImGui::CollapsingHeader("Show Normals")) {
+                        if (meshData->vertices.size() / 3 > 0) {
+                            std::unordered_map<std::string, TriangleFace> faces;
+                            ImGui::Text("---Triangle Normals---");
+                            for (size_t i = 0; i < meshData->indices.size(); i += 3) {
+                                glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
+                                glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
+                                glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
 
-                if (ImGui::CollapsingHeader("Show Normals")) {
-                    if (meshData->vertices.size() / 3 > 0) {
-                        std::unordered_map<std::string, TriangleFace> faces;
-                        ImGui::Text("---Triangle Normals---");
-                        for (size_t i = 0; i < meshData->indices.size(); i += 3) {
-                            glm::vec3 vertex1 = glm::vec3(meshData->vertices[meshData->indices[i] * 3], meshData->vertices[meshData->indices[i] * 3 + 1], meshData->vertices[meshData->indices[i] * 3 + 2]);
-                            glm::vec3 vertex2 = glm::vec3(meshData->vertices[meshData->indices[i + 1] * 3], meshData->vertices[meshData->indices[i + 1] * 3 + 1], meshData->vertices[meshData->indices[i + 1] * 3 + 2]);
-                            glm::vec3 vertex3 = glm::vec3(meshData->vertices[meshData->indices[i + 2] * 3], meshData->vertices[meshData->indices[i + 2] * 3 + 1], meshData->vertices[meshData->indices[i + 2] * 3 + 2]);
+                                glm::vec3 edge1 = vertex2 - vertex1;
+                                glm::vec3 edge2 = vertex3 - vertex1;
+                                glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
 
-                            glm::vec3 edge1 = vertex2 - vertex1;
-                            glm::vec3 edge2 = vertex3 - vertex1;
-                            glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+                                ImGui::Text("Triangle %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
 
-                            ImGui::Text("Triangle %d Normal: %.3f, %.3f, %.3f", i / 3, faceNormal.x, faceNormal.y, faceNormal.z);
+                                std::string normalKey = std::to_string(faceNormal.x) + "," + std::to_string(faceNormal.y) + "," + std::to_string(faceNormal.z);
 
-                            std::string normalKey = std::to_string(faceNormal.x) + "," + std::to_string(faceNormal.y) + "," + std::to_string(faceNormal.z);
+                                bool found = false;
+                                for (auto& pair : faces) {
+                                    if (areNormalsEqual(pair.second.normal, faceNormal)) {
+                                        pair.second.triangleIndices.push_back(i / 3);
+                                        found = true;
+                                        break;
+                                    }
+                                }
 
-                            bool found = false;
-                            for (auto& pair : faces) {
-                                if (areNormalsEqual(pair.second.normal, faceNormal)) {
-                                    pair.second.triangleIndices.push_back(i / 3);
-                                    found = true;
-                                    break;
+                                if (!found) {
+                                    faces[normalKey] = TriangleFace{ faceNormal, {i / 3} };
                                 }
                             }
-
-                            if (!found) {
-                                faces[normalKey] = TriangleFace{ faceNormal, {i / 3} };
-                            }
-                        }
-                        ImGui::Separator();
-                        ImGui::Text("---Face Normals---");
-                        for (const auto& faceEntry : faces) {
-                            const TriangleFace& face = faceEntry.second;
-                            ImGui::Text("Face Normal: %.3f, %.3f, %.3f", face.normal.x, face.normal.y, face.normal.z);
-                            for (int triangleIndex : face.triangleIndices) {
-                                ImGui::Text("  Triangle Index: %d", triangleIndex);
+                            ImGui::Separator();
+                            ImGui::Text("---Face Normals---");
+                            for (const auto& faceEntry : faces) {
+                                const TriangleFace& face = faceEntry.second;
+                                ImGui::Text("Face Normal: %.3f, %.3f, %.3f", face.normal.x, face.normal.y, face.normal.z);
+                                for (int triangleIndex : face.triangleIndices) {
+                                    ImGui::Text("  Triangle Index: %d", triangleIndex);
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
+            } 
 
         if (ImGui::CollapsingHeader("Texture Information")) {
             ImGui::TextWrapped("Object Path: %s", selectedObject->texturePath.c_str());
 
-            importer.getTextureDimensions(selectedObject->textureID, variables->texturewidth, variables->textureheight);
-            ImGui::Text("Texture Dimensions: %d x %d", variables->texturewidth, variables->textureheight);
+                importer.getTextureDimensions(selectedObject->textureID, variables->texturewidth, variables->textureheight);
+                ImGui::Text("Texture Dimensions: %d x %d", variables->texturewidth, variables->textureheight);
 
-            if (selectedObject->textureID != 0) {
-                ImGui::Separator();
-                ImGui::Text("Object Texture:");
-                ImVec2 textureSize(variables->texturewidth, variables->textureheight);
-                ImGui::Image((void*)(intptr_t)selectedObject->textureID, ImVec2(150, 150), ImVec2(0, 1), ImVec2(1, 0));
-            }
-            else {
-                ImGui::Text("No texture assigned");
-            }
+                if (selectedObject->textureID != 0) {
+                    ImGui::Separator();
+                    ImGui::Text("Object Texture:");
+                    ImVec2 textureSize(variables->texturewidth, variables->textureheight);
+                    ImGui::Image((void*)(intptr_t)selectedObject->textureID, ImVec2(150, 150), ImVec2(0, 1), ImVec2(1, 0));
+                }
+                else {
+                    ImGui::Text("No texture assigned");
+                }
 
-            if (ImGui::Button("Checker Texture")) {
-                GLuint newTextureID = importer.loadTexture(variables->checkerTexture);
-                variables->window->selectedObject->textureID = newTextureID;
+                if (ImGui::Button("Checker Texture")) {
+                    GLuint newTextureID = importer.loadTexture(variables->checkerTexture);
+                    variables->window->selectedObject->textureID = newTextureID;
 
-                variables->textureFilePath = variables->checkerTexture;
+                    variables->textureFilePath = variables->checkerTexture;
+                }
             }
-        }
+        }        
     }
     ImGui::End();
 }

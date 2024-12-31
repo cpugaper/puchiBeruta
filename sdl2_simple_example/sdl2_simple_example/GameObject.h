@@ -56,6 +56,7 @@ public:
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
+    bool isCamera = false;
 
     MeshData meshData;
     GLuint textureID;
@@ -101,6 +102,9 @@ public:
 
     static void createPrimitive(const std::string& primitiveType, std::vector<GameObject*>& gameObjects);
     static void createEmptyObject(const std::string& name, std::vector<GameObject*>& gameObjects);
+    static void createCameraObject(const std::string& name, std::vector<GameObject*>& gameObjects);
+    void DrawBoundingBox();
+    static void createDynamicObject(const std::string& name, std::vector<GameObject*>& gameObjects);
     glm::mat4 getTransformMatrix() const;
 
     const std::string& getName() const { return name; }
@@ -118,6 +122,9 @@ public:
     glm::vec3 boundingBoxMinLocal;
     glm::vec3 boundingBoxMaxLocal;
     glm::vec3 corners[8];
+
+    void DrawVertex();
+    std::vector<glm::vec3>  selectedVertices;
 
     void setTexture(const std::string& path, GLuint texID);
     void loadTextureFromPath();
