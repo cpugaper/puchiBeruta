@@ -136,9 +136,9 @@ Ray SceneWindow::getRayFromMouse(int mouseX, int mouseY, int screenWidth, int sc
 
     // Calcular la dirección de la cámara
     glm::vec3 forward = glm::normalize(glm::vec3(
-        -cos(glm::radians(camera.objectAngleY)) * sin(glm::radians(camera.objectAngleX)),
-        -sin(glm::radians(camera.objectAngleY)),
-        -cos(glm::radians(camera.objectAngleY)) * cos(glm::radians(camera.objectAngleX))
+        -cos(glm::radians(camera.angleY)) * sin(glm::radians(camera.angleX)),
+        -sin(glm::radians(camera.angleY)),
+        -cos(glm::radians(camera.angleY)) * cos(glm::radians(camera.angleX))
     ));
 
     glm::mat4 view = glm::lookAt(

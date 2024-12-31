@@ -11,7 +11,7 @@ Camera camera;
 extern SceneWindow sceneWindow;
 
 // Initializes variables related to the position and movement of the camera
-Camera::Camera() : position(0.0f, -0.0f, -0.0f), angleX(0.0f), angleY(0.0f), objectAngleX(0.0f), objectAngleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
+Camera::Camera() : position(0.0f, -0.0f, -0.0f), angleX(0.0f), angleY(0.0f), speed(0.1f), altPressed(false), shiftPressed(false), isLeftMouseDragging(false), isRightMouseDragging(false) {}
 
 // Resets the camera's position and orientation based on the selected object
 void Camera::reset() {
@@ -21,7 +21,7 @@ void Camera::reset() {
         position.y -= 1;
         position.z -= 10;
         angleX = angleY = 0.0f;
-        objectAngleX = objectAngleY = 0.0f;
+        //objectAngleX = objectAngleY = 0.0f;
         speed = 0.1f;
         console.addLog(("Camera reset to object: " + obj->getName()).c_str());
     }
@@ -62,8 +62,8 @@ void Camera::processMouseMotion(const SDL_MouseMotionEvent& motion) {
         int deltaX = motion.x - lastMouseX;
         int deltaY = motion.y - lastMouseY;
 
-        objectAngleY += deltaX * 0.1f;
-        objectAngleX += deltaY * 0.1f;
+        angleX += deltaX * 0.1f;
+        angleY += deltaY * 0.1f;
         lastMouseX = motion.x;
         lastMouseY = motion.y;
     }
@@ -120,6 +120,6 @@ void Camera::applyCameraTransformations() {
     glRotatef(angleY, 1.0f, 0.0f, 0.0f);
     glRotatef(angleX, 0.0f, 1.0f, 0.0f);
     glTranslatef(position.x, position.y, position.z);
-    glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
-    glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f);
+    //glRotatef(objectAngleX, 1.0f, 0.0f, 0.0f);
+    //glRotatef(objectAngleY, 0.0f, 1.0f, 0.0f);
 }

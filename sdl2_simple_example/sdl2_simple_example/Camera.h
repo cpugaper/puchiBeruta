@@ -28,7 +28,7 @@ public:
 
 	glm::vec3 position; 
 	float angleX, angleY;
-	float objectAngleX, objectAngleY;
+	//float objectAngleX, objectAngleY;
 private:
 
 	float speed;
