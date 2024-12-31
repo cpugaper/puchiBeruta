@@ -73,11 +73,23 @@ int main(int argc, char** argv) {
 	//	importer.saveScene(sceneFile, meshes);
 	//}
 
+	std::string texturePath = "sdl2_simple_example\\Library\\Textures\\streetEnv.texdat";
+
+	if (std::filesystem::exists(texturePath)) {
+		textureID = importer.loadTextureFromCustomFormat(texturePath); 
+		console.addLog("Texture loaded from custom format: " + texturePath);
+	}
+	else {
+		console.addLog("Texture not found for: " + texturePath);
+		textureID = 0; 
+	}
+
+
 	meshes = importer.loadModelFromCustomFormat("sdl2_simple_example\\Library\\Models\\streetEnv.dat", textureID);
 
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		std::string objectName = renderer.getFileName("sdl2_simple_example\\Library\\Models\\streetEnv.dat") + "_" + std::to_string(i);
-		auto casa = new GameObject(objectName, meshes[i], 0);
+		auto casa = new GameObject(objectName, meshes[i], textureID, texturePath);
 		variables->window->gameObjects.push_back(casa);
 	}
 	auto previousTime = hrclock::now();

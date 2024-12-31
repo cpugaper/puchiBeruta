@@ -25,6 +25,7 @@ GameObject::GameObject(const std::string& name, const MeshData& mesh, GLuint tex
     , parent(nullptr)
     , movementState(MovementState::Stopped)
     , active(true) {
+    setTexture(texPath, texID);
     initialPosition = position;
     initialRotation = rotation;
     initialScale = scale;
